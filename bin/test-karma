@@ -1,0 +1,2 @@
+#!/bin/bash
+karma start test/karma.config.js

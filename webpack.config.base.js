@@ -1,0 +1,22 @@
+const webpack = require('webpack');
+
+module.exports = {
+  module: {
+    loaders: [{
+      test: /\.js$/,
+      loader: 'babel-loader',
+      exclude: /node_modules/,
+      query: {
+        presets: ['es2015']
+      }
+    }]
+  },
+  output: {
+    library: 'DraftConvert',
+    libraryTarget: 'umd'
+  },
+  externals: {
+    'draft-js': 'Draft',
+    'immutable': 'Immutable'
+  }
+};

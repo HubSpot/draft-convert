@@ -1,0 +1,5 @@
+#!/bin/bash
+webpack \
+  --config webpack.config.development.js \
+  ./index.js \
+  ./build/draft-convert.js
