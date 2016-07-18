@@ -47,6 +47,27 @@ describe('convertToHTML', () => {
     expect(result).toBe('<p></p>');
   });
 
+  it('uses empty state for an empty block', () => {
+    const contentState = buildContentState([
+      {
+        type: 'unstyled',
+        text: ''
+      }
+    ]);
+
+    const result = convertToHTML({
+      blockToHTML: {
+        'unstyled': {
+          start: '<p>',
+          end: '</p>',
+          empty: '<br>'
+        }
+      }
+    })(contentState);
+
+    expect(result).toBe('<br>');
+  });
+
   it('applies inline styles to a block', () => {
     const contentState = buildContentState([
       {
