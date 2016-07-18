@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "build": "./bin/build",
-    "test": "./bin/test"
+    "test": "./bin/test",
+    "prepublish": "npm run build"
   },
   "keywords": [
     "draft",
