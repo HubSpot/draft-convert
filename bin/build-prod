@@ -1,5 +1,0 @@
-#!/bin/bash
-webpack \
-  --config webpack.config.production.js \
-  ./index.js \
-  ./build/draft-convert.min.js
