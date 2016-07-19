@@ -1,6 +1,7 @@
 # draft-convert
 *Extensibly serialize & deserialize [Draft.js](http://draftjs.org) content with HTML*
-*See draft-extend for more on how to use draft-convert with plugins*
+
+*See [draft-extend](http://github.com/HubSpot/draft-extend) for more on how to use draft-convert with plugins*
 
 Jump to:
 - [convertToHTML](#converttohtml)
