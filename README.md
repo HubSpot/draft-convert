@@ -27,7 +27,8 @@ const html = convertToHTML({
     blockToHTML: {
         'PARAGRAPH': {
             start: '<p>',
-            end: '</p>'
+            end: '</p>',
+            empty: '<br>'
         }
     },
     entityToHTML: (entity, originalText) => {
@@ -48,14 +49,15 @@ const html = compose(
 ```
 
 `styleToHTML` and `blockToHtml` are objects keyed by `DraftInlineStyle` and `DraftBlockType` respectively and map
-to beginning and ending tags to use. Both extend upon defaults that support the default style and block types. If no additional functionality is necessary `convertToHTML` can be invoked with just a `ContentState` to serialize using just the default Draft functionality. `convertToHTML` can be passed as an argument to a plugin to modularly augment its functionality.
+to beginning and ending tags to use. Blocks also have an optional `empty` property to handle alternative behavior for empty blocks. Both extend upon defaults that support the default style and block types. If no additional functionality is necessary `convertToHTML` can be invoked with just a `ContentState` to serialize using just the default Draft functionality. `convertToHTML` can be passed as an argument to a plugin to modularly augment its functionality.
 
 **Type info:**
 ```
 type TagObject = {
     [key: string]: {
         start: string,
-        end: string
+        end: string,
+        empty?: string
     }
 }
 

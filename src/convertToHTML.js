@@ -76,7 +76,12 @@ const convertToHTML = ({
       ),
       styleToHTML
     );
-    const html = blockHTML[type].start + innerHTML + blockHTML[type].end;
+
+    let html = blockHTML[type].start + innerHTML + blockHTML[type].end;
+    if (innerHTML.length === 0 && blockHTML[type].hasOwnProperty('empty')) {
+      html = blockHTML[type].empty;
+    }
+
     return closeNestTags + openNestTags + html;
   }).join('');
 
