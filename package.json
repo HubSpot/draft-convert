@@ -3,6 +3,7 @@
   "version": "1.0.2",
   "description": "Extensibly serialize & deserialize Draft.js ContentState",
   "main": "index.js",
+  "repository": "HubSpot/draft-convert",
   "scripts": {
     "build": "./bin/build",
     "test": "./bin/test",
