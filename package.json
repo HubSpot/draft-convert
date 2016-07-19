@@ -9,6 +9,9 @@
     "test": "./bin/test",
     "prepublish": "npm run build"
   },
+  "files": [
+    "build"
+  ],
   "keywords": [
     "draft",
     "draftjs",
@@ -16,6 +19,7 @@
     "convert"
   ],
   "author": "bbriggs@hubspot.com",
+  "license": "Apache-2.0",
   "peerDependencies": {
     "react": "^15.0.2",
     "react-dom": "^15.0.2"
