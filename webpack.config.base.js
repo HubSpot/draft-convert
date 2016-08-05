@@ -13,7 +13,7 @@ module.exports = {
     libraryTarget: 'umd'
   },
   externals: {
-    'draft-js': 'Draft',
+    'draft-js': 'DraftPublic',
     'immutable': 'Immutable'
   }
 };
