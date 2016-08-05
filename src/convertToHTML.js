@@ -1,6 +1,6 @@
 // import Immutable from 'immutable'; // eslint-disable-line no-unused-vars
 import invariant from 'invariant';
-import {convertToRaw} from 'draft-js';
+import { convertToRaw as draftConvertToRaw } from 'draft-js';
 import encodeBlock from './encodeBlock';
 import convertEntity from './convertEntity';
 import blockInnerHTML from './blockInnerHTML';
@@ -18,7 +18,8 @@ const defaultEntityToHTML = (entity, originalText) => {
 const convertToHTML = ({
   styleToHTML = {},
   blockToHTML = {},
-  entityToHTML = defaultEntityToHTML
+  entityToHTML = defaultEntityToHTML,
+  convertToRaw = draftConvertToRaw,
 }) => (contentState) => {
   invariant(
     contentState !== null && contentState !== undefined,

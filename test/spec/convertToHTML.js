@@ -284,4 +284,40 @@ describe('convertToHTML', () => {
     }})(contentState);
     expect(result).toBe('<p>t<a>e&lt;&amp;&gt;s</a><strong>t</strong></p>')
   });
+
+  it('uses the optional convertToRaw function', () => {
+    const mockRaw = {
+      blocks: [
+        {
+          depth: 0,
+          entityRanges: [{key: 0, length: 6, offset: 5}],
+          inlineEntityRanges: [],
+          inlineStyleRanges: [],
+          key: '2er96',
+          text: 'Test entity',
+          type: 'unstyled'
+        }
+      ],
+      entityMap: {
+        0: {
+          data: {
+            id: 'test-entity-id'
+          },
+          mutability: 'IMMUTABLE',
+          type: 'VARIABLE'
+        }
+      }
+    };
+
+    const result = convertToHTML({
+      entityToHTML: (entity, originalText) => {
+        if (entity.type === 'VARIABLE') {
+          return `<variable data-id="${entity.data.id}">${originalText}</variable>`;
+        }
+        return originalText;
+      },
+      convertToRaw: (contentState) => mockRaw
+    })({});
+    expect(result).toEqual('<p>Test <variable data-id="test-entity-id">entity</variable></p>')
+  });
 });
