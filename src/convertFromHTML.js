@@ -405,7 +405,9 @@ function genFragment(
       blockTags.indexOf(nodeName) >= 0 &&
       inBlock
     ) {
-      chunk = joinChunks(chunk, getSoftNewlineChunk(getBlockTypeForTag(nodeName, lastList), depth));
+      const newBlockType = checkBlockType(nodeName, node, lastList, inBlock) || getBlockTypeForTag(nodeName, lastList);
+
+      chunk = joinChunks(chunk, getSoftNewlineChunk(newBlockType, depth));
     }
     if (sibling) {
       nodeName = sibling.nodeName.toLowerCase();
