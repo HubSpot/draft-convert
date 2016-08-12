@@ -13,6 +13,10 @@ describe('convertFromHTML', () => {
   const toContentState = html => {
     return convertFromHTML({
       htmlToBlock: (nodeName, node, lastList, inBlock) => {
+        if ((nodeName === 'p' || nodeName === 'div') && inBlock === 'blockquote') {
+          return 'blockquote';
+        }
+
         if (nodeName === 'figure' && node.firstChild.nodeName === 'IMG' || (nodeName === 'img' && inBlock !== 'atomic')) {
           return 'atomic';
         }
@@ -316,5 +320,12 @@ describe('convertFromHTML', () => {
     expect(contentState.getPlainText()).toBe('test&');
     const resultHTML = convertToHTML(contentState);
     expect(resultHTML).toBe(html);
+  });
+  it('handles nested blocks in blockquote', () => {
+    const html = '<blockquote><p>test</p><p>test</p></blockquote>';
+    const contentState = toContentState(html);
+    contentState.getBlocksAsArray().forEach((block) => {
+      expect(block.getType()).toBe('blockquote');
+    });
   });
 });
