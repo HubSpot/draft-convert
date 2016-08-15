@@ -1,6 +1,6 @@
-import convertEntity from '../../src/convertEntity';
-import blockInnerHTML from '../../src/blockInnerHTML';
-import {convertFromRaw, convertToRaw, ContentState} from 'draft-js';
+import blockEntities from '../../src/blockEntities';
+import blockInlineStyles from '../../src/blockInlineStyles';
+import {convertFromRaw, convertToRaw} from 'draft-js';
 
 const buildRawBlock = (text, entityMap = {}, styleRanges = [], entityRanges = []) => {
   return convertToRaw(convertFromRaw({
@@ -18,10 +18,10 @@ const buildRawBlock = (text, entityMap = {}, styleRanges = [], entityRanges = []
   })).blocks[0];
 };
 
-describe('convertEntity', () => {
+describe('blockEntities', () => {
   it('returns an empty string when no text is given', () => {
-    const result = blockInnerHTML(
-      convertEntity(
+    const result = blockInlineStyles(
+      blockEntities(
         buildRawBlock('', [])
       )
     );
@@ -44,8 +44,8 @@ describe('convertEntity', () => {
       offset: 0,
       length: 4
     }]);
-    const result = blockInnerHTML(
-      convertEntity(
+    const result = blockInlineStyles(
+      blockEntities(
         contentState,
         entityMap,
         (entity, originalText) => {
@@ -79,8 +79,8 @@ describe('convertEntity', () => {
         length: 8
       }
     ]);
-    const result = blockInnerHTML(
-      convertEntity(
+    const result = blockInlineStyles(
+      blockEntities(
         contentState,
         entityMap,
         (entity, originalText) => {
@@ -119,8 +119,8 @@ describe('convertEntity', () => {
       }
     ]);
 
-    const result = blockInnerHTML(
-      convertEntity(
+    const result = blockInlineStyles(
+      blockEntities(
         contentState,
         entityMap,
         (entity, originalText) => {
@@ -163,8 +163,8 @@ describe('convertEntity', () => {
         }
       ]
     );
-    const result = blockInnerHTML(
-      convertEntity(
+    const result = blockInlineStyles(
+      blockEntities(
         contentState,
         entityMap,
         (entity, originalText) => {
@@ -207,8 +207,8 @@ describe('convertEntity', () => {
         }
       ]
     );
-    const result = blockInnerHTML(
-      convertEntity(
+    const result = blockInlineStyles(
+      blockEntities(
         contentState,
         entityMap,
         (entity, originalText) => {
@@ -251,8 +251,8 @@ describe('convertEntity', () => {
         }
       ]
     );
-    const result = blockInnerHTML(
-      convertEntity(
+    const result = blockInlineStyles(
+      blockEntities(
         contentState,
         entityMap,
         (entity, originalText) => {
@@ -301,8 +301,8 @@ describe('convertEntity', () => {
       ]
     );
 
-    const result = blockInnerHTML(
-      convertEntity(
+    const result = blockInlineStyles(
+      blockEntities(
         contentState,
         entityMap,
         (entity, originalText) => {

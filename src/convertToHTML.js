@@ -2,8 +2,8 @@
 import invariant from 'invariant';
 import {convertToRaw} from 'draft-js';
 import encodeBlock from './encodeBlock';
-import convertEntity from './convertEntity';
-import blockInnerHTML from './blockInnerHTML';
+import blockEntities from './blockEntities';
+import blockInlineStyles from './blockInlineStyles';
 import defaultBlockHTML from './default/defaultBlockHTML';
 
 const NESTED_BLOCK_TYPES = [
@@ -66,8 +66,8 @@ const convertToHTML = ({
       }
     }
 
-    const innerHTML = blockInnerHTML(
-      convertEntity(
+    const innerHTML = blockInlineStyles(
+      blockEntities(
         encodeBlock(
           block
         ),
