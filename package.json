@@ -9,10 +9,12 @@
     "build:commonjs": "BABEL_ENV=commonjs babel src --out-dir lib",
     "build:umd": "webpack --config webpack.config.development.js ./src/index.js ./dist/draft-convert.js",
     "build:umd:min": "webpack --config webpack.config.production.js ./src/index.js ./dist/draft-convert.min.js",
+    "test-once": "npm run test-once:karma",
     "test": "npm run test:karma",
-    "test:karma": "karma start test/karma.config.js --single-run",
+    "test:karma": "karma start test/karma.config.js",
+    "test-once:karma": "karma start test/karma.config.js --single-run",
     "clean": "rm -rf ./dist && rm -rf ./lib",
-    "build-and-test": "npm run clean && npm run build && npm test",
+    "build-and-test": "npm run clean && npm run build && npm test-once",
     "prepublish": "npm run build-and-test"
   },
   "files": [
