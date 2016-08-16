@@ -17,9 +17,20 @@ describe('convertFromHTML', () => {
           return 'blockquote';
         }
 
-        if (nodeName === 'figure' && node.firstChild.nodeName === 'IMG' || (nodeName === 'img' && inBlock !== 'atomic')) {
+        if (nodeName === 'figure' && node.firstChild.nodeName === 'IMG') {
+          return {
+            type: 'atomic',
+            data: {
+              atomicType: 'image',
+              src: node.firstChild.getAttribute('src')
+            }
+          };
+        }
+
+        if (nodeName === 'img' && inBlock !== 'atomic') {
           return 'atomic';
         }
+
         if (nodeName === 'header') {
           return 'header';
         }
@@ -315,17 +326,27 @@ describe('convertFromHTML', () => {
   });
 
   it('unescapes HTML encoded characters in text and converts them back', () => {
-    const html = '<p>test&amp;</p>'
+    const html = '<p>test&amp;</p>';
     const contentState = toContentState(html);
     expect(contentState.getPlainText()).toBe('test&');
     const resultHTML = convertToHTML(contentState);
     expect(resultHTML).toBe(html);
   });
+
   it('handles nested blocks in blockquote', () => {
     const html = '<blockquote><p>test</p><p>test</p></blockquote>';
     const contentState = toContentState(html);
     contentState.getBlocksAsArray().forEach((block) => {
       expect(block.getType()).toBe('blockquote');
     });
+  });
+
+  it('handles and persists block metadata', () => {
+    const html = '<figure><img src="testimage"></figure>';
+    const contentState = toContentState(html);
+    const block = contentState.getBlocksAsArray()[0];
+    expect(block.getType()).toBe('atomic');
+    expect(block.getData().get('atomicType')).toBe('image');
+    expect(block.getData().get('src')).toBe('testimage');
   });
 });

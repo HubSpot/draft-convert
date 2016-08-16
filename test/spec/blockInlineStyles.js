@@ -7,6 +7,7 @@ const buildRawBlock = (text, styleRanges) => {
     blocks: [
       {
         text,
+        data: {},
         depth: 0,
         entityRanges: [],
         inlineStyleRanges: styleRanges,

@@ -1,14 +1,16 @@
 import blockEntities from '../../src/blockEntities';
 import blockInlineStyles from '../../src/blockInlineStyles';
 import {convertFromRaw, convertToRaw} from 'draft-js';
+import {Map} from 'immutable';
 
-const buildRawBlock = (text, entityMap = {}, styleRanges = [], entityRanges = []) => {
+const buildRawBlock = (text, entityMap = {}, styleRanges = [], entityRanges = [], data = Map()) => {
   return convertToRaw(convertFromRaw({
     entityMap,
     blocks: [
       {
         text,
         depth: 0,
+        data,
         entityRanges,
         inlineStyleRanges: styleRanges,
         type: 'unstyled',
