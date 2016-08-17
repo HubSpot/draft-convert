@@ -34,10 +34,9 @@
     "react-dom": "^15.0.2"
   },
   "dependencies": {
-    "draft-js": "^0.8.0",
+    "draft-js": "^0.8.1",
     "immutable": "^3.8.1",
-    "invariant": "^2.2.1",
-    "object-assign": "^4.1.0"
+    "invariant": "^2.2.1"
   },
   "devDependencies": {
     "babel-cli": "^6.10.1",
