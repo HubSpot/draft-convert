@@ -14,7 +14,7 @@
     "test:karma": "karma start test/karma.config.js",
     "test-once:karma": "karma start test/karma.config.js --single-run",
     "clean": "rm -rf ./dist && rm -rf ./lib",
-    "build-and-test": "npm run clean && npm run build && npm test-once",
+    "build-and-test": "npm run clean && npm run build && npm run test-once",
     "prepublish": "npm run build-and-test"
   },
   "files": [
