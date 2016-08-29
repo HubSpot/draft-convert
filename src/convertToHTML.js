@@ -2,9 +2,11 @@
 import invariant from 'invariant';
 import {convertToRaw} from 'draft-js';
 import encodeBlock from './encodeBlock';
-import convertEntity from './convertEntity';
-import blockInnerHTML from './blockInnerHTML';
+import blockEntities from './blockEntities';
+import blockInlineStyles from './blockInlineStyles';
 import defaultBlockHTML from './default/defaultBlockHTML';
+import accumulateFunction from './util/accumulateFunction';
+import blockTypeObjectFunction from './util/blockTypeObjectFunction';
 
 const NESTED_BLOCK_TYPES = [
   'ordered-list-item',
@@ -25,7 +27,11 @@ const convertToHTML = ({
     'Expected contentState to be non-null'
   );
 
-  const blockHTML = Object.assign({}, defaultBlockHTML, blockToHTML);
+  const blockHTML = accumulateFunction(
+    blockTypeObjectFunction(blockToHTML),
+    blockTypeObjectFunction(defaultBlockHTML)
+  );
+
   const rawState = convertToRaw(contentState);
 
   let listStack = [];
@@ -41,33 +47,33 @@ const convertToHTML = ({
 
     if (NESTED_BLOCK_TYPES.indexOf(type) === -1) {
       // this block can't be nested, so reset all nesting if necessary
-      closeNestTags = listStack.reduceRight((string, nestType) => {
-        return string + blockHTML[nestType].nestEnd;
+      closeNestTags = listStack.reduceRight((string, nestedBlock) => {
+        return string + blockHTML(nestedBlock).nestEnd;
       }, '');
       listStack = [];
     } else {
-      while (depth + 1 !== listStack.length || type !== listStack[depth]) {
+      while (depth + 1 !== listStack.length || type !== listStack[depth].type) {
         if (depth + 1 === listStack.length) {
           // depth is right but doesn't match type
-          const typeToClose = listStack[depth];
-          closeNestTags += blockHTML[typeToClose].nestEnd;
-          openNestTags += blockHTML[type].nestStart;
-          listStack[depth] = type;
+          const blockToClose = listStack[depth];
+          closeNestTags += blockHTML(blockToClose).nestEnd;
+          openNestTags += blockHTML(block).nestStart;
+          listStack[depth] = block;
         } else {
           if (depth + 1 < listStack.length) {
-            const typeToClose = listStack[listStack.length - 1];
-            closeNestTags += blockHTML[typeToClose].nestEnd;
+            const blockToClose = listStack[listStack.length - 1];
+            closeNestTags += blockHTML(blockToClose).nestEnd;
             listStack = listStack.slice(0, -1);
           } else {
-            openNestTags += blockHTML[type].nestStart;
-            listStack.push(type);
+            openNestTags += blockHTML(block).nestStart;
+            listStack.push(block);
           }
         }
       }
     }
 
-    const innerHTML = blockInnerHTML(
-      convertEntity(
+    const innerHTML = blockInlineStyles(
+      blockEntities(
         encodeBlock(
           block
         ),
@@ -77,16 +83,16 @@ const convertToHTML = ({
       styleToHTML
     );
 
-    let html = blockHTML[type].start + innerHTML + blockHTML[type].end;
-    if (innerHTML.length === 0 && blockHTML[type].hasOwnProperty('empty')) {
-      html = blockHTML[type].empty;
+    let html = blockHTML(block).start + innerHTML + blockHTML(block).end;
+    if (innerHTML.length === 0 && blockHTML(block).hasOwnProperty('empty')) {
+      html = blockHTML(block).empty;
     }
 
     return closeNestTags + openNestTags + html;
   }).join('');
 
-  result = listStack.reduce((res, nestType) => {
-    return res + blockHTML[nestType].nestEnd;
+  result = listStack.reduce((res, nestBlock) => {
+    return res + blockHTML(nestBlock).nestEnd;
   }, result);
 
   return result;

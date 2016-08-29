@@ -50,7 +50,7 @@ const html = compose(
 ```
 
 `styleToHTML` and `blockToHtml` are objects keyed by `DraftInlineStyle` and `DraftBlockType` respectively and map
-to beginning and ending tags to use. Blocks also have an optional `empty` property to handle alternative behavior for empty blocks. Both extend upon defaults that support the default style and block types. If no additional functionality is necessary `convertToHTML` can be invoked with just a `ContentState` to serialize using just the default Draft functionality. `convertToHTML` can be passed as an argument to a plugin to modularly augment its functionality.
+to beginning and ending tags to use. `blockToHTML` may also be a function receiving a raw block object that may inspect block metadata and returns an object with start and end strings. Blocks also have an optional `empty` property to handle alternative behavior for empty blocks. Both extend upon defaults that support the default style and block types. If no additional functionality is necessary `convertToHTML` can be invoked with just a `ContentState` to serialize using just the default Draft functionality. `convertToHTML` can be passed as an argument to a plugin to modularly augment its functionality.
 
 **Type info:**
 ```
@@ -70,9 +70,16 @@ type RawEntity = {
     data: Object
 }
 
+type RawBlock = {
+    type: string,
+    depth: number,
+    data?: object,
+    text: string
+}
+
 type convertToHTML = ContentStateConverter | ({
     styleToHTML: ?TagObject,
-    blockToHTML: ?TagObject,
+    blockToHTML: ?(TagObject | (block: RawBlock) => TagObject),
     entityToHTML: ?(entity: RawEntity, originalText: string) => string
 }) => ContentStateConverter
 
@@ -122,6 +129,14 @@ const contentState = convertFromHTML({
             });
         });
         return result;
+    },
+    htmlToBlock: (nodeName, node) => {
+        if (nodeName === 'blockquote') {
+            return {
+                type: 'blockquote',
+                data: {}
+            };
+        }
     }
 })(html);
 
@@ -143,7 +158,7 @@ type EntityKey = string
 
 type convertFromHTML = HTMLConverter | ({
     htmlToStyle: ?(nodeName: string, node: Node, currentStyle: DraftInlineStyle) => DraftInlineStyle,
-    htmlToBlock: ?(nodeName: string, node: Node) => ?DraftBlockType,
+    htmlToBlock: ?(nodeName: string, node: Node) => ?(DraftBlockType | {type: string, data: object}),
     htmlToEntity: ?(nodeName: string, node: string): ?EntityKey,
     textToEntity: ?(text) => Array<{entity: EntityKey, offset: number, length: number, result: ?string}>
 }) => HTMLConverter

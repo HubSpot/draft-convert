@@ -1,11 +1,12 @@
 import convertToHTML from '../../src/convertToHTML';
-import {convertFromRaw, ContentState} from 'draft-js';
+import {convertFromRaw} from 'draft-js';
 import uniqueId from '../util/uniqueId';
 
-const buildContentBlock = ({type = 'unstyled', depth = 0, text = '', styleRanges = [], entityRanges = []}) => {
+const buildContentBlock = ({type = 'unstyled', depth = 0, text = '', styleRanges = [], entityRanges = [], data = {}}) => {
   return {
     text,
     type,
+    data,
     depth,
     entityRanges,
     inlineStyleRanges: styleRanges,
@@ -246,7 +247,7 @@ describe('convertToHTML', () => {
       }
       return originalText;
     }})(contentState);
-    expect(result).toBe('<p>&lt;&amp;&gt;<a>test</a></p>')
+    expect(result).toBe('<p>&lt;&amp;&gt;<a>test</a></p>');
   });
 
   it('escapes HTML in text of blocks before entities', () => {
@@ -282,6 +283,37 @@ describe('convertToHTML', () => {
       }
       return originalText;
     }})(contentState);
-    expect(result).toBe('<p>t<a>e&lt;&amp;&gt;s</a><strong>t</strong></p>')
+    expect(result).toBe('<p>t<a>e&lt;&amp;&gt;s</a><strong>t</strong></p>');
+  });
+
+  it('uses block metadata', () => {
+    const contentState = buildContentState([
+      {
+        type: 'custom',
+        text: 'test',
+        data: {
+          tagName: 'customtag',
+          attribute: 'value'
+        }
+      }
+    ]);
+
+    const result = convertToHTML({
+      blockToHTML: (block) => {
+        if (block.type === 'custom') {
+          const {
+            tagName,
+            attribute
+          } = block.data;
+
+          return {
+            start: `<${tagName} attribute="${attribute}">`,
+            end: `</${tagName}>`
+          };
+        }
+      }
+    })(contentState);
+
+    expect(result).toBe('<customtag attribute="value">test</customtag>');
   });
 });

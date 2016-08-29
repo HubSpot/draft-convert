@@ -10,7 +10,7 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  */
 
-import {List, OrderedSet} from 'immutable';
+import {List, OrderedSet, Map} from 'immutable';
 import invariant from 'invariant';
 import {ContentState, CharacterMetadata, ContentBlock, Entity, genKey} from 'draft-js';
 import getSafeBodyFromHTML from './util/parseHTML';
@@ -96,26 +96,28 @@ function getWhitespaceChunk(inEntity) {
   };
 }
 
-function getSoftNewlineChunk(block, depth) {
+function getSoftNewlineChunk(block, depth, data = Map()) {
   return {
     text: '\r',
     inlines: [OrderedSet()],
     entities: new Array(1),
     blocks: [{
       type: block,
+      data,
       depth: Math.max(0, Math.min(MAX_DEPTH, depth)),
     }],
     isNewline: true
   };
 }
 
-function getBlockDividerChunk(block, depth) {
+function getBlockDividerChunk(block, depth, data = Map()) {
   return {
     text: '\r',
     inlines: [OrderedSet()],
     entities: new Array(1),
     blocks: [{
       type: block,
+      data,
       depth: Math.max(0, Math.min(MAX_DEPTH, depth)),
     }],
   };
@@ -324,11 +326,21 @@ function genFragment(
   }
 
   // Block Tags
-  const blockType = checkBlockType(nodeName, node, lastList, inBlock);
+  const blockInfo = checkBlockType(nodeName, node, lastList, inBlock) || {};
+  let blockType;
+  let blockDataMap;
+  if (typeof blockInfo === 'string') {
+    blockType = blockInfo;
+    blockDataMap = Map();
+  } else {
+    blockType = typeof blockInfo === 'string' ? blockInfo : blockInfo.type;
+    blockDataMap = blockInfo.data ? Map(blockInfo.data) : Map();
+  }
   if (!inBlock && (blockTags.indexOf(nodeName) !== -1 || blockType)) {
     chunk = getBlockDividerChunk(
       blockType || getBlockTypeForTag(nodeName, lastList),
-      depth
+      depth,
+      blockDataMap
     );
     inBlock = blockType || getBlockTypeForTag(nodeName, lastList);
     newBlock = true;
@@ -348,7 +360,8 @@ function genFragment(
     newBlock = true;
     chunk = getSoftNewlineChunk(
       blockType,
-      depth
+      depth,
+      blockDataMap
     );
   }
 
@@ -405,9 +418,21 @@ function genFragment(
       blockTags.indexOf(nodeName) >= 0 &&
       inBlock
     ) {
-      const newBlockType = checkBlockType(nodeName, node, lastList, inBlock) || getBlockTypeForTag(nodeName, lastList);
+      const newBlockInfo = checkBlockType(nodeName, node, lastList, inBlock);
 
-      chunk = joinChunks(chunk, getSoftNewlineChunk(newBlockType, depth));
+      let newBlockType;
+      let newBlockData;
+
+      if (typeof newBlockInfo === 'string') {
+        newBlockType = newBlockInfo;
+        newBlockData = Map();
+      } else {
+        newBlockType = newBlockInfo.type || getBlockTypeForTag(nodeName, lastList);
+        newBlockData = newBlockInfo.data ? Map(newBlockInfo.data) : Map();
+      }
+
+
+      chunk = joinChunks(chunk, getSoftNewlineChunk(newBlockType, depth, newBlockData));
     }
     if (sibling) {
       nodeName = sibling.nodeName.toLowerCase();
@@ -418,7 +443,7 @@ function genFragment(
   if (newBlock) {
     chunk = joinChunks(
       chunk,
-      getBlockDividerChunk(nextBlockType, depth)
+      getBlockDividerChunk(nextBlockType, depth, Map())
     );
   }
 
@@ -467,14 +492,14 @@ function getChunkForHTML(html, processCustomInlineStyles, checkEntityNode, check
 
   // If we saw no block tags, put an unstyled one in
   if (chunk.blocks.length === 0) {
-    chunk.blocks.push({type: 'unstyled', depth: 0});
+    chunk.blocks.push({type: 'unstyled', data: Map(), depth: 0});
   }
 
   // Sometimes we start with text that isn't in a block, which is then
   // followed by blocks. Need to fix up the blocks to add in
   // an unstyled block for this content
   if (chunk.text.split('\r').length === chunk.blocks.length + 1) {
-    chunk.blocks.unshift({type: 'unstyled', depth: 0});
+    chunk.blocks.unshift({type: 'unstyled', data: Map(), depth: 0});
   }
 
   return chunk;
@@ -518,6 +543,7 @@ function convertFromHTMLtoContentBlocks(
       return new ContentBlock({
         key: genKey(),
         type: nullthrows(chunk).blocks[ii].type,
+        data: nullthrows(chunk).blocks[ii].data,
         depth: nullthrows(chunk).blocks[ii].depth,
         text: textBlock,
         characterList,

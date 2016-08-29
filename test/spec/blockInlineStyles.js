@@ -1,5 +1,5 @@
-import blockInnerHTML from '../../src/blockInnerHTML';
-import {convertFromRaw, convertToRaw, ContentState} from 'draft-js';
+import blockInlineStyles from '../../src/blockInlineStyles';
+import {convertFromRaw, convertToRaw} from 'draft-js';
 
 const buildRawBlock = (text, styleRanges) => {
   return convertToRaw(convertFromRaw({
@@ -7,6 +7,7 @@ const buildRawBlock = (text, styleRanges) => {
     blocks: [
       {
         text,
+        data: {},
         depth: 0,
         entityRanges: [],
         inlineStyleRanges: styleRanges,
@@ -17,9 +18,9 @@ const buildRawBlock = (text, styleRanges) => {
   })).blocks[0];
 };
 
-describe('blockInnerHTML', () => {
+describe('blockInlineStyles', () => {
   it('returns an empty string when no text is given', () => {
-    const result = blockInnerHTML(buildRawBlock('', []));
+    const result = blockInlineStyles(buildRawBlock('', []));
     expect(result).toBe('');
   });
 
@@ -29,7 +30,7 @@ describe('blockInnerHTML', () => {
       offset: 0,
       length: 4
     }]);
-    const result = blockInnerHTML(contentState);
+    const result = blockInlineStyles(contentState);
     expect(result).toBe('<strong>test</strong>');
   });
 
@@ -46,7 +47,7 @@ describe('blockInnerHTML', () => {
         length: 4
       }
     ]);
-    const result = blockInnerHTML(contentState);
+    const result = blockInlineStyles(contentState);
     expect(result).toBe('<strong><em>test</em></strong>');
   });
 
@@ -63,7 +64,7 @@ describe('blockInnerHTML', () => {
         length: 3
       }
     ]);
-    const result = blockInnerHTML(contentState);
+    const result = blockInlineStyles(contentState);
     expect(result).toBe('<strong>ab</strong><em><strong>c</strong>de</em>');
   });
 
@@ -85,7 +86,7 @@ describe('blockInnerHTML', () => {
         length: 3
       }
     ]);
-    const result = blockInnerHTML(contentState);
+    const result = blockInlineStyles(contentState);
     expect(result).toBe('<em><u>123</u><strong><u>4</u>56</strong>78</em>90');
   });
 });
