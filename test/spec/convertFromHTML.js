@@ -214,6 +214,7 @@ describe('convertFromHTML', () => {
     expect(contentState.getBlocksAsArray().length).toBe(3);
     expect(convertToHTML(contentState)).toBe('<p>one</p><p></p><p>two</p>');
   });
+
   it('handles brs at top level', () => {
     const html = '<p>one</p><br/><p>three</p>';
     const contentState = toContentState(html);
