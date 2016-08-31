@@ -214,7 +214,6 @@ describe('convertFromHTML', () => {
     expect(contentState.getBlocksAsArray().length).toBe(3);
     expect(convertToHTML(contentState)).toBe('<p>one</p><p></p><p>two</p>');
   });
-
   it('handles brs at top level', () => {
     const html = '<p>one</p><br/><p>three</p>';
     const contentState = toContentState(html);
@@ -348,5 +347,12 @@ describe('convertFromHTML', () => {
     expect(block.getType()).toBe('atomic');
     expect(block.getData().get('atomicType')).toBe('image');
     expect(block.getData().get('src')).toBe('testimage');
+  });
+
+  it('handles undefined nested block types', () => {
+    const html = `<div><div>This won't work, first line</div></div>`;
+    const contentState = toContentState(html);
+    const block = contentState.getBlocksAsArray()[0];
+    expect(block.getType()).toBe('unstyled');
   });
 });
