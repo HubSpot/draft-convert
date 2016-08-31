@@ -418,7 +418,7 @@ function genFragment(
       blockTags.indexOf(nodeName) >= 0 &&
       inBlock
     ) {
-      const newBlockInfo = checkBlockType(nodeName, node, lastList, inBlock);
+      const newBlockInfo = checkBlockType(nodeName, node, lastList, inBlock) || {};
 
       let newBlockType;
       let newBlockData;

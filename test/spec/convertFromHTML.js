@@ -349,4 +349,11 @@ describe('convertFromHTML', () => {
     expect(block.getData().get('atomicType')).toBe('image');
     expect(block.getData().get('src')).toBe('testimage');
   });
+
+  it('handles undefined nested block types', () => {
+    const html = `<div><div>This won't work, first line</div></div>`;
+    const contentState = toContentState(html);
+    const block = contentState.getBlocksAsArray()[0];
+    expect(block.getType()).toBe('unstyled');
+  });
 });
