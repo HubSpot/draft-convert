@@ -13,7 +13,7 @@ const converter = (entity = {}, originalText) => {
 };
 
 export default (block, entityMap, entityConverter = converter) => {
-  let resultText = block.text;
+  let resultText = [...block.text];
 
   if (block.hasOwnProperty('entityRanges') && block.entityRanges.length > 0) {
     let entities = block.entityRanges.sort(rangeSort);
@@ -24,7 +24,7 @@ export default (block, entityMap, entityConverter = converter) => {
       const entityRange = entities[index];
       const entity = entityMap[entityRange.key];
 
-      const originalText = resultText.substr(entityRange.offset, entityRange.length);
+      const originalText = resultText.slice(entityRange.offset, entityRange.length).join('');
 
       const converted = entityConverter(entity, originalText) || originalText;
 
@@ -38,11 +38,15 @@ export default (block, entityMap, entityConverter = converter) => {
       entities = entities.map(updateLaterMutation);
       styles = styles.map(updateLaterMutation);
 
-      resultText = resultText.substring(0, entityRange.offset) + converted + resultText.substring(entityRange.offset + entityRange.length);
+      resultText = [
+        ...resultText.slice(0, entityRange.offset),
+        ...converted,
+        ...resultText.slice(entityRange.offset + entityRange.length)
+      ];
     }
 
     return Object.assign({}, block, {
-      text: resultText,
+      text: resultText.join(''),
       inlineStyleRanges: styles,
       entityRanges: entities
     });
