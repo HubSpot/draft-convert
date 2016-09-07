@@ -22,10 +22,11 @@ export default(block) => {
 
     if (ENTITY_MAP[char] !== undefined) {
       const encoded = ENTITY_MAP[char];
+      const resultIndex = resultText.length;
       resultText += encoded;
 
       const updateForChar = (mutation) => {
-        return updateMutation(mutation, index, char.length, encoded.length);
+        return updateMutation(mutation, resultIndex, char.length, encoded.length);
       };
 
       entities = entities.map(updateForChar);
