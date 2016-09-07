@@ -325,20 +325,20 @@ describe('blockEntities', () => {
         type: 'testEntity',
         mutability: 'IMMUTABLE',
         data: {
-          test: '{{ contact.company }}'
+          test: '{{ entity }}'
         }
       }
     };
 
     const rawBlock = buildRawBlock(
-      `other'''''''text contact\'s othertext`,
+      `other'''''''text test\'s othertext`,
       entityMap,
       [],
       [
         {
           key: 0,
           offset: 17,
-          length: 7
+          length: 4
         }
       ]
     );
@@ -359,6 +359,6 @@ describe('blockEntities', () => {
       )
     );
 
-    expect(result).toBe('other&#x27;&#x27;&#x27;&#x27;&#x27;&#x27;&#x27;text {{ contact.company }}&#x27;s othertext');
+    expect(result).toBe('other&#x27;&#x27;&#x27;&#x27;&#x27;&#x27;&#x27;text {{ entity }}&#x27;s othertext');
   });
 });
