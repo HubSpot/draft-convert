@@ -24,8 +24,7 @@ export default (block, entityMap, entityConverter = converter) => {
       const entityRange = entities[index];
       const entity = entityMap[entityRange.key];
 
-      const originalText = resultText.slice(entityRange.offset, entityRange.length).join('');
-
+      const originalText = resultText.slice(entityRange.offset, entityRange.offset + entityRange.length).join('');
       const converted = entityConverter(entity, originalText) || originalText;
 
       const updateLaterMutation = (mutation, mutationIndex) => {

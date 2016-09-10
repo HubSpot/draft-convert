@@ -1,5 +1,6 @@
 import blockEntities from '../../src/blockEntities';
 import blockInlineStyles from '../../src/blockInlineStyles';
+import encodeBlock from '../../src/encodeBlock';
 import {convertFromRaw, convertToRaw} from 'draft-js';
 import {Map} from 'immutable';
 
@@ -316,5 +317,48 @@ describe('blockEntities', () => {
       )
     );
     expect(result).toBe('abcde <strong>abcde</strong>');
+  });
+
+  it('adjusts styles around the entity range', () => {
+    const entityMap = {
+      0: {
+        type: 'testEntity',
+        mutability: 'IMMUTABLE',
+        data: {
+          test: '{{ entity }}'
+        }
+      }
+    };
+
+    const rawBlock = buildRawBlock(
+      `other'''''''text test\'s othertext`,
+      entityMap,
+      [],
+      [
+        {
+          key: 0,
+          offset: 17,
+          length: 4
+        }
+      ]
+    );
+
+    const result = blockInlineStyles(
+      blockEntities(
+        encodeBlock(
+          rawBlock
+        ),
+        entityMap,
+        (entity, originalText) => {
+          if (entity.type === 'testEntity') {
+            return entity.data.test;
+          }
+
+          return originalText;
+        }
+      )
+    );
+
+    expect(result).toBe('other&#x27;&#x27;&#x27;&#x27;&#x27;&#x27;&#x27;text {{ entity }}&#x27;s othertext');
   });
 });
