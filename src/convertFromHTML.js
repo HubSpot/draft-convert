@@ -232,15 +232,6 @@ function containsSemanticBlockMarkup(html) {
   return blockTags.some(tag => html.indexOf('<' + tag) !== -1);
 }
 
-function hasValidLinkText(link) {
-  invariant(
-    link instanceof HTMLAnchorElement,
-    'Link must be an HTMLAnchorElement.'
-  );
-  var protocol = link.protocol;
-  return protocol === 'http:' || protocol === 'https:';
-}
-
 function genFragment(
   node,
   inlineStyle,
