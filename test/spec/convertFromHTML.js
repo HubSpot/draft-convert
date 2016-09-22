@@ -44,6 +44,11 @@ describe('convertFromHTML', () => {
         }
       },
       htmlToEntity: (nodeName, node) => {
+        if (nodeName === 'a' && node.href) {
+          const href = node.href;
+          return Entity.create('LINK', 'MUTABLE', {url: href});
+        }
+
         if (nodeName === 'testnode') {
           return Entity.create('TEST', 'IMMUTABLE', {
             testAttr: node.getAttribute('test-attr')
