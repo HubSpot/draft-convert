@@ -387,14 +387,6 @@ function genFragment(
   while (child) {
     entityId = checkEntityNode(nodeName, child);
 
-    if (!entityId) {
-      // Link plugin handles this, but keep this here in the interest of preserving links when not using it
-      if (nodeName === 'a' && child.href && hasValidLinkText(child)) {
-        href = child.href;
-        entityId = Entity.create('LINK', 'MUTABLE', {url: href});
-      }
-    }
-
     newChunk = genFragment(
       child,
       inlineStyle,
