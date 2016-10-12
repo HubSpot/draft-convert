@@ -1,4 +1,5 @@
 import convertToHTML from '../../src/convertToHTML';
+import React from 'react';
 import {convertFromRaw} from 'draft-js';
 import uniqueId from '../util/uniqueId';
 
@@ -315,5 +316,66 @@ describe('convertToHTML', () => {
     })(contentState);
 
     expect(result).toBe('<customtag attribute="value">test</customtag>');
+  });
+
+  it('uses JSX for block HTML', () => {
+    const contentState = buildContentState([
+      {
+        type: 'unstyled',
+        text: 'test'
+      }
+    ]);
+
+    const html = convertToHTML({
+      blockToHTML: (block) => {
+        if (block.type === 'unstyled') {
+          return <testelement />;
+        }
+      }
+    })(contentState);
+
+    expect(html).toBe('<testelement>test</testelement>');
+  });
+
+  it('uses JSX with style for block HTML', () => {
+    const contentState = buildContentState([
+      {
+        type: 'unstyled',
+        text: 'test',
+        data: {align: 'right'}
+      }
+    ]);
+
+    const html = convertToHTML({
+      blockToHTML: (block) => {
+        if (block.type === 'unstyled' && block.data.align) {
+          return <p style={{textAlign: block.data.align}} />;
+        }
+      }
+    })(contentState);
+
+    expect(html).toBe('<p style="text-align:right;">test</p>');
+  });
+
+  it('uses JSX for block HTML when passing a middleware function', () => {
+    const contentState = buildContentState([
+      {
+        type: 'unstyled',
+        text: 'test'
+      }
+    ]);
+
+    const blockToHTML = (next) => (block) => {
+      if (block.type === 'unstyled') {
+        return <testelement />;
+      }
+      return next(block);
+    };
+
+    blockToHTML.__isMiddleware = true;
+
+    const html = convertToHTML({blockToHTML})(contentState);
+
+    expect(html).toBe('<testelement>test</testelement>');
   });
 });
