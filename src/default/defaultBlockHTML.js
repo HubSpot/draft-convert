@@ -46,5 +46,9 @@ export default {
   'media': {
     start: '<figure>',
     end: '</figure>'
+  },
+  'blockquote': {
+    start: '<blockquote>',
+    end: '</blockquote>'
   }
 };
