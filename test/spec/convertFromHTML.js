@@ -1,4 +1,4 @@
-import {Entity} from 'draft-js';
+import {Entity, convertToRaw} from 'draft-js';
 import convertFromHTML from '../../src/convertFromHTML';
 import convertToHTML from '../../src/convertToHTML';
 
@@ -360,5 +360,131 @@ describe('convertFromHTML', () => {
     const contentState = toContentState(html);
     const block = contentState.getBlocksAsArray()[0];
     expect(block.getType()).toBe('unstyled');
+  });
+
+  it('handles middleware functions when converting blocks from HTML', () => {
+    const html = '<p>test</p>';
+    const htmlToBlock = (next) => (nodeName, ...args) => {
+      if (nodeName === 'p') {
+        const block = next(nodeName, args);
+        if (typeof block === 'string') {
+          return {
+            type: block,
+            data: {
+              test: true
+            }
+          };
+        }
+      }
+    };
+    htmlToBlock.__isMiddleware = true;
+
+    const contentState = convertFromHTML({
+      htmlToBlock
+    })(html);
+
+    const block = contentState.getBlocksAsArray()[0];
+    expect(block.getData().get('test')).toBe(true);
+  });
+
+  it('handles middleware functions when converting entities from HTML', () => {
+    const html = '<p><a>test</a></p>';
+    const baseLink = (next) => (nodeName) => {
+      if (nodeName === 'a') {
+        return Entity.create('LINK', 'IMMUTABLE', {});
+      }
+
+      return next(...arguments);
+    };
+    const linkData = (next) => (nodeName, ...args) => {
+      const entityKey = next(nodeName, ...args);
+      if (nodeName === 'a') {
+        Entity.mergeData(entityKey, {test: true});
+        return entityKey;
+      }
+
+      return entityKey;
+    };
+
+    const htmlToEntity = (...args) => {
+      return linkData(baseLink(...args));
+    };
+    htmlToEntity.__isMiddleware = true;
+
+    const contentState = convertFromHTML({
+      htmlToEntity
+    })(html);
+
+    const rawState = convertToRaw(contentState);
+    expect(rawState.entityMap[0].type).toBe('LINK');
+    expect(rawState.entityMap[0].data.test).toBe(true);
+    expect(rawState.blocks[0].entityRanges[0].key).toBe(0);
+  });
+
+  it('handles middleware functions when converting entities from text', () => {
+    const html = '<p>test1 test2</p>';
+    const test1Search = (next) => (text) => {
+      const results = next(text);
+      text.replace(/test1/g, (match, offset) => {
+        results.push({
+          offset,
+          length: match.length,
+          entity: Entity.create('TEST1', 'IMMUTABLE', {})
+        });
+      });
+
+      return results;
+    };
+    const test2Search = (next) => (text) => {
+      const results = next(text);
+      text.replace(/test2/g, (match, offset) => {
+        results.push({
+          offset,
+          length: match.length,
+          entity: Entity.create('TEST2', 'IMMUTABLE', {})
+        });
+      });
+
+      return results;
+    };
+
+    const textToEntity = (...args) => {
+      return test2Search(test1Search(...args));
+    };
+    textToEntity.__isMiddleware = true;
+
+    const contentState = convertFromHTML({
+      textToEntity
+    })(html);
+
+    const rawState = convertToRaw(contentState);
+    expect(rawState.entityMap[0].type).toBe('TEST1');
+    expect(rawState.entityMap[1].type).toBe('TEST2');
+    expect(rawState.blocks[0].entityRanges[0].key).toBe(0);
+    expect(rawState.blocks[0].entityRanges[1].key).toBe(1);
+  });
+
+  it('handles middleware functions when converting styles from HTML', () => {
+    const html = '<p><strong>test</strong></p>';
+
+    const htmlToStyle = (next) => (nodeName, ...args) => {
+      const rest = next(nodeName, ...args);
+      if (nodeName === 'strong' && rest.has('BOLD')) {
+        return rest.map((style) => {
+          return style === 'BOLD' ? 'BOLD2' : 'BOLD';
+        });
+      }
+
+      return rest;
+    };
+
+    htmlToStyle.__isMiddleware = true;
+
+    const contentState = convertFromHTML({
+      htmlToStyle
+    })(html);
+
+    const rawState = convertToRaw(contentState);
+    expect(rawState.blocks[0].inlineStyleRanges[0].style).toBe('BOLD2');
   });
 });
