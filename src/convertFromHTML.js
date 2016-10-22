@@ -154,6 +154,10 @@ function getBlockTypeForTag(tag, lastList) {
       return 'blockquote';
     case 'pre':
       return 'code-block';
+    case 'ul':
+      return null;
+    case 'ol':
+      return null;
     default:
       return 'unstyled';
   }
