@@ -7,7 +7,7 @@ Jump to:
 
 - [convertToHTML](#converttohtml)
 - [convertFromHTML](#convertfromhtml)
-- [Middleware functions](#middlewarefunctions)
+- [Middleware functions](#middleware-functions)
 
 ## convertToHTML
 
