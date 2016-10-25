@@ -47,6 +47,14 @@ const inlineTags = {
 
 let lastBlock;
 
+const handleMiddleware = (maybeMiddleware, base) => {
+  if (maybeMiddleware && maybeMiddleware.__isMiddleware === true) {
+    return maybeMiddleware(base);
+  }
+
+  return maybeMiddleware;
+};
+
 const defaultHTMLToBlock = (nodeName, node, lastList) => {
   return undefined;
 };
@@ -146,9 +154,17 @@ function getBlockTypeForTag(tag, lastList) {
       return 'blockquote';
     case 'pre':
       return 'code-block';
+    case 'ul':
+      return null;
+    case 'ol':
+      return null;
     default:
       return 'unstyled';
   }
+}
+
+function baseCheckBlockType(nodeName, node, lastList) {
+  return getBlockTypeForTag(nodeName, lastList);
 }
 
 function processInlineTag(
@@ -180,6 +196,10 @@ function processInlineTag(
     }).toOrderedSet();
   }
   return currentStyle;
+}
+
+function baseProcessInlineTag(tag, node) {
+  return processInlineTag(tag, node, OrderedSet());
 }
 
 function joinChunks(A, B) {
@@ -540,13 +560,19 @@ const convertFromHTML = ({
   htmlToEntity = defaultHTMLToEntity,
   textToEntity = defaultTextToEntity,
   htmlToBlock = defaultHTMLToBlock,
-
 }) => (
   html,
   DOMBuilder = getSafeBodyFromHTML
 ) => {
   return ContentState.createFromBlockArray(
-    convertFromHTMLtoContentBlocks(html, htmlToStyle, htmlToEntity, textToEntity, htmlToBlock, DOMBuilder)
+    convertFromHTMLtoContentBlocks(
+      html,
+      handleMiddleware(htmlToStyle, baseProcessInlineTag),
+      handleMiddleware(htmlToEntity, defaultHTMLToEntity),
+      handleMiddleware(textToEntity, defaultTextToEntity),
+      handleMiddleware(htmlToBlock, baseCheckBlockType),
+      DOMBuilder
+    )
   );
 };
 

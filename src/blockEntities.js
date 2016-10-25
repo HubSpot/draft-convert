@@ -1,19 +1,19 @@
 import updateMutation from './util/updateMutation';
 import rangeSort from './util/rangeSort';
+import getElementHTML from './util/getElementHTML';
 
 const converter = (entity = {}, originalText) => {
-  switch (entity.type) {
-    case 'mergeTag':
-      return `{{ ${entity.data.prefix}.${entity.data.property} }}`;
-    case 'LINK':
-      return `<a href="${entity.data.url}">${originalText}</a>`;
-    default:
-      return originalText;
-  }
+  return originalText;
 };
 
 export default (block, entityMap, entityConverter = converter) => {
   let resultText = block.text;
+
+  let getEntityHTML = entityConverter;
+
+  if (entityConverter.__isMiddleware) {
+    getEntityHTML = entityConverter(converter);
+  }
 
   if (block.hasOwnProperty('entityRanges') && block.entityRanges.length > 0) {
     let entities = block.entityRanges.sort(rangeSort);
@@ -26,7 +26,7 @@ export default (block, entityMap, entityConverter = converter) => {
 
       const originalText = resultText.substr(entityRange.offset, entityRange.length);
 
-      const converted = entityConverter(entity, originalText) || originalText;
+      const converted = getElementHTML(getEntityHTML(entity, originalText), originalText) || originalText;
 
       const updateLaterMutation = (mutation, mutationIndex) => {
         if (mutationIndex >= index || mutation.hasOwnProperty('style')) {

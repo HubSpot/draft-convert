@@ -1,4 +1,5 @@
 import blockInlineStyles from '../../src/blockInlineStyles';
+import React from 'react';
 import {convertFromRaw, convertToRaw} from 'draft-js';
 
 const buildRawBlock = (text, styleRanges) => {
@@ -88,5 +89,60 @@ describe('blockInlineStyles', () => {
     ]);
     const result = blockInlineStyles(contentState);
     expect(result).toBe('<em><u>123</u><strong><u>4</u>56</strong>78</em>90');
+  });
+
+  it('applies a custom style defined with a ReactElement', () => {
+    const contentState = buildRawBlock('12345', [
+      {
+        style: 'CUSTOM',
+        offset: 2,
+        length: 2
+      }
+    ]);
+    const result = blockInlineStyles(contentState, (style) => {
+      if (style === 'CUSTOM') {
+        return <span />;
+      }
+    });
+    expect(result).toBe('12<span>34</span>5');
+  });
+
+  it('applies custom styles defined in middleware', () => {
+    const contentState = buildRawBlock('12345', [
+      {
+        style: 'CUSTOM',
+        offset: 2,
+        length: 2
+      }
+    ]);
+    const middleware = (next) => (style) => {
+      if (style === 'CUSTOM') {
+        return <span />;
+      }
+    };
+    middleware.__isMiddleware = true;
+    const result = blockInlineStyles(contentState, middleware);
+    expect(result).toBe('12<span>34</span>5');
+  });
+
+  it('applies custom styles defined in middleware', () => {
+    const contentState = buildRawBlock('12345', [
+      {
+        style: 'BOLD',
+        offset: 2,
+        length: 2
+      }
+    ]);
+    const middleware = (next) => (style) => {
+      if (style === 'BOLD') {
+        const element = next(style);
+        return React.cloneElement(element, {
+          'data-test': 'test'
+        });
+      }
+    };
+    middleware.__isMiddleware = true;
+    const result = blockInlineStyles(contentState, middleware);
+    expect(result).toBe('12<strong data-test="test">34</strong>5');
   });
 });

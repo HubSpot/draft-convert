@@ -1,8 +1,9 @@
 import blockEntities from '../../src/blockEntities';
 import blockInlineStyles from '../../src/blockInlineStyles';
 import encodeBlock from '../../src/encodeBlock';
-import {convertFromRaw, convertToRaw} from 'draft-js';
 import {Map} from 'immutable';
+import React from 'react';
+import {convertFromRaw, convertToRaw} from 'draft-js';
 
 const buildRawBlock = (text, entityMap = {}, styleRanges = [], entityRanges = [], data = Map()) => {
   return convertToRaw(convertFromRaw({
@@ -360,5 +361,183 @@ describe('blockEntities', () => {
     );
 
     expect(result).toBe('other&#x27;&#x27;&#x27;&#x27;&#x27;&#x27;&#x27;text {{ entity }}&#x27;s othertext');
+  });
+
+  it('handles an empty ReactElement in entityToHTML', () => {
+    const entityMap = {
+      0: {
+        type: 'test',
+        mutability: 'IMMUTABLE',
+        data: {
+          test: 'test'
+        }
+      }
+    };
+
+    const rawBlock = buildRawBlock(
+      'test link',
+      entityMap,
+      [],
+      [
+        {
+          key: 0,
+          offset: 5,
+          length: 4
+        }
+      ]
+    );
+
+    const result = blockInlineStyles(
+      blockEntities(
+        encodeBlock(
+          rawBlock
+        ),
+        entityMap,
+        (entity, originalText) => {
+          if (entity.type === 'test') {
+            return <a />;
+          }
+
+          return originalText;
+        }
+      )
+    );
+
+    expect(result).toBe('test <a>link</a>');
+  });
+
+  it('handles a ReactElement with a child in entityToHTML', () => {
+    const entityMap = {
+      0: {
+        type: 'test',
+        mutability: 'IMMUTABLE',
+        data: {
+          test: 'test'
+        }
+      }
+    };
+
+    const rawBlock = buildRawBlock(
+      'test link',
+      entityMap,
+      [],
+      [
+        {
+          key: 0,
+          offset: 5,
+          length: 4
+        }
+      ]
+    );
+
+    const result = blockInlineStyles(
+      blockEntities(
+        encodeBlock(
+          rawBlock
+        ),
+        entityMap,
+        (entity, originalText) => {
+          if (entity.type === 'test') {
+            return <a>test</a>;
+          }
+
+          return originalText;
+        }
+      )
+    );
+
+    expect(result).toBe('test <a>test</a>');
+  });
+
+  it('handles a start/end object in entityToHTML', () => {
+    const entityMap = {
+      0: {
+        type: 'test',
+        mutability: 'IMMUTABLE',
+        data: {
+          test: 'test'
+        }
+      }
+    };
+
+    const rawBlock = buildRawBlock(
+      'test link',
+      entityMap,
+      [],
+      [
+        {
+          key: 0,
+          offset: 5,
+          length: 4
+        }
+      ]
+    );
+
+    const result = blockInlineStyles(
+      blockEntities(
+        encodeBlock(
+          rawBlock
+        ),
+        entityMap,
+        (entity, originalText) => {
+          if (entity.type === 'test') {
+            return {
+              start: '<a>',
+              end: '</a>'
+            };
+          }
+
+          return originalText;
+        }
+      )
+    );
+
+    expect(result).toBe('test <a>link</a>');
+  });
+
+  it('handles a middleware function in entityToHTML', () => {
+    const entityMap = {
+      0: {
+        type: 'test',
+        mutability: 'IMMUTABLE',
+        data: {
+          test: 'test'
+        }
+      }
+    };
+
+    const rawBlock = buildRawBlock(
+      'test link',
+      entityMap,
+      [],
+      [
+        {
+          key: 0,
+          offset: 5,
+          length: 4
+        }
+      ]
+    );
+
+    const middleware = (next) => (entity, originalText) => {
+      if (entity.type === 'test') {
+        return <a />;
+      }
+
+      return next(entity, originalText);
+    };
+    middleware.__isMiddleware = true;
+
+    const result = blockInlineStyles(
+      blockEntities(
+        encodeBlock(
+          rawBlock
+        ),
+        entityMap,
+        middleware
+      )
+    );
+
+    expect(result).toBe('test <a>link</a>');
   });
 });
