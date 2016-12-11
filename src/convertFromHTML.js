@@ -154,12 +154,11 @@ function getBlockTypeForTag(tag, lastList) {
       return 'blockquote';
     case 'pre':
       return 'code-block';
-    case 'ul':
-      return null;
-    case 'ol':
-      return null;
-    default:
+    case 'div':
+    case 'p':
       return 'unstyled';
+    default:
+      return null;
   }
 }
 
