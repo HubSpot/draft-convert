@@ -14,6 +14,9 @@ module.exports = {
   },
   externals: {
     'draft-js': 'Draft',
-    'immutable': 'Immutable'
+    'immutable': 'Immutable',
+    'react': 'React',
+    'react-dom': 'ReactDOM',
+    'react-dom/server': 'ReactDOMServer'
   }
 };
