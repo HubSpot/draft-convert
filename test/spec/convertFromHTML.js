@@ -487,4 +487,22 @@ describe('convertFromHTML', () => {
     const rawState = convertToRaw(contentState);
     expect(rawState.blocks[0].inlineStyleRanges[0].style).toBe('BOLD2');
   });
+
+  it('handles br tags in regular blocks by splitting into two blocks', () => {
+    const html = '<p>lineone<br>linetwo</p>';
+    const contentState = toContentState(html);
+    expect(contentState.getBlocksAsArray().length).toBe(2);
+
+    const htmlOut = convertToHTML(contentState);
+    expect(htmlOut).toBe('<p>lineone</p><p>linetwo</p>');
+  });
+
+  it ('handles br tags in list blocks by replacing with a newline', () => {
+    const html = '<ol><li>lineone<br>linetwo</li></ul>';
+    const contentState = toContentState(html);
+    expect(contentState.getBlocksAsArray().length).toBe(1);
+
+    const htmlOut = convertToHTML(contentState);
+    expect(htmlOut).toBe('<ol><li>lineone\nlinetwo</li></ol>');
+  })
 });
