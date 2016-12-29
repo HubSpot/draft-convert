@@ -35,7 +35,7 @@
     "react-dom": "^15.0.2"
   },
   "dependencies": {
-    "immutable": "^3.8.1",
+    "immutable": "~3.7.4",
     "invariant": "^2.2.1"
   },
   "devDependencies": {
