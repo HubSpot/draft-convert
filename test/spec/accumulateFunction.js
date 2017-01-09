@@ -2,7 +2,7 @@ import accumulateFunction from '../../src/util/accumulateFunction';
 
 const returnsString = () => 'test';
 const returnsNull = () => null;
-const returnsUndefined = () => {};
+const returnsUndefined = () => undefined;
 
 describe('accumulateFunction', () => {
   it('returns value from the first function for a string value', () => {
