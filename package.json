@@ -15,7 +15,8 @@
     "test-once:karma": "karma start test/karma.config.js --single-run",
     "clean": "rimraf ./dist && rimraf ./lib",
     "build-and-test": "npm run clean && npm run build && npm run test-once",
-    "prepublish": "npm run build-and-test"
+    "lint": "eslint src/ test/",
+    "prepublish": "npm run lint && npm run build-and-test"
   },
   "files": [
     "dist",
