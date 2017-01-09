@@ -53,6 +53,8 @@
     "karma-chrome-launcher": "^0.2.3",
     "karma-jasmine": "^0.3.8",
     "karma-webpack": "^1.7.0",
+    "react": "^15.4.2",
+    "react-dom": "^15.4.2",
     "rimraf": "2.5.4",
     "webpack": "^1.13.0"
   }
