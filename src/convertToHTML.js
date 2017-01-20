@@ -99,7 +99,13 @@ const convertToHTML = ({
       getBlockHTML(block)
     );
 
-    let html = blockHTML.start + innerHTML + blockHTML.end;
+    let html;
+
+    if (typeof blockHTML === 'string') {
+      html = blockHTML;
+    } else {
+      html = blockHTML.start + innerHTML + blockHTML.end;
+    }
 
     if (innerHTML.length === 0 && blockHTML.hasOwnProperty('empty')) {
       if (React.isValidElement(blockHTML.empty)) {
