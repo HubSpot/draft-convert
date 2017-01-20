@@ -1,6 +1,11 @@
 import invariant from 'invariant';
 import React from 'react';
+import ReactDOMServer from 'react-dom/server';
 import splitReactElement from './splitReactElement';
+
+function hasChildren(element) {
+  return React.isValidElement(element) && React.Children.count(element.props.children) > 0;
+}
 
 export default function getBlockTags(blockHTML) {
   invariant(
@@ -9,6 +14,10 @@ export default function getBlockTags(blockHTML) {
   );
 
   if (React.isValidElement(blockHTML)) {
+    if (hasChildren(blockHTML)) {
+      return ReactDOMServer.renderToStaticMarkup(blockHTML);
+    }
+
     return splitReactElement(blockHTML);
   }
 
