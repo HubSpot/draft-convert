@@ -9,6 +9,7 @@ export default {
   'header-four': <h4 />,
   'header-five': <h5 />,
   'header-six': <h6 />,
+  'blockquote': <blockquote />,
   'unordered-list-item': {
     element: <li />,
     nest: <ul />
