@@ -7,7 +7,8 @@ const ENTITY_MAP = {
   '>': '&gt;',
   '"': '&quot;',
   "'": '&#x27;',
-  '`': '&#x60;'
+  '`': '&#x60;',
+  '\n': '<br/>'
 };
 
 export default(block) => {
