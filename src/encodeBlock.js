@@ -11,7 +11,7 @@ const ENTITY_MAP = {
   '\n': '<br/>'
 };
 
-export default(block) => {
+export default block => {
   const blockText = block.text;
 
   let entities = block.entityRanges.sort(rangeSort);
@@ -26,7 +26,7 @@ export default(block) => {
       const resultIndex = resultText.length;
       resultText += encoded;
 
-      const updateForChar = (mutation) => {
+      const updateForChar = mutation => {
         return updateMutation(mutation, resultIndex, char.length, encoded.length);
       };
 
@@ -42,4 +42,4 @@ export default(block) => {
     inlineStyleRanges: styles,
     entityRanges: entities
   });
-}
+};

@@ -10,7 +10,10 @@ export default function updateMutation(mutation, originalOffset, originalLength,
       offset: mutation.offset + lengthDiff
     });
   }
-  if (originalOffset >= mutation.offset && originalOffset + originalLength <= mutation.offset + mutation.length) {
+  if (
+    originalOffset >= mutation.offset
+    && originalOffset + originalLength <= mutation.offset + mutation.length
+  ) {
     return Object.assign({}, mutation, {
       length: mutation.length + lengthDiff
     });

@@ -10,9 +10,8 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  */
 
-import {List, OrderedSet, Map} from 'immutable';
-import invariant from 'invariant';
-import {ContentState, CharacterMetadata, ContentBlock, Entity, genKey} from 'draft-js';
+import { List, OrderedSet, Map } from 'immutable';
+import { ContentState, CharacterMetadata, ContentBlock, genKey } from 'draft-js';
 import getSafeBodyFromHTML from './util/parseHTML';
 import rangeSort from './util/rangeSort';
 
@@ -45,7 +44,6 @@ const inlineTags = {
   u: 'UNDERLINE',
 };
 
-let lastBlock;
 
 const handleMiddleware = (maybeMiddleware, base) => {
   if (maybeMiddleware && maybeMiddleware.__isMiddleware === true) {
@@ -67,18 +65,18 @@ const defaultHTMLToEntity = (nodeName, node) => {
   return undefined;
 };
 
-const defaultTextToEntity = (text) => {
+const defaultTextToEntity = text => {
   return [];
 };
 
-const nullthrows = (x) => {
+const nullthrows = x => {
   if (x != null) {
     return x;
   }
   throw new Error('Got unexpected null or undefined');
 };
 
-const sanitizeDraftText = (input) => {
+const sanitizeDraftText = input => {
   return input.replace(REGEX_BLOCK_DELIMITER, '');
 };
 
@@ -251,13 +249,13 @@ function joinChunks(A, B, flat = false) {
   };
 }
 
-/**
+/*
  * Check to see if we have anything like <p> <blockquote> <h1>... to create
  * block tags from. If we do, we can use those and ignore <div> tags. If we
  * don't, we can treat <div> tags as meaningful (unstyled) blocks.
  */
 function containsSemanticBlockMarkup(html) {
-  return blockTags.some(tag => html.indexOf('<' + tag) !== -1);
+  return blockTags.some(tag => html.indexOf(`<${tag}`) !== -1);
 }
 
 function genFragment(
@@ -265,7 +263,7 @@ function genFragment(
   inlineStyle,
   lastList,
   inBlock,
-  blockTags,
+  fragmentBlockTags,
   depth,
   processCustomInlineStyles,
   checkEntityNode,
@@ -274,10 +272,9 @@ function genFragment(
   options,
   inEntity
 ) {
-  var nodeName = node.nodeName.toLowerCase();
-  var newBlock = false;
-  var nextBlockType = 'unstyled';
-  var lastLastBlock = lastBlock;
+  let nodeName = node.nodeName.toLowerCase();
+  let newBlock = false;
+  let nextBlockType = 'unstyled';
 
   // Base Case
   if (nodeName === '#text') {
@@ -290,14 +287,11 @@ function genFragment(
       text = text.replace(REGEX_LF, SPACE);
     }
 
-    // save the last block so we can use it later
-    lastBlock = nodeName;
-
     const entities = Array(text.length).fill(inEntity);
 
     let offsetChange = 0;
     const textEntities = checkEntityText(text).sort(rangeSort);
-    textEntities.forEach(({entity, offset, length, result}) => {
+    textEntities.forEach(({ entity, offset, length, result }) => {
       const adjustedOffset = offset + offsetChange;
 
       if (result === null || result === undefined) {
@@ -308,7 +302,9 @@ function genFragment(
       textArray.splice.bind(textArray, adjustedOffset, length).apply(textArray, result.split(''));
       text = textArray.join('');
 
-      entities.splice.bind(entities, adjustedOffset, length).apply(entities, Array(result.length).fill(entity));
+      entities.splice
+        .bind(entities, adjustedOffset, length)
+        .apply(entities, Array(result.length).fill(entity));
       offsetChange += result.length - length;
     });
 
@@ -319,9 +315,6 @@ function genFragment(
       blocks: [],
     };
   }
-
-  // save the last block so we can use it later
-  lastBlock = nodeName;
 
   // BR tags
   if (nodeName === 'br') {
@@ -335,8 +328,8 @@ function genFragment(
     return getSoftNewlineChunk(blockType || 'unstyled', depth, options.flat);
   }
 
-  var chunk = getEmptyChunk();
-  var newChunk = null;
+  let chunk = getEmptyChunk();
+  let newChunk = null;
 
   // Inline tags
   inlineStyle = processInlineTag(nodeName, node, inlineStyle);
@@ -362,7 +355,7 @@ function genFragment(
     blockType = typeof blockInfo === 'string' ? blockInfo : blockInfo.type;
     blockDataMap = blockInfo.data ? Map(blockInfo.data) : Map();
   }
-  if (!inBlock && (blockTags.indexOf(nodeName) !== -1 || blockType)) {
+  if (!inBlock && (fragmentBlockTags.indexOf(nodeName) !== -1 || blockType)) {
     chunk = getBlockDividerChunk(
       blockType || getBlockTypeForTag(nodeName, lastList),
       depth,
@@ -378,9 +371,7 @@ function genFragment(
     );
     inBlock = listItemBlockType;
     newBlock = true;
-    nextBlockType = lastList === 'ul' ?
-      'unordered-list-item' :
-      'ordered-list-item';
+    nextBlockType = lastList === 'ul' ? 'unordered-list-item' : 'ordered-list-item';
   } else if (inBlock && inBlock !== 'atomic' && blockType === 'atomic') {
     inBlock = blockType;
     newBlock = true;
@@ -393,7 +384,7 @@ function genFragment(
   }
 
   // Recurse through children
-  var child = node.firstChild;
+  let child = node.firstChild;
 
   // hack to allow conversion of atomic blocks from HTML (e.g. <figure><img
   // src="..." /></figure>). since metadata must be stored on an entity text
@@ -408,8 +399,7 @@ function genFragment(
     nodeName = child.nodeName.toLowerCase();
   }
 
-  var entityId = null;
-  var href = null;
+  let entityId = null;
 
   while (child) {
     entityId = checkEntityNode(nodeName, child);
@@ -419,7 +409,7 @@ function genFragment(
       inlineStyle,
       lastList,
       inBlock,
-      blockTags,
+      fragmentBlockTags,
       depth,
       processCustomInlineStyles,
       checkEntityNode,
@@ -430,13 +420,13 @@ function genFragment(
     );
 
     chunk = joinChunks(chunk, newChunk, options.flat);
-    var sibling = child.nextSibling;
+    const sibling = child.nextSibling;
 
     // Put in a newline to break up blocks inside blocks
     if (
-      sibling &&
-      blockTags.indexOf(nodeName) >= 0 &&
-      inBlock
+      sibling
+      && fragmentBlockTags.indexOf(nodeName) >= 0
+      && inBlock
     ) {
       const newBlockInfo = checkBlockType(nodeName, node, lastList, inBlock) || {};
 
@@ -471,27 +461,45 @@ function genFragment(
   return chunk;
 }
 
-function getChunkForHTML(html, processCustomInlineStyles, checkEntityNode, checkEntityText, checkBlockType, options, DOMBuilder) {
+function getChunkForHTML(
+  html,
+  processCustomInlineStyles,
+  checkEntityNode,
+  checkEntityText,
+  checkBlockType,
+  options,
+  DOMBuilder
+) {
   html = html
     .trim()
     .replace(REGEX_CR, '')
     .replace(REGEX_NBSP, SPACE);
 
-  var safeBody = DOMBuilder(html);
+  const safeBody = DOMBuilder(html);
   if (!safeBody) {
     return null;
   }
-  lastBlock = null;
 
   // Sometimes we aren't dealing with content that contains nice semantic
   // tags. In this case, use divs to separate everything out into paragraphs
   // and hope for the best.
-  var workingBlocks = containsSemanticBlockMarkup(html) ? blockTags.concat(['div']) : ['div'];
+  const workingBlocks = containsSemanticBlockMarkup(html) ? blockTags.concat(['div']) : ['div'];
 
   // Start with -1 block depth to offset the fact that we are passing in a fake
   // UL block to sta rt with.
-  var chunk =
-    genFragment(safeBody, OrderedSet(), 'ul', null, workingBlocks, -1, processCustomInlineStyles, checkEntityNode, checkEntityText, checkBlockType, options);
+  let chunk = genFragment(
+    safeBody,
+    OrderedSet(),
+    'ul',
+    null,
+    workingBlocks,
+    -1,
+    processCustomInlineStyles,
+    checkEntityNode,
+    checkEntityText,
+    checkBlockType,
+    options
+  );
 
   // join with previous block to prevent weirdness on paste
   if (chunk.text.indexOf('\r') === 0) {
@@ -513,14 +521,14 @@ function getChunkForHTML(html, processCustomInlineStyles, checkEntityNode, check
 
   // If we saw no block tags, put an unstyled one in
   if (chunk.blocks.length === 0) {
-    chunk.blocks.push({type: 'unstyled', data: Map(), depth: 0});
+    chunk.blocks.push({ type: 'unstyled', data: Map(), depth: 0 });
   }
 
   // Sometimes we start with text that isn't in a block, which is then
   // followed by blocks. Need to fix up the blocks to add in
   // an unstyled block for this content
   if (chunk.text.split('\r').length === chunk.blocks.length + 1) {
-    chunk.blocks.unshift({type: 'unstyled', data: Map(), depth: 0});
+    chunk.blocks.unshift({ type: 'unstyled', data: Map(), depth: 0 });
   }
 
   return chunk;
@@ -539,23 +547,31 @@ function convertFromHTMLtoContentBlocks(
   // arbitrary code in whatever environment you're running this in. For an
   // example of how we try to do this in-browser, see getSafeBodyFromHTML.
 
-  var chunk = getChunkForHTML(html, processCustomInlineStyles, checkEntityNode, checkEntityText, checkBlockType, options, DOMBuilder);
+  const chunk = getChunkForHTML(
+    html,
+    processCustomInlineStyles,
+    checkEntityNode,
+    checkEntityText,
+    checkBlockType,
+    options,
+    DOMBuilder
+  );
   if (chunk == null) {
     return [];
   }
-  var start = 0;
+  let start = 0;
   return chunk.text.split('\r').map(
-    (textBlock, ii) => {
+    (textBlock, blockIndex) => {
       // Make absolutely certain that our text is acceptable.
       textBlock = sanitizeDraftText(textBlock);
-      var end = start + textBlock.length;
-      var inlines = nullthrows(chunk).inlines.slice(start, end);
-      var entities = nullthrows(chunk).entities.slice(start, end);
-      var characterList = List(
-        inlines.map((style, ii) => {
-          var data = {style, entity: null};
-          if (entities[ii]) {
-            data.entity = entities[ii];
+      const end = start + textBlock.length;
+      const inlines = nullthrows(chunk).inlines.slice(start, end);
+      const entities = nullthrows(chunk).entities.slice(start, end);
+      const characterList = List(
+        inlines.map((style, entityIndex) => {
+          const data = { style, entity: null };
+          if (entities[entityIndex]) {
+            data.entity = entities[entityIndex];
           }
           return CharacterMetadata.create(data);
         })
@@ -564,9 +580,9 @@ function convertFromHTMLtoContentBlocks(
 
       return new ContentBlock({
         key: genKey(),
-        type: nullthrows(chunk).blocks[ii].type,
-        data: nullthrows(chunk).blocks[ii].data,
-        depth: nullthrows(chunk).blocks[ii].depth,
+        type: nullthrows(chunk).blocks[blockIndex].type,
+        data: nullthrows(chunk).blocks[blockIndex].data,
+        depth: nullthrows(chunk).blocks[blockIndex].depth,
         text: textBlock,
         characterList,
       });
@@ -603,7 +619,5 @@ export default (...args) => {
   if (args.length >= 1 && typeof args[0] === 'string') {
     return convertFromHTML({})(...args);
   }
-  else {
-    return convertFromHTML(...args);
-  }
+  return convertFromHTML(...args);
 };

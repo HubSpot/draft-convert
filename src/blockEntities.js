@@ -15,7 +15,7 @@ export default (block, entityMap, entityConverter = converter) => {
     getEntityHTML = entityConverter(converter);
   }
 
-  if (block.hasOwnProperty('entityRanges') && block.entityRanges.length > 0) {
+  if (Object.prototype.hasOwnProperty.call(block, 'entityRanges') && block.entityRanges.length > 0) {
     let entities = block.entityRanges.sort(rangeSort);
 
     let styles = block.inlineStyleRanges;
@@ -26,10 +26,11 @@ export default (block, entityMap, entityConverter = converter) => {
 
       const originalText = resultText.substr(entityRange.offset, entityRange.length);
 
-      const converted = getElementHTML(getEntityHTML(entity, originalText), originalText) || originalText;
+      const converted = getElementHTML(getEntityHTML(entity, originalText), originalText)
+                        || originalText;
 
       const updateLaterMutation = (mutation, mutationIndex) => {
-        if (mutationIndex >= index || mutation.hasOwnProperty('style')) {
+        if (mutationIndex >= index || Object.prototype.hasOwnProperty.call(mutation, 'style')) {
           return updateMutation(mutation, entityRange.offset, entityRange.length, converted.length);
         }
         return mutation;
@@ -38,7 +39,9 @@ export default (block, entityMap, entityConverter = converter) => {
       entities = entities.map(updateLaterMutation);
       styles = styles.map(updateLaterMutation);
 
-      resultText = resultText.substring(0, entityRange.offset) + converted + resultText.substring(entityRange.offset + entityRange.length);
+      resultText = resultText.substring(0, entityRange.offset)
+                   + converted
+                   + resultText.substring(entityRange.offset + entityRange.length);
     }
 
     return Object.assign({}, block, {
