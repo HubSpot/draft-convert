@@ -1,6 +1,6 @@
 {
   "name": "draft-convert",
-  "version": "1.3.4",
+  "version": "1.3.5",
   "description": "Extensibly serialize & deserialize Draft.js ContentState",
   "main": "lib/index.js",
   "repository": "HubSpot/draft-convert",
