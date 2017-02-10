@@ -1,9 +1,9 @@
 import blockEntities from '../../src/blockEntities';
 import blockInlineStyles from '../../src/blockInlineStyles';
 import encodeBlock from '../../src/encodeBlock';
-import {Map} from 'immutable';
+import { Map } from 'immutable';
 import React from 'react';
-import {convertFromRaw, convertToRaw} from 'draft-js';
+import { convertFromRaw, convertToRaw } from 'draft-js';
 
 const buildRawBlock = (text, entityMap = {}, styleRanges = [], entityRanges = [], data = Map()) => {
   return convertToRaw(convertFromRaw({
@@ -332,7 +332,7 @@ describe('blockEntities', () => {
     };
 
     const rawBlock = buildRawBlock(
-      `other'''''''text test\'s othertext`,
+      'other\'\'\'\'\'\'\'text test\'s othertext',
       entityMap,
       [],
       [
@@ -519,7 +519,7 @@ describe('blockEntities', () => {
       ]
     );
 
-    const middleware = (next) => (entity, originalText) => {
+    const middleware = next => (entity, originalText) => {
       if (entity.type === 'test') {
         return <a />;
       }

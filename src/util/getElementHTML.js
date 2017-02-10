@@ -24,7 +24,7 @@ export default function getElementHTML(element, text = null) {
     const tags = splitReactElement(element);
 
     if (text !== null) {
-      const {start, end} = tags;
+      const { start, end } = tags;
       return start + text + end;
     }
 
@@ -32,12 +32,12 @@ export default function getElementHTML(element, text = null) {
   }
 
   invariant(
-    element.hasOwnProperty('start') && element.hasOwnProperty('end'),
+    Object.prototype.hasOwnProperty.call(element, 'start') && Object.prototype.hasOwnProperty.call(element, 'end'),
     'convertToHTML: received conversion data without either an HTML string, ReactElement or an object with start/end tags'
   );
 
   if (text !== null) {
-    const {start, end} = element;
+    const { start, end } = element;
     return start + text + end;
   }
 

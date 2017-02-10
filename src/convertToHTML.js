@@ -2,7 +2,7 @@
 import invariant from 'invariant';
 import React from 'react';
 import ReactDOMServer from 'react-dom/server';
-import {convertToRaw} from 'draft-js';
+import { convertToRaw } from 'draft-js';
 
 import encodeBlock from './encodeBlock';
 import blockEntities from './blockEntities';
@@ -28,7 +28,7 @@ const convertToHTML = ({
   styleToHTML = {},
   blockToHTML = {},
   entityToHTML = defaultEntityToHTML
-}) => (contentState) => {
+}) => contentState => {
   invariant(
     contentState !== null && contentState !== undefined,
     'Expected contentState to be non-null'
@@ -48,7 +48,7 @@ const convertToHTML = ({
 
   let listStack = [];
 
-  let result = rawState.blocks.map((block) => {
+  let result = rawState.blocks.map(block => {
     const {
       type,
       depth
@@ -71,15 +71,13 @@ const convertToHTML = ({
           closeNestTags += getNestedBlockTags(getBlockHTML(blockToClose)).nestEnd;
           openNestTags += getNestedBlockTags(getBlockHTML(block)).nestStart;
           listStack[depth] = block;
+        } else if (depth + 1 < listStack.length) {
+          const blockToClose = listStack[listStack.length - 1];
+          closeNestTags += getNestedBlockTags(getBlockHTML(blockToClose)).nestEnd;
+          listStack = listStack.slice(0, -1);
         } else {
-          if (depth + 1 < listStack.length) {
-            const blockToClose = listStack[listStack.length - 1];
-            closeNestTags += getNestedBlockTags(getBlockHTML(blockToClose)).nestEnd;
-            listStack = listStack.slice(0, -1);
-          } else {
-            openNestTags += getNestedBlockTags(getBlockHTML(block)).nestStart;
-            listStack.push(block);
-          }
+          openNestTags += getNestedBlockTags(getBlockHTML(block)).nestStart;
+          listStack.push(block);
         }
       }
     }
@@ -107,7 +105,7 @@ const convertToHTML = ({
       html = blockHTML.start + innerHTML + blockHTML.end;
     }
 
-    if (innerHTML.length === 0 && blockHTML.hasOwnProperty('empty')) {
+    if (innerHTML.length === 0 && Object.prototype.hasOwnProperty.call(blockHTML, 'empty')) {
       if (React.isValidElement(blockHTML.empty)) {
         html = ReactDOMServer.renderToStaticMarkup(
           blockHTML.empty
@@ -128,7 +126,7 @@ const convertToHTML = ({
 };
 
 export default (...args) => {
-  if (args.length === 1 && args[0].hasOwnProperty('_map') && args[0].getBlockMap != null) {
+  if (args.length === 1 && Object.prototype.hasOwnProperty.call(args[0], '_map') && args[0].getBlockMap != null) {
     // skip higher-order function and use defaults
     return convertToHTML({})(...args);
   }

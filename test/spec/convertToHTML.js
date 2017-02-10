@@ -1,9 +1,11 @@
 import convertToHTML from '../../src/convertToHTML';
 import React from 'react';
-import {convertFromRaw} from 'draft-js';
+import { convertFromRaw } from 'draft-js';
 import uniqueId from '../util/uniqueId';
 
-const buildContentBlock = ({type = 'unstyled', depth = 0, text = '', styleRanges = [], entityRanges = [], data = {}}) => {
+/* eslint-disable react/no-multi-comp */
+
+const buildContentBlock = ({ type = 'unstyled', depth = 0, text = '', styleRanges = [], entityRanges = [], data = {} }) => {
   return {
     text,
     type,
@@ -242,12 +244,12 @@ describe('convertToHTML', () => {
       }
     });
 
-    const result = convertToHTML({entityToHTML: (entity, originalText) => {
+    const result = convertToHTML({ entityToHTML: (entity, originalText) => {
       if (entity.type === 'LINK') {
         return `<a>${originalText}</a>`;
       }
       return originalText;
-    }})(contentState);
+    } })(contentState);
     expect(result).toBe('<p>&lt;&amp;&gt;<a>test</a></p>');
   });
 
@@ -278,12 +280,12 @@ describe('convertToHTML', () => {
       }
     });
 
-    const result = convertToHTML({entityToHTML: (entity, originalText) => {
+    const result = convertToHTML({ entityToHTML: (entity, originalText) => {
       if (entity.type === 'LINK') {
         return `<a>${originalText}</a>`;
       }
       return originalText;
-    }})(contentState);
+    } })(contentState);
     expect(result).toBe('<p>t<a>e&lt;&amp;&gt;s</a><strong>t</strong></p>');
   });
 
@@ -300,7 +302,7 @@ describe('convertToHTML', () => {
     ]);
 
     const result = convertToHTML({
-      blockToHTML: (block) => {
+      blockToHTML: block => {
         if (block.type === 'custom') {
           const {
             tagName,
@@ -327,7 +329,7 @@ describe('convertToHTML', () => {
     ]);
 
     const html = convertToHTML({
-      blockToHTML: (block) => {
+      blockToHTML: block => {
         if (block.type === 'unstyled') {
           return <testelement />;
         }
@@ -342,14 +344,14 @@ describe('convertToHTML', () => {
       {
         type: 'unstyled',
         text: 'test',
-        data: {align: 'right'}
+        data: { align: 'right' }
       }
     ]);
 
     const html = convertToHTML({
-      blockToHTML: (block) => {
+      blockToHTML: block => {
         if (block.type === 'unstyled' && block.data.align) {
-          return <p style={{textAlign: block.data.align}} />;
+          return <p style={{ textAlign: block.data.align }} />;
         }
       }
     })(contentState);
@@ -365,7 +367,7 @@ describe('convertToHTML', () => {
       }
     ]);
 
-    const blockToHTML = (next) => (block) => {
+    const blockToHTML = next => block => {
       if (block.type === 'unstyled') {
         return <testelement />;
       }
@@ -374,7 +376,7 @@ describe('convertToHTML', () => {
 
     blockToHTML.__isMiddleware = true;
 
-    const html = convertToHTML({blockToHTML})(contentState);
+    const html = convertToHTML({ blockToHTML })(contentState);
 
     expect(html).toBe('<testelement>test</testelement>');
   });

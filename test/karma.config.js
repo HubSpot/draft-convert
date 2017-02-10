@@ -1,9 +1,9 @@
 // Karma configuration
 // Generated on Sun May 01 2016 14:18:39 GMT-0400 (EDT)
-var webpackConfig = require('../webpack.config.base');
+const webpackConfig = require('../webpack.config.base');
 webpackConfig.externals = {};
 
-module.exports = function(config) {
+function createKarmaConfig(config) {
   config.set({
 
     // base path that will be used to resolve all patterns (eg. files, exclude)
@@ -30,8 +30,8 @@ module.exports = function(config) {
     // preprocess matching files before serving them to the browser
     // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
     preprocessors: {
-        'src/index.js': ['webpack'],
-        'test/spec/*.js': ['webpack']
+      'src/index.js': ['webpack'],
+      'test/spec/*.js': ['webpack']
     },
 
     webpack: webpackConfig,
@@ -52,7 +52,7 @@ module.exports = function(config) {
 
 
     // level of logging
-    // possible values: config.LOG_DISABLE || config.LOG_ERROR || config.LOG_WARN || config.LOG_INFO || config.LOG_DEBUG
+    // possible values: LOG_DISABLE || LOG_ERROR || LOG_WARN || LOG_INFO || LOG_DEBUG
     logLevel: config.LOG_INFO,
 
 
@@ -72,5 +72,7 @@ module.exports = function(config) {
     // Concurrency level
     // how many browser should be started simultaneous
     concurrency: Infinity
-  })
+  });
 }
+
+module.exports = createKarmaConfig;

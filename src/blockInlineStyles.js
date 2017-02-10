@@ -6,8 +6,8 @@ import rangeSort from './util/rangeSort';
 import defaultInlineHTML from './default/defaultInlineHTML';
 
 const subtractStyles = (original, toRemove) => {
-  return original.filter((el) => {
-    return !toRemove.some((elToRemove) => {
+  return original.filter(el => {
+    return !toRemove.some(elToRemove => {
       return elToRemove.style === el.style;
     });
   });
@@ -27,7 +27,7 @@ const popEndingStyles = (styleStack, endingStyles) => {
 };
 
 const characterStyles = (offset, ranges) => {
-  return ranges.filter((range) => {
+  return ranges.filter(range => {
     return (offset >= range.offset && offset < (range.offset + range.length));
   });
 };
@@ -35,7 +35,8 @@ const characterStyles = (offset, ranges) => {
 const rangeIsSubset = (firstRange, secondRange) => {
   // returns true if the second range is a subset of the first
   const secondStartWithinFirst = firstRange.offset <= secondRange.offset;
-  const secondEndWithinFirst = firstRange.offset + firstRange.length >= secondRange.offset + secondRange.length;
+  const secondEndWithinFirst = firstRange.offset + firstRange.length
+                               >= secondRange.offset + secondRange.length;
 
   return secondStartWithinFirst && secondEndWithinFirst;
 };
@@ -67,7 +68,7 @@ const prependEndMarkup = (inlineHTML, string, styleRange) => {
   return getElementHTML(inlineHTML(styleRange.style)).end + string;
 };
 
-const defaultCustomInlineHTML = (next) => (style) => next(style);
+const defaultCustomInlineHTML = next => style => next(style);
 defaultCustomInlineHTML.__isMiddleware = true;
 
 export default (rawBlock, customInlineHTML = defaultCustomInlineHTML) => {

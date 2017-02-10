@@ -1,4 +1,4 @@
-import {Entity, convertToRaw} from 'draft-js';
+import { Entity, convertToRaw } from 'draft-js';
 import convertFromHTML from '../../src/convertFromHTML';
 import convertToHTML from '../../src/convertToHTML';
 
@@ -39,14 +39,12 @@ describe('convertFromHTML', () => {
         if (nodeName === 'span' && node.style.fontFamily === 'Test') {
           return inlineStyle.add('FONT-TEST');
         }
-        else {
-          return inlineStyle;
-        }
+        return inlineStyle;
       },
       htmlToEntity: (nodeName, node) => {
         if (nodeName === 'a' && node.href) {
           const href = node.href;
-          return Entity.create('LINK', 'MUTABLE', {url: href});
+          return Entity.create('LINK', 'MUTABLE', { url: href });
         }
 
         if (nodeName === 'testnode') {
@@ -60,7 +58,7 @@ describe('convertFromHTML', () => {
           });
         }
       },
-      textToEntity: (text) => {
+      textToEntity: text => {
         const acc = [];
         const pattern = new RegExp('\\@\\w+', 'ig');
         let resultArray = pattern.exec(text);
@@ -72,7 +70,7 @@ describe('convertFromHTML', () => {
             entity: Entity.create(
               'AT-MENTION',
               'IMMUTABLE',
-              {name}
+              { name }
             )
           });
           resultArray = pattern.exec(text);
@@ -85,7 +83,7 @@ describe('convertFromHTML', () => {
             entity: Entity.create(
               'MERGE-TAG',
               'IMMUTABLE',
-              {tag}
+              { tag }
             )
           });
         });
@@ -106,11 +104,9 @@ describe('convertFromHTML', () => {
       entityToHTML: (entity, originalText) => {
         if (entity.type === 'TEST') {
           return `<testnode test-attr="${entity.data.testAttr}">${originalText}</testnode>`;
-        }
-        else if (entity.type === 'AT-MENTION') {
+        } else if (entity.type === 'AT-MENTION') {
           return `@${entity.data.name}`;
-        }
-        else if (entity.type === 'MERGE-TAG') {
+        } else if (entity.type === 'MERGE-TAG') {
           return `{{ ${entity.data.tag} }}`;
         }
         return originalText;
@@ -141,7 +137,7 @@ describe('convertFromHTML', () => {
     expect(state.blockMap.size).toBe(3);
     expect(state.blockMap.toList().get(1).text).toBe('');
 
-    const htmlOut = convertToHTML({blockToHTML: customBlockToHTML})(state);
+    const htmlOut = convertToHTML({ blockToHTML: customBlockToHTML })(state);
     expect(htmlOut).toBe(htmlFixture);
   });
 
@@ -156,9 +152,7 @@ describe('convertFromHTML', () => {
         if (entity.type === 'LINK') {
           return `<a href="${entity.data.url}">${originalText}</a>`;
         }
-        else {
-          return originalText;
-        }
+        return originalText;
       }
     })(state);
     expect(htmlOut).toBe(htmlFixture);
@@ -254,7 +248,7 @@ describe('convertFromHTML', () => {
     // yield all of them as list items instead.
     const html = '<p><ul><li>one</li><li>two</li></ul></p>';
     const contentState = toContentState(html);
-    expect(contentState.getBlocksAsArray().filter((block) => block.getType() === 'unordered-list-item').length).toBe(2);
+    expect(contentState.getBlocksAsArray().filter(block => block.getType() === 'unordered-list-item').length).toBe(2);
   });
 
   it('converts custom block types while still using defaults', () => {
@@ -325,7 +319,7 @@ describe('convertFromHTML', () => {
     const contentState = toContentState(html);
     const blocks = contentState.getBlocksAsArray();
     expect(blocks.length).toBe(3);
-    blocks.forEach((block) => {
+    blocks.forEach(block => {
       expect(block.getType()).toBe('unstyled');
     });
   });
@@ -341,7 +335,7 @@ describe('convertFromHTML', () => {
   it('handles nested blocks in blockquote', () => {
     const html = '<blockquote><p>test</p><p>test</p></blockquote>';
     const contentState = toContentState(html);
-    contentState.getBlocksAsArray().forEach((block) => {
+    contentState.getBlocksAsArray().forEach(block => {
       expect(block.getType()).toBe('blockquote');
     });
   });
@@ -356,7 +350,7 @@ describe('convertFromHTML', () => {
   });
 
   it('handles undefined nested block types', () => {
-    const html = `<div><div>This won't work, first line</div></div>`;
+    const html = '<div><div>This won\'t work, first line</div></div>';
     const contentState = toContentState(html);
     const block = contentState.getBlocksAsArray()[0];
     expect(block.getType()).toBe('unstyled');
@@ -364,7 +358,7 @@ describe('convertFromHTML', () => {
 
   it('handles middleware functions when converting blocks from HTML', () => {
     const html = '<p>test</p>';
-    const htmlToBlock = (next) => (nodeName, ...args) => {
+    const htmlToBlock = next => (nodeName, ...args) => {
       if (nodeName === 'p') {
         const block = next(nodeName, args);
         if (typeof block === 'string') {
@@ -389,17 +383,17 @@ describe('convertFromHTML', () => {
 
   it('handles middleware functions when converting entities from HTML', () => {
     const html = '<p><a>test</a></p>';
-    const baseLink = (next) => (nodeName) => {
+    const baseLink = next => nodeName => {
       if (nodeName === 'a') {
         return Entity.create('LINK', 'IMMUTABLE', {});
       }
 
       return next(...arguments);
     };
-    const linkData = (next) => (nodeName, ...args) => {
+    const linkData = next => (nodeName, ...args) => {
       const entityKey = next(nodeName, ...args);
       if (nodeName === 'a') {
-        Entity.mergeData(entityKey, {test: true});
+        Entity.mergeData(entityKey, { test: true });
         return entityKey;
       }
 
@@ -423,7 +417,7 @@ describe('convertFromHTML', () => {
 
   it('handles middleware functions when converting entities from text', () => {
     const html = '<p>test1 test2</p>';
-    const test1Search = (next) => (text) => {
+    const test1Search = next => text => {
       const results = next(text);
       text.replace(/test1/g, (match, offset) => {
         results.push({
@@ -435,7 +429,7 @@ describe('convertFromHTML', () => {
 
       return results;
     };
-    const test2Search = (next) => (text) => {
+    const test2Search = next => text => {
       const results = next(text);
       text.replace(/test2/g, (match, offset) => {
         results.push({
@@ -467,10 +461,10 @@ describe('convertFromHTML', () => {
   it('handles middleware functions when converting styles from HTML', () => {
     const html = '<p><strong>test</strong></p>';
 
-    const htmlToStyle = (next) => (nodeName, ...args) => {
+    const htmlToStyle = next => (nodeName, ...args) => {
       const rest = next(nodeName, ...args);
       if (nodeName === 'strong' && rest.has('BOLD')) {
-        return rest.map((style) => {
+        return rest.map(style => {
           return style === 'BOLD' ? 'BOLD2' : 'BOLD';
         });
       }
