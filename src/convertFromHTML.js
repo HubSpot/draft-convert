@@ -17,6 +17,7 @@ import rangeSort from './util/rangeSort';
 
 const NBSP = '&nbsp;';
 const SPACE = ' ';
+const NEWLINE = '\n';
 
 // Arbitrary max indent
 const MAX_DEPTH = 4;
@@ -89,13 +90,18 @@ function getEmptyChunk() {
   };
 }
 
-function getWhitespaceChunk(inEntity) {
+function getWhitespaceChunk(inEntity, char = SPACE) {
+  invariant(
+    char.length === 1,
+    `getWhitespaceChunk: expected char '${char}' to be length 1`
+  );
+
   const entities = new Array(1);
   if (inEntity) {
     entities[0] = inEntity;
   }
   return {
-    text: SPACE,
+    text: char,
     inlines: [OrderedSet()],
     entities,
     blocks: [],
@@ -103,17 +109,9 @@ function getWhitespaceChunk(inEntity) {
 }
 
 function getSoftNewlineChunk(block, depth, data = Map()) {
-  return {
-    text: '\r',
-    inlines: [OrderedSet()],
-    entities: new Array(1),
-    blocks: [{
-      type: block,
-      data,
-      depth: Math.max(0, Math.min(MAX_DEPTH, depth)),
-    }],
+  return Object.assign(getBlockDividerChunk(block, depth, data), {
     isNewline: true
-  };
+  });
 }
 
 function getBlockDividerChunk(block, depth, data = Map()) {
@@ -220,9 +218,9 @@ function joinChunks(A, B) {
   if (
     A.text.slice(-1) === '\r'
   ) {
-    if (B.text === SPACE || B.text === '\n') {
+    if (B.text === SPACE || B.text === NEWLINE) {
       return A;
-    } else if (firstInB === SPACE || firstInB === '\n') {
+    } else if (firstInB === SPACE || firstInB === NEWLINE) {
       B.text = B.text.slice(1);
       B.inlines.shift();
       B.entities.shift();
@@ -309,6 +307,11 @@ function genFragment(
   // BR tags
   if (nodeName === 'br') {
     const blockType = inBlock;
+
+    if (blockType === 'ordered-list-item' || blockType === 'unordered-list-item') {
+      return getWhitespaceChunk(null, NEWLINE)
+    }
+
     return getSoftNewlineChunk(blockType || 'unstyled', depth);
   }
 
