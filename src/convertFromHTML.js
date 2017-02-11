@@ -441,8 +441,16 @@ function genFragment(
         newBlockData = newBlockInfo.data ? Map(newBlockInfo.data) : Map();
       }
 
-
-      chunk = joinChunks(chunk, getSoftNewlineChunk(newBlockType, depth, options.flat, blockDataMap), options.flat);
+      chunk = joinChunks(
+        chunk,
+        getSoftNewlineChunk(
+          newBlockType,
+          depth,
+          options.flat,
+          newBlockData
+        ),
+        options.flat
+      );
     }
     if (sibling) {
       nodeName = sibling.nodeName.toLowerCase();

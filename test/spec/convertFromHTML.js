@@ -361,7 +361,7 @@ describe('convertFromHTML', () => {
     const contentState = toContentState(html, { flat: true });
     const blocks = contentState.getBlocksAsArray();
     expect(blocks.length).toBe(3);
-    blocks.forEach((block) => {
+    blocks.forEach(block => {
       expect(block.getType()).toBe('unstyled');
     });
   });
