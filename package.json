@@ -56,7 +56,6 @@
     "eslint-plugin-react": "6.8.0",
     "jasmine": "^2.2.0",
     "jest": "^18.1.0",
-    "jest-environment-node-debug": "^0.0.2",
     "karma": "^0.13.22",
     "karma-chrome-launcher": "^0.2.3",
     "karma-jasmine": "^0.3.8",

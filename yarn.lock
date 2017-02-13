@@ -2337,10 +2337,6 @@ jest-environment-jsdom@^18.1.0:
     jest-util "^18.1.0"
     jsdom "^9.9.1"
 
-jest-environment-node-debug@^0.0.2:
-  version "0.0.2"
-  resolved "https://registry.yarnpkg.com/jest-environment-node-debug/-/jest-environment-node-debug-0.0.2.tgz#f9d8190cb241c2ed50e670623927adda90bca33d"
-
 jest-environment-node@^18.1.0:
   version "18.1.0"
   resolved "https://registry.yarnpkg.com/jest-environment-node/-/jest-environment-node-18.1.0.tgz#4d6797572c8dda99acf5fae696eb62945547c779"
@@ -2477,7 +2473,7 @@ jsbn@~0.1.0:
   version "0.1.0"
   resolved "https://registry.yarnpkg.com/jsbn/-/jsbn-0.1.0.tgz#650987da0dd74f4ebf5a11377a2aa2d273e97dfd"
 
-jsdom@^9.10.0, jsdom@^9.9.1:
+jsdom@^9.9.1:
   version "9.10.0"
   resolved "https://registry.yarnpkg.com/jsdom/-/jsdom-9.10.0.tgz#72d04d9fd5f1164d016dc350ef889af6d0d1a25a"
   dependencies:
