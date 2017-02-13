@@ -170,7 +170,6 @@ function processInlineTag(
   currentStyle
 ) {
   const styleToCheck = inlineTags[tag];
-  debugger;
   if (styleToCheck) {
     currentStyle = currentStyle.add(styleToCheck).toOrderedSet();
   } else if (node instanceof HTMLElement) {

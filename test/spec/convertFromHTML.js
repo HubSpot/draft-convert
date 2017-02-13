@@ -2,23 +2,12 @@ import React from 'react';
 import { Entity, convertToRaw } from 'draft-js';
 import convertFromHTML from '../../src/convertFromHTML';
 import convertToHTML from '../../src/convertToHTML';
-import jsdom from 'jsdom';
 
 const customBlockToHTML = {
   unstyled: {
     start: '<p>',
     end: '</p>'
   }
-};
-
-const jsDomDocument = jsdom.jsdom().defaultView;
-
-global.document = jsDomDocument.document;
-global.HTMLElement = jsDomDocument.HTMLElement;
-
-const DOMBuilder = html => {
-  const document = jsdom.jsdom(html);
-  return document.defaultView.document.body;
 };
 
 describe('convertFromHTML', () => {
@@ -48,7 +37,7 @@ describe('convertFromHTML', () => {
         }
       },
       htmlToStyle: (nodeName, node, inlineStyle) => {
-        if (nodeName === 'span' && node.style.fontFamily === 'Test') {
+        if (nodeName === 'span' && (node.style.fontFamily === 'Test' || node.style.fontFamily === "'Test'")) {
           return inlineStyle.add('FONT-TEST');
         }
         return inlineStyle;
@@ -101,7 +90,7 @@ describe('convertFromHTML', () => {
         });
         return acc;
       }
-    })(html, DOMBuilder);
+    })(html);
   };
 
   const testFixture = htmlFixture => {
@@ -144,7 +133,7 @@ describe('convertFromHTML', () => {
 
   it('empty paragraphs', () => {
     const htmlFixture = '<p>one</p><p></p><p>two</p>';
-    const state = convertFromHTML(htmlFixture, DOMBuilder);
+    const state = convertFromHTML(htmlFixture);
     expect(state.blockMap.size).toBe(3);
     expect(state.blockMap.toList().get(1).text).toBe('');
 
@@ -170,11 +159,11 @@ describe('convertFromHTML', () => {
   });
 
   it('converts custom inline styles', () => {
-    const html = '<p><span style="font-family: \'Test\'">test font</span></p>';
+    const html = '<p><span style="font-family:Test;">test font</span></p>';
     const contentState = toContentState(html);
     const styles = contentState.getFirstBlock().getInlineStyleAt(0);
     expect(styles.size).toBe(1);
-    expect(styles.get(0)).toBe('FONT-TEST');
+    expect(styles.has('FONT-TEST')).toBe(true);
 
     testFixture(html);
   });
@@ -392,7 +381,7 @@ describe('convertFromHTML', () => {
 
     const contentState = convertFromHTML({
       htmlToBlock
-    })(html, DOMBuilder);
+    })(html);
 
     const block = contentState.getBlocksAsArray()[0];
     expect(block.getData().get('test')).toBe(true);
@@ -424,7 +413,7 @@ describe('convertFromHTML', () => {
 
     const contentState = convertFromHTML({
       htmlToEntity
-    })(html, DOMBuilder);
+    })(html);
 
     const rawState = convertToRaw(contentState);
     expect(rawState.entityMap[0].type).toBe('LINK');
@@ -466,7 +455,7 @@ describe('convertFromHTML', () => {
 
     const contentState = convertFromHTML({
       textToEntity
-    })(html, DOMBuilder);
+    })(html);
 
     const rawState = convertToRaw(contentState);
     expect(rawState.entityMap[0].type).toBe('TEST1');
@@ -493,7 +482,7 @@ describe('convertFromHTML', () => {
 
     const contentState = convertFromHTML({
       htmlToStyle
-    })(html, DOMBuilder);
+    })(html);
 
     const rawState = convertToRaw(contentState);
     expect(rawState.blocks[0].inlineStyleRanges[0].style).toBe('BOLD2');
