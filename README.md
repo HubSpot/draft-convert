@@ -149,11 +149,11 @@ const contentState = compose(
 )(convertFromHTML);
 ```
 
-If no additional functionality is necessary `convertToHTML` can be invoked with just an HTML string to deserialize using just the default Draft functionality. Any `convertFromHTML` can be passed as an argument to a plugin to modularly augment its functionality.
+If no additional functionality is necessary `convertToHTML` can be invoked with just an HTML string to deserialize using just the default Draft functionality. Any `convertFromHTML` can be passed as an argument to a plugin to modularly augment its functionality. A `flat` option may be provided to force nested block elements to split into flat, separate blocks. For example, the HTML input `<p>line one<br />linetwo</p>` will produce two `unstyled` blocks in `flat` mode.
 
 **Type info:**
 ```javascript
-type HTMLConverter = (html: string, DOMBuilder: ?Function) => ContentState
+type HTMLConverter = (html: string, {flat: ?boolean}, DOMBuilder: ?Function) => ContentState
 
 type EntityKey = string
 
