@@ -10,7 +10,7 @@ const customBlockToHTML = {
 };
 
 describe('convertFromHTML', () => {
-  const toContentState = html => {
+  const toContentState = (html, options) => {
     return convertFromHTML({
       htmlToBlock: (nodeName, node, lastList, inBlock) => {
         if ((nodeName === 'p' || nodeName === 'div') && inBlock === 'blockquote') {
@@ -89,7 +89,7 @@ describe('convertFromHTML', () => {
         });
         return acc;
       }
-    })(html);
+    })(html, options);
   };
 
   const testFixture = htmlFixture => {
@@ -200,16 +200,30 @@ describe('convertFromHTML', () => {
     testFixture('<p>test1</p><p></p><p>test2</p>');
   });
 
-  it('converts br tag to block boundaries', () => {
+  it('converts br tag to block boundaries when flat blocks are enabled', () => {
     const html = '<p>one<br/>two</p>';
-    const contentState = toContentState(html);
+    const contentState = toContentState(html, { flat: true });
     expect(contentState.getBlocksAsArray().length).toBe(2);
     expect(convertToHTML(contentState)).toBe('<p>one</p><p>two</p>');
+  });
+
+  it('DOESNT converts br tag to block boundaries', () => {
+    const html = '<p>one<br/>two</p>';
+    const contentState = toContentState(html);
+    expect(contentState.getBlocksAsArray().length).toBe(1);
+    expect(convertToHTML(contentState)).toBe('<p>one<br/>two</p>');
   });
 
   it('converts multiple consecutive brs', () => {
     const html = '<p>one<br/><br/>two</p>';
     const contentState = toContentState(html);
+    expect(contentState.getBlocksAsArray().length).toBe(1);
+    expect(convertToHTML(contentState)).toBe('<p>one<br/><br/>two</p>');
+  });
+
+  it('converts multiple consecutive brs to blocks when flat', () => {
+    const html = '<p>one<br/><br/>two</p>';
+    const contentState = toContentState(html, { flat: true });
     expect(contentState.getBlocksAsArray().length).toBe(3);
     expect(convertToHTML(contentState)).toBe('<p>one</p><p></p><p>two</p>');
   });
@@ -221,25 +235,53 @@ describe('convertFromHTML', () => {
     expect(convertToHTML(contentState)).toBe('<p>one</p><p></p><p>three</p>');
   });
 
+  it('handles brs at top level when flat', () => {
+    const html = '<p>one</p><br/><p>three</p>';
+    const contentState = toContentState(html, { flat: true });
+    expect(contentState.getBlocksAsArray().length).toBe(3);
+    expect(convertToHTML(contentState)).toBe('<p>one</p><p></p><p>three</p>');
+  });
+
   it('handles <p><br></p> and removes the BR', () => {
     const html = '<p>before</p><p><br></p><p>after</p>';
-    const contentState = toContentState(html);
+    const contentState = toContentState(html, { flat: true });
     expect(contentState.getBlocksAsArray().length).toBe(3);
     expect(convertToHTML(contentState)).toBe('<p>before</p><p></p><p>after</p>');
   });
 
-  it('handles <p><strong><br><strong></p> and removes the BR', () => {
+  it('handles <p><br></p>', () => {
+    const html = '<p>before</p><p><br/></p><p>after</p>';
+    const contentState = toContentState(html);
+    expect(contentState.getBlocksAsArray().length).toBe(3);
+    expect(convertToHTML(contentState)).toBe('<p>before</p><p><br/></p><p>after</p>');
+  });
+
+  it('handles <p><strong><br><strong></p> and removes the BR when flat', () => {
+    const html = '<p>before</p><p><strong><br></strong></p><p>after</p>';
+    const contentState = toContentState(html, { flat: true });
+    expect(contentState.getBlocksAsArray().length).toBe(3);
+    expect(convertToHTML(contentState)).toBe('<p>before</p><p></p><p>after</p>');
+  });
+
+  it('handles <p><strong><br><strong></p>', () => {
     const html = '<p>before</p><p><strong><br></strong></p><p>after</p>';
     const contentState = toContentState(html);
     expect(contentState.getBlocksAsArray().length).toBe(3);
+    expect(convertToHTML(contentState)).toBe('<p>before</p><p><br/></p><p>after</p>');
+  });
+
+  it('handles <div><br></div> when other semantic tags are also present and removes the BR when flat', () => {
+    const html = '<div>before</div><div><br></div><p>after</p>';
+    const contentState = toContentState(html, { flat: true });
+    expect(contentState.getBlocksAsArray().length).toBe(3);
     expect(convertToHTML(contentState)).toBe('<p>before</p><p></p><p>after</p>');
   });
 
-  it('handles <div><br></div> when other semantic tags are also present and removes the BR', () => {
+  it('handles <div><br></div> when other semantic tags are also present', () => {
     const html = '<div>before</div><div><br></div><p>after</p>';
     const contentState = toContentState(html);
     expect(contentState.getBlocksAsArray().length).toBe(3);
-    expect(convertToHTML(contentState)).toBe('<p>before</p><p></p><p>after</p>');
+    expect(convertToHTML(contentState)).toBe('<p>before</p><p><br/></p><p>after</p>');
   });
 
   it('handles ul nested within block', () => {
@@ -312,6 +354,16 @@ describe('convertFromHTML', () => {
       }
     })(contentState);
     expect(resultHTML).toBe('<p>test</p><figure><img src="test" /></figure><p>test</p>');
+  });
+
+  it('handles only span and brs and all blocks are unstyled when flat', () => {
+    const html = '<span>line one<br><br>line 3</span>';
+    const contentState = toContentState(html, { flat: true });
+    const blocks = contentState.getBlocksAsArray();
+    expect(blocks.length).toBe(3);
+    blocks.forEach(block => {
+      expect(block.getType()).toBe('unstyled');
+    });
   });
 
   it('handles only span and brs and all blocks are unstyled', () => {

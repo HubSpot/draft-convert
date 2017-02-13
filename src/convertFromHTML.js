@@ -102,17 +102,26 @@ function getWhitespaceChunk(inEntity) {
   };
 }
 
-function getSoftNewlineChunk(block, depth, data = Map()) {
+function getSoftNewlineChunk(block, depth, flat = false, data = Map()) {
+  if (flat === true) {
+    return {
+      text: '\r',
+      inlines: [OrderedSet()],
+      entities: new Array(1),
+      blocks: [{
+        type: block,
+        data,
+        depth: Math.max(0, Math.min(MAX_DEPTH, depth))
+      }],
+      isNewline: true
+    };
+  }
+
   return {
-    text: '\r',
+    text: '\n',
     inlines: [OrderedSet()],
     entities: new Array(1),
-    blocks: [{
-      type: block,
-      data,
-      depth: Math.max(0, Math.min(MAX_DEPTH, depth)),
-    }],
-    isNewline: true
+    blocks: []
   };
 }
 
@@ -199,7 +208,7 @@ function baseProcessInlineTag(tag, node) {
   return processInlineTag(tag, node, OrderedSet());
 }
 
-function joinChunks(A, B) {
+function joinChunks(A, B, flat = false) {
   // Sometimes two blocks will touch in the DOM and we need to strip the
   // extra delimiter to preserve niceness.
   const firstInB = B.text.slice(0, 1);
@@ -216,9 +225,9 @@ function joinChunks(A, B) {
     A.blocks.pop();
   }
 
-  // Kill whitespace after blocks
+  // Kill whitespace after blocks if flat mode is on
   if (
-    A.text.slice(-1) === '\r'
+    A.text.slice(-1) === '\r' && flat === true
   ) {
     if (B.text === SPACE || B.text === '\n') {
       return A;
@@ -260,6 +269,7 @@ function genFragment(
   checkEntityNode,
   checkEntityText,
   checkBlockType,
+  options,
   inEntity
 ) {
   let nodeName = node.nodeName.toLowerCase();
@@ -309,7 +319,13 @@ function genFragment(
   // BR tags
   if (nodeName === 'br') {
     const blockType = inBlock;
-    return getSoftNewlineChunk(blockType || 'unstyled', depth);
+
+    if (blockType === null) {
+      //  BR tag is at top level, treat it as an unstyled block
+      return getSoftNewlineChunk('unstyled', depth, true);
+    }
+
+    return getSoftNewlineChunk(blockType || 'unstyled', depth, options.flat);
   }
 
   let chunk = getEmptyChunk();
@@ -362,6 +378,7 @@ function genFragment(
     chunk = getSoftNewlineChunk(
       blockType,
       depth,
+      true, // atomic blocks within non-atomic blocks must always be split out
       blockDataMap
     );
   }
@@ -398,10 +415,11 @@ function genFragment(
       checkEntityNode,
       checkEntityText,
       checkBlockType,
+      options,
       entityId || inEntity
     );
 
-    chunk = joinChunks(chunk, newChunk);
+    chunk = joinChunks(chunk, newChunk, options.flat);
     const sibling = child.nextSibling;
 
     // Put in a newline to break up blocks inside blocks
@@ -423,8 +441,16 @@ function genFragment(
         newBlockData = newBlockInfo.data ? Map(newBlockInfo.data) : Map();
       }
 
-
-      chunk = joinChunks(chunk, getSoftNewlineChunk(newBlockType, depth, newBlockData));
+      chunk = joinChunks(
+        chunk,
+        getSoftNewlineChunk(
+          newBlockType,
+          depth,
+          options.flat,
+          newBlockData
+        ),
+        options.flat
+      );
     }
     if (sibling) {
       nodeName = sibling.nodeName.toLowerCase();
@@ -435,7 +461,8 @@ function genFragment(
   if (newBlock) {
     chunk = joinChunks(
       chunk,
-      getBlockDividerChunk(nextBlockType, depth, Map())
+      getBlockDividerChunk(nextBlockType, depth, Map()),
+      options.flat
     );
   }
 
@@ -448,6 +475,7 @@ function getChunkForHTML(
   checkEntityNode,
   checkEntityText,
   checkBlockType,
+  options,
   DOMBuilder
 ) {
   html = html
@@ -477,7 +505,8 @@ function getChunkForHTML(
     processCustomInlineStyles,
     checkEntityNode,
     checkEntityText,
-    checkBlockType
+    checkBlockType,
+    options
   );
 
   // join with previous block to prevent weirdness on paste
@@ -519,6 +548,7 @@ function convertFromHTMLtoContentBlocks(
   checkEntityNode,
   checkEntityText,
   checkBlockType,
+  options,
   DOMBuilder
 ) {
   // Be ABSOLUTELY SURE that the dom builder you pass hare won't execute
@@ -531,6 +561,7 @@ function convertFromHTMLtoContentBlocks(
     checkEntityNode,
     checkEntityText,
     checkBlockType,
+    options,
     DOMBuilder
   );
   if (chunk == null) {
@@ -574,6 +605,9 @@ const convertFromHTML = ({
   htmlToBlock = defaultHTMLToBlock,
 }) => (
   html,
+  options = {
+    flat: false
+  },
   DOMBuilder = getSafeBodyFromHTML
 ) => {
   return ContentState.createFromBlockArray(
@@ -583,6 +617,7 @@ const convertFromHTML = ({
       handleMiddleware(htmlToEntity, defaultHTMLToEntity),
       handleMiddleware(textToEntity, defaultTextToEntity),
       handleMiddleware(htmlToBlock, baseCheckBlockType),
+      options,
       DOMBuilder
     )
   );
