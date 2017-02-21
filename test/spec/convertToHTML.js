@@ -358,7 +358,7 @@ describe('convertToHTML', () => {
     const result = convertToHTML({
       entityToHTML: (entity, originalText) => {
         if (entity.type === 'LINK') {
-          const {data} = entity;
+          const { data } = entity;
 
           return {
             start: `<a href="${data.href}">`,

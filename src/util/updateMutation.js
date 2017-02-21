@@ -1,4 +1,6 @@
-export default function updateMutation(mutation, originalOffset, originalLength, newLength, prefixLength) {
+export default function updateMutation(
+  mutation, originalOffset, originalLength, newLength, prefixLength
+) {
   // two cases we can reasonably adjust - disjoint mutations that
   // happen later on where the offset will need to be changed, and
   // mutations that completely contain the new one where we can adjust

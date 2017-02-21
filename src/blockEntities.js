@@ -37,7 +37,10 @@ export default (block, entityMap, entityConverter = converter) => {
 
       const updateLaterMutation = (mutation, mutationIndex) => {
         if (mutationIndex >= index || Object.prototype.hasOwnProperty.call(mutation, 'style')) {
-          return updateMutation(mutation, entityRange.offset, entityRange.length, converted.length, prefixLength);
+          return updateMutation(
+            mutation, entityRange.offset, entityRange.length,
+            converted.length, prefixLength
+          );
         }
         return mutation;
       };
