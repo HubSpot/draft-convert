@@ -1,10 +1,10 @@
 export default function updateMutation(
   mutation, originalOffset, originalLength, newLength, prefixLength
 ) {
-  // two cases we can reasonably adjust - disjoint mutations that
-  // happen later on where the offset will need to be changed, and
+  // three cases we can reasonably adjust - disjoint mutations that
+  // happen later on where the offset will need to be changed,
   // mutations that completely contain the new one where we can adjust
-  // the length.
+  // the length, and mutations that occur partially within the new one.
   const lengthDiff = newLength - originalLength;
 
   if (originalOffset + originalLength <= mutation.offset) {
