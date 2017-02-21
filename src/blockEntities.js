@@ -26,12 +26,18 @@ export default (block, entityMap, entityConverter = converter) => {
 
       const originalText = resultText.substr(entityRange.offset, entityRange.length);
 
-      const converted = getElementHTML(getEntityHTML(entity, originalText), originalText)
+      const entityHTML = getEntityHTML(entity, originalText);
+      const converted = getElementHTML(entityHTML, originalText)
                         || originalText;
+
+      let prefixLength = 0;
+      if (typeof entityHTML === 'object') {
+        prefixLength = entityHTML.start ? entityHTML.start.length : 0;
+      }
 
       const updateLaterMutation = (mutation, mutationIndex) => {
         if (mutationIndex >= index || Object.prototype.hasOwnProperty.call(mutation, 'style')) {
-          return updateMutation(mutation, entityRange.offset, entityRange.length, converted.length);
+          return updateMutation(mutation, entityRange.offset, entityRange.length, converted.length, prefixLength);
         }
         return mutation;
       };

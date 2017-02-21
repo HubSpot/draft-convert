@@ -1,4 +1,4 @@
-export default function updateMutation(mutation, originalOffset, originalLength, newLength) {
+export default function updateMutation(mutation, originalOffset, originalLength, newLength, prefixLength) {
   // two cases we can reasonably adjust - disjoint mutations that
   // happen later on where the offset will need to be changed, and
   // mutations that completely contain the new one where we can adjust
@@ -16,6 +16,11 @@ export default function updateMutation(mutation, originalOffset, originalLength,
   ) {
     return Object.assign({}, mutation, {
       length: mutation.length + lengthDiff
+    });
+  }
+  if (originalOffset <= mutation.offset) {
+    return Object.assign({}, mutation, {
+      offset: mutation.offset + prefixLength
     });
   }
 
