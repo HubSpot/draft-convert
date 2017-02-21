@@ -1,3 +1,4 @@
+import React from 'react';
 import { Entity, convertToRaw } from 'draft-js';
 import convertFromHTML from '../../src/convertFromHTML';
 import convertToHTML from '../../src/convertToHTML';
@@ -36,7 +37,7 @@ describe('convertFromHTML', () => {
         }
       },
       htmlToStyle: (nodeName, node, inlineStyle) => {
-        if (nodeName === 'span' && node.style.fontFamily === 'Test') {
+        if (nodeName === 'span' && (node.style.fontFamily === 'Test' || node.style.fontFamily === "'Test'")) {
           return inlineStyle.add('FONT-TEST');
         }
         return inlineStyle;
@@ -95,10 +96,9 @@ describe('convertFromHTML', () => {
   const testFixture = htmlFixture => {
     const contentState = toContentState(htmlFixture);
     const htmlOut = convertToHTML({
-      styleToHTML: {
-        'FONT-TEST': {
-          start: '<span style="font-family: \'Test\'">',
-          end: '</span>'
+      styleToHTML: style => {
+        if (style === 'FONT-TEST') {
+          return <span style={{ fontFamily: 'Test' }} />;
         }
       },
       entityToHTML: (entity, originalText) => {
@@ -159,7 +159,13 @@ describe('convertFromHTML', () => {
   });
 
   it('converts custom inline styles', () => {
-    testFixture('<p><span style="font-family: \'Test\'">test font</span></p>');
+    const html = '<p><span style="font-family:Test;">test font</span></p>';
+    const contentState = toContentState(html);
+    const styles = contentState.getFirstBlock().getInlineStyleAt(0);
+    expect(styles.size).toBe(1);
+    expect(styles.has('FONT-TEST')).toBe(true);
+
+    testFixture(html);
   });
 
   it('ul - nested', () => {
