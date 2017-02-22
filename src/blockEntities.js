@@ -1,6 +1,7 @@
 import updateMutation from './util/updateMutation';
 import rangeSort from './util/rangeSort';
 import getElementHTML from './util/getElementHTML';
+import getElementPrefix from './util/getElementPrefix';
 
 const converter = (entity = {}, originalText) => {
   return originalText;
@@ -30,10 +31,7 @@ export default (block, entityMap, entityConverter = converter) => {
       const converted = getElementHTML(entityHTML, originalText)
                         || originalText;
 
-      let prefixLength = 0;
-      if (typeof entityHTML === 'object') {
-        prefixLength = entityHTML.start ? entityHTML.start.length : 0;
-      }
+      const prefixLength = getElementPrefix(entityHTML);
 
       const updateLaterMutation = (mutation, mutationIndex) => {
         if (mutationIndex >= index || Object.prototype.hasOwnProperty.call(mutation, 'style')) {
