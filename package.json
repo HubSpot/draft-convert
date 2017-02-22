@@ -3,7 +3,7 @@
   "version": "1.4.3",
   "description": "Extensibly serialize & deserialize Draft.js ContentState",
   "main": "lib/index.js",
-  "repository": "HubSpot/draft-convert",
+  "repository": "refinery29/draft-convert",
   "scripts": {
     "build": "npm run build:commonjs && npm run build:umd && npm run build:umd:min",
     "build:commonjs": "cross-env BABEL_ENV=commonjs babel src --out-dir lib",
