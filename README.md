@@ -8,7 +8,7 @@
 
 ## Installation
 
-`npm install draft-convert --save`
+`npm install draft-convert --save` or `yarn add draft-convert`
 
 Jump to:
 
