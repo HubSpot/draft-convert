@@ -320,6 +320,59 @@ describe('convertToHTML', () => {
     expect(result).toBe('<customtag attribute="value">test</customtag>');
   });
 
+  it('combines styles and entities without overlap', () => {
+    const contentState = buildContentState([
+      {
+        type: 'unstyled',
+        text: 'overlapping styles in entity',
+        styleRanges: [
+          {
+            offset: 0,
+            length: 14,
+            style: 'BOLD'
+          },
+          {
+            offset: 14,
+            length: 14,
+            style: 'ITALIC'
+          }
+        ],
+        entityRanges: [
+          {
+            key: 0,
+            offset: 0,
+            length: 28
+          }
+        ],
+      },
+    ], {
+      0: {
+        type: 'LINK',
+        mutability: 'IMMUTABLE',
+        data: {
+          href: 'http://google.com',
+        }
+      }
+    });
+
+    const result = convertToHTML({
+      entityToHTML: (entity, originalText) => {
+        if (entity.type === 'LINK') {
+          const { data } = entity;
+
+          return {
+            start: `<a href="${data.href}">`,
+            end: '</a>'
+          };
+        }
+
+        return originalText;
+      }
+    })(contentState);
+
+    expect(result).toBe('<p><a href="http://google.com"><strong>overlapping st</strong><em>yles in entity</em></a></p>');
+  });
+
   it('uses JSX for block HTML', () => {
     const contentState = buildContentState([
       {
