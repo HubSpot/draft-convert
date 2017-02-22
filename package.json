@@ -1,5 +1,5 @@
 {
-  "name": "draft-convert",
+  "name": "@r29/draft-convert",
   "version": "1.4.3",
   "description": "Extensibly serialize & deserialize Draft.js ContentState",
   "main": "lib/index.js",
