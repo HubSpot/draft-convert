@@ -6,6 +6,10 @@
 
 *See [**draft-extend**](http://github.com/HubSpot/draft-extend) for more on how to use draft-convert with plugins*
 
+## Installation
+
+`npm install draft-convert --save`
+
 Jump to:
 
 - [convertToHTML](#converttohtml)
