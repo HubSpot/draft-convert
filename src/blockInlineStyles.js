@@ -48,16 +48,67 @@ const latestStyleLast = (s1, s2) => {
   return s2endIndex - s1endIndex;
 };
 
-const getStylesToReset = (remainingStyles, newStyles) => {
+const isPartiallyIntersectingMutation = (entities, remainingStyles, currentIndex, resetStyle, i) => {
+  // Check that style either starts from left of original offset and stops before end or
+  // starts after beginning of original offset and stops beyond end
+  // or start from left of original offset and stop after
+  const style = remainingStyles[i];
+  return entities.some(entityRange => {
+    const leftIntersection = style.offset < entityRange.offset
+      && style.offset + style.length < entityRange.offset + entityRange.length;
+    const rightIntersection = style.offset > entityRange.offset
+      && style.offset + style.length > entityRange.offset + entityRange.length;
+    const leftToRightIntersection = style.offset < entityRange.offset
+      && style.offset + style.length > entityRange.offset + entityRange.length;
+
+    return leftIntersection || rightIntersection || leftToRightIntersection;
+  });
+};
+
+const getStylesToReset = (remainingStyles, newStyles, entities, currentIndex) => {
+  const resetStyle = {
+    style: []
+  };
+
   let i = 0;
   while (i < remainingStyles.length) {
-    if (newStyles.every(rangeIsSubset.bind(null, remainingStyles[i]))) {
+    if (isPartiallyIntersectingMutation(entities, remainingStyles, currentIndex, resetStyle, i)) {
+      const resetStyles = entities.some(entityRange => {
+        if (entityRange.prefixLength && entityRange.suffixLength) {
+          // If the current index is at the start of beginning entity HTML tag or start of end entity HTML tag,
+          // only want to close style
+          if (currentIndex === entityRange.offset
+            || currentIndex === entityRange.offset + entityRange.length - entityRange.suffixLength) {
+            resetStyle.end = true;
+            resetStyle.style = remainingStyles.slice(i);
+            return true;
+          }
+
+          // If the current index is at the end of beginning entity HTML tag or end of end entity HTML tag,
+          // only want to close style
+          if (currentIndex === entityRange.offset + entityRange.prefixLength
+            || currentIndex === entityRange.offset + entityRange.length) {
+            resetStyle.start = true;
+            resetStyle.style = remainingStyles.slice(i);
+            return true;
+          }
+        }
+      });
+      if (resetStyles) {
+        return resetStyle;
+      }
+      i++;
+    } else if (newStyles.every(rangeIsSubset.bind(null, remainingStyles[i]))) {
       i++;
     } else {
-      return remainingStyles.slice(i);
+      return {
+        start: true,
+        end: true,
+        style: remainingStyles.slice(i)
+      };
     }
   }
-  return [];
+  return resetStyle;
 };
 
 const appendStartMarkup = (inlineHTML, string, styleRange) => {
@@ -92,6 +143,7 @@ export default (rawBlock, customInlineHTML = defaultCustomInlineHTML) => {
   let styleStack = [];
 
   const sortedRanges = rawBlock.inlineStyleRanges.sort(rangeSort);
+  const entities = rawBlock.entityRanges;
 
   for (let i = 0; i < rawBlock.text.length; i++) {
     const styles = characterStyles(i, sortedRanges);
@@ -104,16 +156,29 @@ export default (rawBlock, customInlineHTML = defaultCustomInlineHTML) => {
     // end before styles that are being added on this character. to solve this
     // close out those current tags and all nested children,
     // then open new ones nested within the new styles.
-    const resetStyles = getStylesToReset(remainingStyles, newStyles);
+    const resetStyles = getStylesToReset(remainingStyles, newStyles, entities, i);
 
-    const openingStyles = resetStyles.concat(newStyles).sort(latestStyleLast);
+    // Determine whether or not you should reset a style.
+    // If there is an custom entity to HTML elements, we only want to close the style
+    // tag before the entity start of the tags and reopen it at the end of the tag.
+    let newEndingStyleTags = endingStyles.concat();
+    if (resetStyles.end) {
+      newEndingStyleTags = endingStyles.concat(resetStyles.style);
+    }
+    const endingStyleTags = newEndingStyleTags.reduce(prependEndMarkup.bind(null, inlineHTML), '');
 
+
+    let openingStyles = newStyles;
+    if (resetStyles.start) {
+      openingStyles = resetStyles.style.concat(newStyles).sort(latestStyleLast);
+    }
     const openingStyleTags = openingStyles.reduce(appendStartMarkup.bind(null, inlineHTML), '');
-    const endingStyleTags = endingStyles.concat(resetStyles).reduce(prependEndMarkup.bind(null, inlineHTML), '');
 
     result += endingStyleTags + openingStyleTags + rawBlock.text[i];
 
-    styleStack = popEndingStyles(styleStack, resetStyles.concat(endingStyles));
+    openingStyles = resetStyles.style.concat(newStyles).sort(latestStyleLast);
+
+    styleStack = popEndingStyles(styleStack, resetStyles.style.concat(endingStyles));
     styleStack = styleStack.concat(openingStyles);
 
     invariant(

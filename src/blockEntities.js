@@ -32,12 +32,16 @@ export default (block, entityMap, entityConverter = converter) => {
                         || originalText;
 
       const prefixLength = getElementPrefix(entityHTML);
+      let suffixLength = 0;
+      if (typeof entityHTML === 'object') {
+        suffixLength = entityHTML.end ? entityHTML.end.length : 0;
+      }
 
       const updateLaterMutation = (mutation, mutationIndex) => {
         if (mutationIndex >= index || Object.prototype.hasOwnProperty.call(mutation, 'style')) {
           return updateMutation(
             mutation, entityRange.offset, entityRange.length,
-            converted.length, prefixLength
+            converted.length, prefixLength, suffixLength
           );
         }
         return mutation;
