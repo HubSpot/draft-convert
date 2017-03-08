@@ -27,7 +27,7 @@ export default block => {
       resultText += encoded;
 
       const updateForChar = mutation => {
-        return updateMutation(mutation, resultIndex, char.length, encoded.length, 0);
+        return updateMutation(mutation, resultIndex, char.length, encoded.length, 0, 0);
       };
 
       entities = entities.map(updateForChar);
