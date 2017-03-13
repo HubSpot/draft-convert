@@ -279,6 +279,10 @@ function genFragment(
   // Base Case
   if (nodeName === '#text') {
     let text = node.textContent;
+    if (text.trim() === '' && inBlock === null) {
+      return getEmptyChunk();
+    }
+
     if (text.trim() === '' && inBlock !== 'code-block') {
       return getWhitespaceChunk(inEntity);
     }

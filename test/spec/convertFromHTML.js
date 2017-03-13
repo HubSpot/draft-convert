@@ -539,4 +539,22 @@ describe('convertFromHTML', () => {
     const rawState = convertToRaw(contentState);
     expect(rawState.blocks[0].inlineStyleRanges[0].style).toBe('BOLD2');
   });
+
+  it('handles newlines in HTML source', () => {
+    const html = `<ul>
+        <li>To do 1</li>
+        <li>To do 2</li>
+      </ul>
+      <ol>
+        <li>To do 1</li>
+        <li>To do 2</li>
+      </ol>
+    `;
+
+    const contentState = toContentState(html);
+    const blocks = contentState.getBlocksAsArray();
+    expect(blocks.length).toBe(4);
+    expect(blocks.slice(0, 2).every(block => block.getType() === 'unordered-list-item')).toBe(true);
+    expect(blocks.slice(2, 4).every(block => block.getType() === 'ordered-list-item')).toBe(true);
+  });
 });
