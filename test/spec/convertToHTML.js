@@ -483,4 +483,23 @@ describe('convertToHTML', () => {
 
     expect(html).toBe('<testelement>test</testelement>');
   });
+
+  it('allows void elements to be result of blockToHTML', () => {
+    const contentState = buildContentState([
+      {
+        type: 'image',
+        text: ''
+      }
+    ]);
+
+    const blockToHTML = (block) => {
+      if (block.type === 'image') {
+        return <img />;
+      }
+    };
+
+    const html = convertToHTML({ blockToHTML })(contentState);
+
+    expect(html).toBe('<img/>');
+  });
 });
