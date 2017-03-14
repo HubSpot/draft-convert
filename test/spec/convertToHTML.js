@@ -488,11 +488,11 @@ describe('convertToHTML', () => {
     const contentState = buildContentState([
       {
         type: 'image',
-        text: ''
+        text: 'test'
       }
     ]);
 
-    const blockToHTML = (block) => {
+    const blockToHTML = block => {
       if (block.type === 'image') {
         return <img />;
       }
