@@ -64,28 +64,35 @@ const isPartiallyIntersectingMutation = (entities, style) => {
   });
 };
 
-const shouldResetStyles = (entities, remainingStyles, currentIndex, resetStyle) => {
+const needResetStyles = (
+  entities,
+  remainingStyles,
+  currentIndex,
+  resetStyle,
+  remainingStylesIndex
+) => {
   return entities.some(entityRange => {
     if (entityRange.prefixLength && entityRange.suffixLength) {
-      // If the current index is at the start of beginning entity HTML tag or start of end entity HTML tag,
-      // only want to close style
+      // If the current index is at the start of beginning entity HTML tag
+      // or start of end entity HTML tag, only want to close style
       if (currentIndex === entityRange.offset
         || currentIndex === entityRange.offset + entityRange.length - entityRange.suffixLength) {
         resetStyle.end = true;
-        resetStyle.style = remainingStyles.slice(i);
+        resetStyle.style = remainingStyles.slice(remainingStylesIndex);
         return true;
       }
 
-      // If the current index is at the end of beginning entity HTML tag or end of end entity HTML tag,
-      // only want to close style
+      // If the current index is at the end of beginning entity HTML tag or
+      // end of end entity HTML tag, only want to close style
       if (currentIndex === entityRange.offset + entityRange.prefixLength
         || currentIndex === entityRange.offset + entityRange.length) {
         resetStyle.start = true;
-        resetStyle.style = remainingStyles.slice(i);
+        resetStyle.style = remainingStyles.slice(remainingStylesIndex);
         return true;
       }
     }
-  })
+    return false;
+  });
 };
 
 const getStylesToReset = (remainingStyles, newStyles, entities, currentIndex) => {
@@ -96,7 +103,13 @@ const getStylesToReset = (remainingStyles, newStyles, entities, currentIndex) =>
   let i = 0;
   while (i < remainingStyles.length) {
     if (isPartiallyIntersectingMutation(entities, remainingStyles[i])) {
-      const shouldResetStyles = shouldResetStyles(entities, remainingStyles, currentIndex, resetStyle);
+      const shouldResetStyles = needResetStyles(
+        entities,
+        remainingStyles,
+        currentIndex,
+        resetStyle,
+        i
+      );
       if (shouldResetStyles) {
         return resetStyle;
       }
