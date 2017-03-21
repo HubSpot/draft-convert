@@ -48,11 +48,10 @@ const latestStyleLast = (s1, s2) => {
   return s2endIndex - s1endIndex;
 };
 
-const isPartiallyIntersectingMutation = (entities, remainingStyles, currentIndex, resetStyle, i) => {
+const isPartiallyIntersectingMutation = (entities, style) => {
   // Check that style either starts from left of original offset and stops before end or
   // starts after beginning of original offset and stops beyond end
   // or start from left of original offset and stop after
-  const style = remainingStyles[i];
   return entities.some(entityRange => {
     const leftIntersection = style.offset < entityRange.offset
       && style.offset + style.length < entityRange.offset + entityRange.length;
@@ -65,6 +64,30 @@ const isPartiallyIntersectingMutation = (entities, remainingStyles, currentIndex
   });
 };
 
+const shouldResetStyles = (entities, remainingStyles, currentIndex, resetStyle) => {
+  return entities.some(entityRange => {
+    if (entityRange.prefixLength && entityRange.suffixLength) {
+      // If the current index is at the start of beginning entity HTML tag or start of end entity HTML tag,
+      // only want to close style
+      if (currentIndex === entityRange.offset
+        || currentIndex === entityRange.offset + entityRange.length - entityRange.suffixLength) {
+        resetStyle.end = true;
+        resetStyle.style = remainingStyles.slice(i);
+        return true;
+      }
+
+      // If the current index is at the end of beginning entity HTML tag or end of end entity HTML tag,
+      // only want to close style
+      if (currentIndex === entityRange.offset + entityRange.prefixLength
+        || currentIndex === entityRange.offset + entityRange.length) {
+        resetStyle.start = true;
+        resetStyle.style = remainingStyles.slice(i);
+        return true;
+      }
+    }
+  })
+};
+
 const getStylesToReset = (remainingStyles, newStyles, entities, currentIndex) => {
   const resetStyle = {
     style: []
@@ -72,29 +95,9 @@ const getStylesToReset = (remainingStyles, newStyles, entities, currentIndex) =>
 
   let i = 0;
   while (i < remainingStyles.length) {
-    if (isPartiallyIntersectingMutation(entities, remainingStyles, currentIndex, resetStyle, i)) {
-      const resetStyles = entities.some(entityRange => {
-        if (entityRange.prefixLength && entityRange.suffixLength) {
-          // If the current index is at the start of beginning entity HTML tag or start of end entity HTML tag,
-          // only want to close style
-          if (currentIndex === entityRange.offset
-            || currentIndex === entityRange.offset + entityRange.length - entityRange.suffixLength) {
-            resetStyle.end = true;
-            resetStyle.style = remainingStyles.slice(i);
-            return true;
-          }
-
-          // If the current index is at the end of beginning entity HTML tag or end of end entity HTML tag,
-          // only want to close style
-          if (currentIndex === entityRange.offset + entityRange.prefixLength
-            || currentIndex === entityRange.offset + entityRange.length) {
-            resetStyle.start = true;
-            resetStyle.style = remainingStyles.slice(i);
-            return true;
-          }
-        }
-      });
-      if (resetStyles) {
+    if (isPartiallyIntersectingMutation(entities, remainingStyles[i])) {
+      const shouldResetStyles = shouldResetStyles(entities, remainingStyles, currentIndex, resetStyle);
+      if (shouldResetStyles) {
         return resetStyle;
       }
       i++;
