@@ -279,6 +279,10 @@ function genFragment(
   // Base Case
   if (nodeName === '#text') {
     let text = node.textContent;
+    if (text.trim() === '' && inBlock === null) {
+      return getEmptyChunk();
+    }
+
     if (text.trim() === '' && inBlock !== 'code-block') {
       return getWhitespaceChunk(inEntity);
     }
@@ -428,7 +432,7 @@ function genFragment(
       && fragmentBlockTags.indexOf(nodeName) >= 0
       && inBlock
     ) {
-      const newBlockInfo = checkBlockType(nodeName, node, lastList, inBlock) || {};
+      const newBlockInfo = checkBlockType(nodeName, child, lastList, inBlock) || {};
 
       let newBlockType;
       let newBlockData;
