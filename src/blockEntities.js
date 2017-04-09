@@ -44,14 +44,16 @@ export default (block, entityMap, entityConverter = converter) => {
         return mutation;
       };
 
-      const updateLaterMutations = mutationList => mutationList.reduce((acc, mutation, mutationIndex) => {
-        const updatedMutation = updateLaterMutation(mutation, mutationIndex);
-        if (Array.isArray(updatedMutation)) {
-          return acc.concat(updatedMutation);
-        }
+      const updateLaterMutations = mutationList => mutationList.reduce(
+        (acc, mutation, mutationIndex) => {
+          const updatedMutation = updateLaterMutation(mutation, mutationIndex);
+          if (Array.isArray(updatedMutation)) {
+            return acc.concat(updatedMutation);
+          }
 
-        return acc.concat([updatedMutation]);
-      }, []);
+          return acc.concat([updatedMutation]);
+        }
+      , []);
 
       entities = updateLaterMutations(entities);
       styles = updateLaterMutations(styles);

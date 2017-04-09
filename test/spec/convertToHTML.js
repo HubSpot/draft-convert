@@ -574,7 +574,7 @@ describe('convertToHTML', () => {
       });
 
       const result = convertToHTML(convertToHTMLProps)(contentState);
-      expect(result).toBe('<p><strong>overlappin</strong><em><strong>g </strong><a href=\"http://google.com\"><strong>st</strong>yles</a> in en</em>tity</p>');
+      expect(result).toBe('<p><strong>overlappin</strong><em><strong>g </strong><a href="http://google.com"><strong>st</strong>yles</a> in en</em>tity</p>');
     });
   });
 

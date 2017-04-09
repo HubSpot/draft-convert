@@ -12,34 +12,33 @@ export default function updateMutation(
   // the length, and mutations that occur partially within the new one.
   const lengthDiff = newLength - originalLength;
 
-  const mutationAfterChange = originalOffset + originalLength <=
-    mutation.offset;
+  const mutationAfterChange = originalOffset + originalLength <= mutation.offset;
   if (mutationAfterChange) {
     return Object.assign({}, mutation, {
       offset: mutation.offset + lengthDiff
     });
   }
 
-  const mutationContainsChange = originalOffset >= mutation.offset &&
-    originalOffset + originalLength <= mutation.offset + mutation.length;
+  const mutationContainsChange = originalOffset >= mutation.offset
+    && originalOffset + originalLength <= mutation.offset + mutation.length;
   if (mutationContainsChange) {
     return Object.assign({}, mutation, {
       length: mutation.length + lengthDiff
     });
   }
 
-  const mutationWithinPrefixChange = mutation.offset >= originalOffset &&
-    mutation.offset + mutation.length <= originalOffset + originalLength &&
-    prefixLength > 0;
+  const mutationWithinPrefixChange = mutation.offset >= originalOffset
+    && mutation.offset + mutation.length <= originalOffset + originalLength
+    && prefixLength > 0;
   if (mutationWithinPrefixChange) {
     return Object.assign({}, mutation, {
       offset: mutation.offset + prefixLength
     });
   }
 
-  const mutationContainsPrefix = mutation.offset < originalOffset &&
-    mutation.offset + mutation.length <= originalOffset + originalLength &&
-    prefixLength > 0;
+  const mutationContainsPrefix = mutation.offset < originalOffset
+    && mutation.offset + mutation.length <= originalOffset + originalLength
+    && prefixLength > 0;
   if (mutationContainsPrefix) {
     return [
       Object.assign({}, mutation, {
@@ -52,9 +51,9 @@ export default function updateMutation(
     ];
   }
 
-  const mutationContainsSuffix = mutation.offset >= originalOffset &&
-    mutation.offset + mutation.length > originalOffset + originalLength &&
-    suffixLength > 0;
+  const mutationContainsSuffix = mutation.offset >= originalOffset
+    && mutation.offset + mutation.length > originalOffset + originalLength
+    && suffixLength > 0;
   if (mutationContainsSuffix) {
     return [
       Object.assign({}, mutation, {
@@ -63,9 +62,9 @@ export default function updateMutation(
       }),
       Object.assign({}, mutation, {
         offset: originalOffset + originalLength + prefixLength + suffixLength,
-        length: mutation.offset +
-          mutation.length -
-          (originalOffset + originalLength)
+        length:
+          mutation.offset + mutation.length
+          - (originalOffset + originalLength)
       })
     ];
   }
