@@ -1,13 +1,13 @@
 import React from 'react';
 import splitReactElement from './splitReactElement';
 
-export default element => {
+export default (element, type = 'start') => {
   if (React.isValidElement(element) && React.Children.count(element.props.children) === 0) {
-    return splitReactElement(element).start.length;
+    return splitReactElement(element)[type].length;
   }
 
   if (typeof element === 'object') {
-    return element.start ? element.start.length : 0;
+    return element[type] ? element[type].length : 0;
   }
 
   return 0;

@@ -320,42 +320,8 @@ describe('convertToHTML', () => {
     expect(result).toBe('<customtag attribute="value">test</customtag>');
   });
 
-  it('combines styles and entities without overlap', () => {
-    const contentState = buildContentState([
-      {
-        type: 'unstyled',
-        text: 'overlapping styles in entity',
-        styleRanges: [
-          {
-            offset: 0,
-            length: 14,
-            style: 'BOLD'
-          },
-          {
-            offset: 14,
-            length: 14,
-            style: 'ITALIC'
-          }
-        ],
-        entityRanges: [
-          {
-            key: 0,
-            offset: 0,
-            length: 28
-          }
-        ],
-      },
-    ], {
-      0: {
-        type: 'LINK',
-        mutability: 'IMMUTABLE',
-        data: {
-          href: 'http://google.com',
-        }
-      }
-    });
-
-    const result = convertToHTML({
+  describe('combine styles and entities', () => {
+    const convertToHTMLProps = {
       entityToHTML: (entity, originalText) => {
         if (entity.type === 'LINK') {
           const { data } = entity;
@@ -368,12 +334,251 @@ describe('convertToHTML', () => {
 
         return originalText;
       }
-    })(contentState);
+    };
 
-    expect(result).toBe('<p><a href="http://google.com"><strong>overlapping st</strong><em>yles in entity</em></a></p>');
+    it('combines styles and entities without overlap', () => {
+      const contentState = buildContentState([
+        {
+          type: 'unstyled',
+          text: 'overlapping styles in entity',
+          styleRanges: [
+            {
+              offset: 0,
+              length: 14,
+              style: 'BOLD'
+            },
+            {
+              offset: 14,
+              length: 14,
+              style: 'ITALIC'
+            }
+          ],
+          entityRanges: [
+            {
+              key: 0,
+              offset: 0,
+              length: 28,
+              prefixLength: '<a href="http://google.com">'.length,
+              suffixLength: '</a>'.length
+            }
+          ],
+        },
+      ], {
+        0: {
+          type: 'LINK',
+          mutability: 'IMMUTABLE',
+          data: {
+            href: 'http://google.com',
+          }
+        }
+      });
+
+      const result = convertToHTML(convertToHTMLProps)(contentState);
+
+      expect(result).toBe('<p><a href="http://google.com"><strong>overlapping st</strong><em>yles in entity</em></a></p>');
+    });
+
+    it('combines overlapping styles and entities', () => {
+      const contentState = buildContentState([
+        {
+          type: 'unstyled',
+          text: 'overlapping styles in entity',
+          styleRanges: [
+            {
+              offset: 0,
+              length: 14,
+              style: 'BOLD'
+            },
+            {
+              offset: 12,
+              length: 14,
+              style: 'ITALIC'
+            }
+          ],
+          entityRanges: [
+            {
+              key: 0,
+              offset: 0,
+              length: 28,
+              prefixLength: '<a href="http://google.com">'.length,
+              suffixLength: '</a>'.length
+            }
+          ],
+        },
+      ], {
+        0: {
+          type: 'LINK',
+          mutability: 'IMMUTABLE',
+          data: {
+            href: 'http://google.com',
+          }
+        }
+      });
+
+      const result = convertToHTML(convertToHTMLProps)(contentState);
+
+      expect(result).toBe('<p><a href="http://google.com"><strong>overlapping </strong><em><strong>st</strong>yles in enti</em>ty</a></p>');
+    });
+
+    it('combines styles and entities when intersecting with no style to left', () => {
+      const contentState = buildContentState([
+        {
+          type: 'unstyled',
+          text: 'overlapping styles in entity',
+          styleRanges: [
+            {
+              offset: 0,
+              length: 14,
+              style: 'BOLD'
+            }
+          ],
+          entityRanges: [
+            {
+              key: 0,
+              offset: 12,
+              length: 6,
+              prefixLength: '<a href="http://google.com">'.length,
+              suffixLength: '</a>'.length
+            }
+          ],
+        },
+      ], {
+        0: {
+          type: 'LINK',
+          mutability: 'IMMUTABLE',
+          data: {
+            href: 'http://google.com',
+          }
+        }
+      });
+
+      const result = convertToHTML(convertToHTMLProps)(contentState);
+
+      expect(result).toBe('<p><strong>overlapping </strong><a href="http://google.com"><strong>st</strong>yles</a> in entity</p>');
+    });
+
+    it('combines styles and entities when intersecting with no style text to right', () => {
+      const contentState = buildContentState([
+        {
+          type: 'unstyled',
+          text: 'overlapping styles in entity',
+          styleRanges: [
+            {
+              offset: 14,
+              length: 14,
+              style: 'BOLD'
+            }
+          ],
+          entityRanges: [
+            {
+              key: 0,
+              offset: 12,
+              length: 6,
+              prefixLength: '<a href="http://google.com">'.length,
+              suffixLength: '</a>'.length
+            }
+          ],
+        },
+      ], {
+        0: {
+          type: 'LINK',
+          mutability: 'IMMUTABLE',
+          data: {
+            href: 'http://google.com',
+          }
+        }
+      });
+
+      const result = convertToHTML(convertToHTMLProps)(contentState);
+
+      expect(result).toBe('<p>overlapping <a href="http://google.com">st<strong>yles</strong></a><strong> in entity</strong></p>');
+    });
+
+    it('combines styles and entities when intersection with no style text to right and left', () => {
+      const contentState = buildContentState([
+        {
+          type: 'unstyled',
+          text: 'overlapping styles in entity',
+          styleRanges: [
+            {
+              offset: 0,
+              length: 14,
+              style: 'BOLD'
+            },
+            {
+              offset: 16,
+              length: 12,
+              style: 'BOLD'
+            }
+          ],
+          entityRanges: [
+            {
+              key: 0,
+              offset: 12,
+              length: 6,
+              prefixLength: '<a href="http://google.com">'.length,
+              suffixLength: '</a>'.length
+            }
+          ],
+        },
+      ], {
+        0: {
+          type: 'LINK',
+          mutability: 'IMMUTABLE',
+          data: {
+            href: 'http://google.com',
+          }
+        }
+      });
+
+      const result = convertToHTML(convertToHTMLProps)(contentState);
+
+      expect(result).toBe('<p><strong>overlapping </strong><a href="http://google.com"><strong>st</strong>yl<strong>es</strong></a><strong> in entity</strong></p>');
+    });
+
+    it('combines overlapping styles and entities when intersecting with no style', () => {
+      const contentState = buildContentState([
+        {
+          type: 'unstyled',
+          text: 'overlapping styles in entity',
+          styleRanges: [
+            {
+              offset: 0,
+              length: 14,
+              style: 'BOLD'
+            },
+            {
+              offset: 10,
+              length: 14,
+              style: 'ITALIC'
+            }
+          ],
+          entityRanges: [
+            {
+              key: 0,
+              offset: 12,
+              length: 6,
+              prefixLength: '<a href="http://google.com">'.length,
+              suffixLength: '</a>'.length
+            }
+          ],
+        },
+      ], {
+        0: {
+          type: 'LINK',
+          mutability: 'IMMUTABLE',
+          data: {
+            href: 'http://google.com',
+          }
+        }
+      });
+
+      const result = convertToHTML(convertToHTMLProps)(contentState);
+      expect(result).toBe('<p><strong>overlappin</strong><em><strong>g </strong><a href=\"http://google.com\"><strong>st</strong>yles</a> in en</em>tity</p>');
+    });
   });
 
-  it('combines styles and entities without overlap using react to conver to HTML', () => {
+  it('combines styles and entities without overlap using react to convert to HTML', () => {
     const contentState = buildContentState([
       {
         type: 'unstyled',
