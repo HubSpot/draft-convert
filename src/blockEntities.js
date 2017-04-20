@@ -1,7 +1,7 @@
 import updateMutation from './util/updateMutation';
 import rangeSort from './util/rangeSort';
 import getElementHTML from './util/getElementHTML';
-import getElementPrefix from './util/getElementPrefix';
+import getElementTagLength from './util/getElementTagLength';
 
 const converter = (entity = {}, originalText) => {
   return originalText;
@@ -31,20 +31,32 @@ export default (block, entityMap, entityConverter = converter) => {
       const converted = getElementHTML(entityHTML, originalText)
                         || originalText;
 
-      const prefixLength = getElementPrefix(entityHTML);
+      const prefixLength = getElementTagLength(entityHTML, 'start');
+      const suffixLength = getElementTagLength(entityHTML, 'end');
 
       const updateLaterMutation = (mutation, mutationIndex) => {
         if (mutationIndex >= index || Object.prototype.hasOwnProperty.call(mutation, 'style')) {
           return updateMutation(
             mutation, entityRange.offset, entityRange.length,
-            converted.length, prefixLength
+            converted.length, prefixLength, suffixLength
           );
         }
         return mutation;
       };
 
-      entities = entities.map(updateLaterMutation);
-      styles = styles.map(updateLaterMutation);
+      const updateLaterMutations = mutationList => mutationList.reduce(
+        (acc, mutation, mutationIndex) => {
+          const updatedMutation = updateLaterMutation(mutation, mutationIndex);
+          if (Array.isArray(updatedMutation)) {
+            return acc.concat(updatedMutation);
+          }
+
+          return acc.concat([updatedMutation]);
+        }
+      , []);
+
+      entities = updateLaterMutations(entities);
+      styles = updateLaterMutations(styles);
 
       resultText = resultText.substring(0, entityRange.offset)
                    + converted
