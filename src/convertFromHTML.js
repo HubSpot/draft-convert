@@ -355,9 +355,9 @@ function genFragment(
 
   if (blockInfo === false) {
     return getEmptyChunk();
-  } else {
-    blockInfo = blockInfo || {};
   }
+
+  blockInfo = blockInfo || {};
 
   if (typeof blockInfo === 'string') {
     blockType = blockInfo;

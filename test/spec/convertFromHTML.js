@@ -596,9 +596,9 @@ describe('convertFromHTML', () => {
           return false;
         }
       }
-    })(html, {flat: true});
+    })(html, { flat: true });
 
     expect(contentState.getBlocksAsArray().length).toBe(1);
     expect(contentState.getBlocksAsArray()[0].getText()).toBe('test1');
-  })
+  });
 });
