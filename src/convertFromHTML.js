@@ -349,9 +349,16 @@ function genFragment(
   }
 
   // Block Tags
-  const blockInfo = checkBlockType(nodeName, node, lastList, inBlock) || {};
+  let blockInfo = checkBlockType(nodeName, node, lastList, inBlock);
   let blockType;
   let blockDataMap;
+
+  if (blockInfo === false) {
+    return getEmptyChunk();
+  } else {
+    blockInfo = blockInfo || {};
+  }
+
   if (typeof blockInfo === 'string') {
     blockType = blockInfo;
     blockDataMap = Map();
@@ -432,29 +439,33 @@ function genFragment(
       && fragmentBlockTags.indexOf(nodeName) >= 0
       && inBlock
     ) {
-      const newBlockInfo = checkBlockType(nodeName, child, lastList, inBlock) || {};
+      let newBlockInfo = checkBlockType(nodeName, child, lastList, inBlock);
 
       let newBlockType;
       let newBlockData;
 
-      if (typeof newBlockInfo === 'string') {
-        newBlockType = newBlockInfo;
-        newBlockData = Map();
-      } else {
-        newBlockType = newBlockInfo.type || getBlockTypeForTag(nodeName, lastList);
-        newBlockData = newBlockInfo.data ? Map(newBlockInfo.data) : Map();
-      }
+      if (newBlockInfo !== false) {
+        newBlockInfo = newBlockInfo || {};
 
-      chunk = joinChunks(
-        chunk,
-        getSoftNewlineChunk(
-          newBlockType,
-          depth,
-          options.flat,
-          newBlockData
-        ),
-        options.flat
-      );
+        if (typeof newBlockInfo === 'string') {
+          newBlockType = newBlockInfo;
+          newBlockData = Map();
+        } else {
+          newBlockType = newBlockInfo.type || getBlockTypeForTag(nodeName, lastList);
+          newBlockData = newBlockInfo.data ? Map(newBlockInfo.data) : Map();
+        }
+
+        chunk = joinChunks(
+          chunk,
+          getSoftNewlineChunk(
+            newBlockType,
+            depth,
+            options.flat,
+            newBlockData
+          ),
+          options.flat
+        );
+      }
     }
     if (sibling) {
       nodeName = sibling.nodeName.toLowerCase();
