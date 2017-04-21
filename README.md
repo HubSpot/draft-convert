@@ -142,6 +142,10 @@ const contentState = convertFromHTML({
                 data: {}
             };
         }
+
+        if (nodeName === 'style') {
+          return false // the node will be discarded
+        }
     }
 })(html);
 
@@ -172,4 +176,3 @@ type convertFromHTML = HTMLConverter | ({
 ## Middleware functions
 
 Any conversion option for `convertToHTML`  or `convertFromHTML` may also accept a middleware function of shape `(next) => (…args) => result` , where `…args` are the normal configuration function paramaters and `result` is the expected return type for that function. These functions can transform results of the default conversion included in `convertToHTML` or `convertFromHTML` by leveraging the result of `next(...args)`. These middleware functions are most useful when passed as the result of composition of [`draft-extend`](http://github.com/HubSpot/draft-extend) plugins. If you choose to use them independently, a `__isMiddleware` property must be set to `true` on the function for `draft-convert` to properly handle it.
-
