@@ -37,7 +37,7 @@ describe('convertFromHTML', () => {
         }
       },
       htmlToStyle: (nodeName, node, inlineStyle) => {
-        if (nodeName === 'span' && (node.style.fontFamily === 'Test' || node.style.fontFamily === "'Test'")) {
+        if (nodeName === 'span' && (node.style.fontFamily === 'Test' || node.style.fontFamily === '\'Test\'')) {
           return inlineStyle.add('FONT-TEST');
         }
         return inlineStyle;

@@ -8,7 +8,17 @@ describe('getBlockTags', () => {
       end: '</p>'
     };
 
-    expect(getBlockTags(block)).toBe(block);
+    expect(getBlockTags(block)).toEqual(block);
+  });
+
+  it('accepts a start/end pair with an empty case string', () => {
+    const block = {
+      start: '<p>',
+      end: '</p>',
+      empty: '<br/>',
+    };
+
+    expect(getBlockTags(block)).toEqual(block);
   });
 
   it('accepts an empty react element', () => {
@@ -28,7 +38,7 @@ describe('getBlockTags', () => {
     const result = {
       start: '<p>',
       end: '</p>',
-      empty: <br />
+      empty: '<br/>'
     };
     expect(getBlockTags(block)).toEqual(jasmine.objectContaining(result));
   });

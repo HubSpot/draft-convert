@@ -1,18 +1,22 @@
-export default function updateMutation(
-  mutation,
-  originalOffset,
-  originalLength,
-  newLength,
-  prefixLength,
-  suffixLength
-) {
+// @flow
+
+import type { Mutation } from '../flow/Mutations';
+
+export default function updateMutation<T: Mutation>(
+  mutation: T,
+  originalOffset: number,
+  originalLength: number,
+  newLength: number,
+  prefixLength: number,
+  suffixLength: number
+): T | Array<T> {
   // three cases we can reasonably adjust - disjoint mutations that
   // happen later on where the offset will need to be changed,
   // mutations that completely contain the new one where we can adjust
   // the length, and mutations that occur partially within the new one.
-  const lengthDiff = newLength - originalLength;
+  const lengthDiff: number = newLength - originalLength;
 
-  const mutationAfterChange = originalOffset + originalLength <= mutation.offset;
+  const mutationAfterChange: boolean = originalOffset + originalLength <= mutation.offset;
   if (mutationAfterChange) {
     return Object.assign({}, mutation, {
       offset: mutation.offset + lengthDiff

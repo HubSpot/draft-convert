@@ -1,11 +1,16 @@
-const fallback = html => {
+// @flow
+
+const fallback = (html: string): Document => {
   const doc = document.implementation.createHTMLDocument('');
-  doc.documentElement.innerHTML = html;
+  if (doc.documentElement) {
+    doc.documentElement.innerHTML = html;
+  }
+
   return doc;
 };
 
-export default function parseHTML(html) {
-  let doc;
+export default function parseHTML(html: string): HTMLElement | null {
+  let doc: Document;
   if (typeof DOMParser !== 'undefined') {
     const parser = new DOMParser();
     doc = parser.parseFromString(html, 'text/html');
@@ -15,5 +20,6 @@ export default function parseHTML(html) {
   } else {
     doc = fallback(html);
   }
+
   return doc.body;
 }

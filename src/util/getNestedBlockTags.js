@@ -1,25 +1,66 @@
+// @flow
+
 import invariant from 'invariant';
 import React from 'react';
 import splitReactElement from './splitReactElement';
 
-export default function getNestedBlockTags(blockHTML) {
-  invariant(
-    blockHTML !== null && blockHTML !== undefined,
-    'Expected block HTML value to be non-null'
-  );
+import type { BlockTagObject } from '../flow/Markup';
 
-  if (React.isValidElement(blockHTML.nest)) {
-    const { start, end } = splitReactElement(blockHTML.nest);
-    return Object.assign({}, blockHTML, {
-      nestStart: start,
-      nestEnd: end
-    });
+export function getNestStart(blockHTML: string | BlockTagObject): string {
+  if (typeof blockHTML === 'object' && blockHTML.nestStart) {
+    return blockHTML.nestStart;
   }
 
+  return '';
+}
+
+export function getNestEnd(blockHTML: string | BlockTagObject): string {
+  if (typeof blockHTML === 'object' && blockHTML.nestEnd) {
+    return blockHTML.nestEnd;
+  }
+
+  return '';
+}
+
+export function getNestedBlockTags<NestedBlockMarkup>(
+  blockHTML: NestedBlockMarkup
+): { nestStart: string, nestEnd: string } {
   invariant(
-    Object.prototype.hasOwnProperty.call(blockHTML, 'nestStart') && Object.prototype.hasOwnProperty.call(blockHTML, 'nestEnd'),
-    'convertToHTML: received block information without either a ReactElement or an object with start/end tags'
+    blockHTML !== null && blockHTML !== undefined,
+    'getNestedBlockTags: expected block HTML value to be non-null'
   );
 
-  return blockHTML;
+  if (blockHTML.nest && React.isValidElement(blockHTML.nest)) {
+    const verifiedElement = ((blockHTML.nest: any): React.Element<any>);
+
+    const splitElement = splitReactElement(verifiedElement);
+
+    if (typeof splitElement === 'object') {
+      const { start, end } = splitElement;
+      return {
+        nestStart: start,
+        nestEnd: end
+      };
+    }
+
+    throw new Error(
+      'getNestedBlockTags: nested element must not be a void HTML element'
+    );
+  }
+
+  if (
+    blockHTML.nestStart &&
+    typeof blockHTML.nestStart === 'string' &&
+    blockHTML.nestEnd &&
+    typeof blockHTML.nestEnd === 'string'
+  ) {
+    return {
+      nestStart: blockHTML.nestStart,
+      nestEnd: blockHTML.nestEnd
+    };
+  }
+
+  throw new Error(
+    'getNestedBlockTags: expected to receive block markup with either a nest property or nestStart and nestEnd strings'
+  );
 }

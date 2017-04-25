@@ -140,32 +140,32 @@ function getBlockDividerChunk(block, depth, data = Map()) {
 
 function getBlockTypeForTag(tag, lastList) {
   switch (tag) {
-    case 'h1':
-      return 'header-one';
-    case 'h2':
-      return 'header-two';
-    case 'h3':
-      return 'header-three';
-    case 'h4':
-      return 'header-four';
-    case 'h5':
-      return 'header-five';
-    case 'h6':
-      return 'header-six';
-    case 'li':
-      if (lastList === 'ol') {
-        return 'ordered-list-item';
-      }
-      return 'unordered-list-item';
-    case 'blockquote':
-      return 'blockquote';
-    case 'pre':
-      return 'code-block';
-    case 'div':
-    case 'p':
-      return 'unstyled';
-    default:
-      return null;
+  case 'h1':
+    return 'header-one';
+  case 'h2':
+    return 'header-two';
+  case 'h3':
+    return 'header-three';
+  case 'h4':
+    return 'header-four';
+  case 'h5':
+    return 'header-five';
+  case 'h6':
+    return 'header-six';
+  case 'li':
+    if (lastList === 'ol') {
+      return 'ordered-list-item';
+    }
+    return 'unordered-list-item';
+  case 'blockquote':
+    return 'blockquote';
+  case 'pre':
+    return 'code-block';
+  case 'div':
+  case 'p':
+    return 'unstyled';
+  default:
+    return null;
   }
 }
 
