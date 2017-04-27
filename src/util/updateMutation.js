@@ -37,7 +37,8 @@ export default function updateMutation(
   }
 
   const mutationContainsPrefix = mutation.offset < originalOffset
-    && mutation.offset + mutation.length >= originalOffset + originalLength
+    && mutation.offset + mutation.length <= originalOffset + originalLength
+    && mutation.offset + mutation.length > originalOffset
     && prefixLength > 0;
   if (mutationContainsPrefix) {
     return [
@@ -53,6 +54,7 @@ export default function updateMutation(
 
   const mutationContainsSuffix = mutation.offset >= originalOffset
     && mutation.offset + mutation.length > originalOffset + originalLength
+    && originalOffset + originalLength > mutation.offset
     && suffixLength > 0;
   if (mutationContainsSuffix) {
     return [
