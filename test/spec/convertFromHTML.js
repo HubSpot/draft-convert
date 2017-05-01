@@ -158,6 +158,22 @@ describe('convertFromHTML', () => {
     expect(htmlOut).toBe(htmlFixture);
   });
 
+  it('link with inline style', () => {
+    const htmlFixture = '<p><em>My <a href="https://facebook.com/"><strong>Face</strong>book</a></em></p>';
+    const state = toContentState(htmlFixture);
+    console.log(state);
+
+    const htmlOut = convertToHTML({
+      entityToHTML: (entity, originalText) => {
+        if (entity.type === 'LINK') {
+          return `<a href="${entity.data.url}">${originalText}</a>`;
+        }
+        return originalText;
+      }
+    })(state);
+    expect(htmlOut).toBe(htmlFixture);
+  });
+
   it('converts custom inline styles', () => {
     const html = '<p><span style="font-family:Test;">test font</span></p>';
     const contentState = toContentState(html);
