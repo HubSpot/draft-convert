@@ -16,6 +16,11 @@ Jump to:
 - [convertFromHTML](#convertfromhtml)
 - [Middleware functions](#middleware-functions)
 
+## Installation
+
+    npm install --save draft-convert
+
+
 ## convertToHTML
 
 **Extensibly serialize Draft.js [`ContentState`](http://facebook.github.io/draft-js/docs/api-reference-content-state.html#content) to HTML.**
