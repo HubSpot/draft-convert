@@ -279,11 +279,11 @@ function genFragment(
   // Base Case
   if (nodeName === '#text') {
     let text = node.textContent;
-    if (text.trim() === '' && inBlock === null) {
+    if (!options.retainWhitespace && text.trim() === '' && inBlock === null) {
       return getEmptyChunk();
     }
 
-    if (text.trim() === '' && inBlock !== 'code-block') {
+    if (!options.retainWhitespace && text.trim() === '' && inBlock !== 'code-block') {
       return getWhitespaceChunk(inEntity);
     }
     if (inBlock !== 'code-block') {
@@ -493,10 +493,12 @@ function getChunkForHTML(
   options,
   DOMBuilder
 ) {
-  html = html
-    .trim()
-    .replace(REGEX_CR, '')
-    .replace(REGEX_NBSP, SPACE);
+  if (!options.retainWhitespace) {
+    html = html
+      .trim()
+      .replace(REGEX_CR, '')
+      .replace(REGEX_NBSP, SPACE);
+  }
 
   const safeBody = DOMBuilder(html);
   if (!safeBody) {
@@ -621,7 +623,8 @@ const convertFromHTML = ({
 }) => (
   html,
   options = {
-    flat: false
+    flat: false,
+    retainWhitespace: false
   },
   DOMBuilder = getSafeBodyFromHTML
 ) => {
