@@ -626,13 +626,24 @@ describe('convertFromHTML', () => {
     expect(contentState.getBlocksAsArray()[0].getText()).toBe('  simple whitespace test ');
   });
 
-  it('collapses whitespace before, after, and between other tags without retainWhitespace option', () => {
-    // default behavior collapses whitespace when HTML tags delineate it
-    const html = '<span>  <b>tags</b> and whitespace </br> </br> <i>test</i>  <u>stuff</u> </span>';
+  it('collapses whitespace between tags without any block and without retainWhitespace option', () => {
+    // Without any block defined, if whitespace is processed by itself
+    // (as in '<span>  <b>' or '</i> <u>'),
+    // and no block type is defined, the space is entirely eliminated.
+    const html = '<span>  <b>tags</b> and whitespace </br> </br> <i>test</i> <u>stuff</u> </span>';
     const contentState = toContentState(html);
     expect(contentState.getBlocksAsArray().length).toBe(3);
     expect(contentState.getBlocksAsArray()[0].getText()).toBe('tags and whitespace ');
     expect(contentState.getBlocksAsArray()[1].getText()).toBe('');
     expect(contentState.getBlocksAsArray()[2].getText()).toBe('teststuff');
+  });
+
+  it('consolidates whitespace between tags when inside a semantic block', () => {
+    // default behavior consolidates 'orphan' whitespace into a single space character
+    // inside any type of block (other than 'code-block')
+    const html = '<div>   <b>tags</b> and whitespace  </br> </br> <i>test</i>  <u>stuff</u>  </div>';
+    const contentState = toContentState(html);
+    expect(contentState.getBlocksAsArray().length).toBe(1);
+    expect(contentState.getBlocksAsArray()[0].getText()).toBe(' tags and whitespace  \n \n test stuff ');
   });
 });
