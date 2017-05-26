@@ -174,7 +174,7 @@ describe('convertToHTML', () => {
       }
     ]);
     const result = convertToHTML(contentState);
-    expect(result).toBe('<ul><li>top&nbsp;level</li><ul><li>nested&nbsp;one&nbsp;level</li><ul><li>nested&nbsp;two&nbsp;levels</li></ul></ul><li>back to top level</li></ul>');
+    expect(result).toBe('<ul><li>top&nbsp;level</li><ul><li>nested&nbsp;one&nbsp;level</li><ul><li>nested&nbsp;two&nbsp;levels</li></ul></ul><li>back&nbsp;to&nbsp;top&nbsp;level</li></ul>');
   });
 
   it('escapes HTML in text of blocks', () => {
