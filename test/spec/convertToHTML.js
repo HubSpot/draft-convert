@@ -788,12 +788,11 @@ describe('convertToHTML', () => {
     const result = convertToHTML({
       entityToHTML(entity, originalText) {
         if (entity.type === 'emoji') {
-          const unicode = entity.data.emojiUnicode;
-          return `<img src="emoji.jpg">${unicode}`;
+          return entity.data.emojiUnicode;
         }
       }
     })(contentState);
 
-    expect(result).toBe('<p><img src="emoji.jpg">👍</p>');
+    expect(result).toBe('<p>👍</p>');
   });
 });
