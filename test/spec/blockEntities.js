@@ -360,7 +360,7 @@ describe('blockEntities', () => {
       )
     );
 
-    expect(result).toBe('other&#x27;&#x27;&#x27;&#x27;&#x27;&#x27;&#x27;text {{ entity }}&#x27;s othertext');
+    expect(result).toBe('other&#x27;&#x27;&#x27;&#x27;&#x27;&#x27;&#x27;text&nbsp;{{ entity }}&#x27;s&nbsp;othertext');
   });
 
   it('handles an empty ReactElement in entityToHTML', () => {
@@ -403,7 +403,7 @@ describe('blockEntities', () => {
       )
     );
 
-    expect(result).toBe('test <a>link</a>');
+    expect(result).toBe('test&nbsp;<a>link</a>');
   });
 
   it('handles a ReactElement with a child in entityToHTML', () => {
@@ -446,7 +446,7 @@ describe('blockEntities', () => {
       )
     );
 
-    expect(result).toBe('test <a>test</a>');
+    expect(result).toBe('test&nbsp;<a>test</a>');
   });
 
   it('handles a start/end object in entityToHTML', () => {
@@ -492,7 +492,7 @@ describe('blockEntities', () => {
       )
     );
 
-    expect(result).toBe('test <a>link</a>');
+    expect(result).toBe('test&nbsp;<a>link</a>');
   });
 
   it('handles a middleware function in entityToHTML', () => {
@@ -538,6 +538,6 @@ describe('blockEntities', () => {
       )
     );
 
-    expect(result).toBe('test <a>link</a>');
+    expect(result).toBe('test&nbsp;<a>link</a>');
   });
 });
