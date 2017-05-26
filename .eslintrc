@@ -1,3 +1,10 @@
 {
-  "extends": "hubspot"
+  "extends": "hubspot",
+  "rules":{
+    "no-undefined": "off",
+    "no-unused-vars": ["error", { "vars": "all", "args": "none" }],
+    "no-param-reassign": "off",
+    "consistent-return": "off"
+  }
 }
+  

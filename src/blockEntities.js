@@ -1,21 +1,22 @@
 import updateMutation from './util/updateMutation';
 import rangeSort from './util/rangeSort';
+import getElementHTML from './util/getElementHTML';
+import getElementTagLength from './util/getElementTagLength';
 
 const converter = (entity = {}, originalText) => {
-  switch (entity.type) {
-    case 'mergeTag':
-      return `{{ ${entity.data.prefix}.${entity.data.property} }}`;
-    case 'LINK':
-      return `<a href="${entity.data.url}">${originalText}</a>`;
-    default:
-      return originalText;
-  }
+  return originalText;
 };
 
 export default (block, entityMap, entityConverter = converter) => {
   let resultText = [...block.text];
 
-  if (block.hasOwnProperty('entityRanges') && block.entityRanges.length > 0) {
+  let getEntityHTML = entityConverter;
+
+  if (entityConverter.__isMiddleware) {
+    getEntityHTML = entityConverter(converter);
+  }
+
+  if (Object.prototype.hasOwnProperty.call(block, 'entityRanges') && block.entityRanges.length > 0) {
     let entities = block.entityRanges.sort(rangeSort);
 
     let styles = block.inlineStyleRanges;
@@ -25,17 +26,37 @@ export default (block, entityMap, entityConverter = converter) => {
       const entity = entityMap[entityRange.key];
 
       const originalText = resultText.slice(entityRange.offset, entityRange.offset + entityRange.length).join('');
-      const converted = entityConverter(entity, originalText) || originalText;
+
+      const entityHTML = getEntityHTML(entity, originalText);
+      const converted = getElementHTML(entityHTML, originalText)
+                        || originalText;
+
+      const prefixLength = getElementTagLength(entityHTML, 'start');
+      const suffixLength = getElementTagLength(entityHTML, 'end');
 
       const updateLaterMutation = (mutation, mutationIndex) => {
-        if (mutationIndex >= index || mutation.hasOwnProperty('style')) {
-          return updateMutation(mutation, entityRange.offset, entityRange.length, converted.length);
+        if (mutationIndex > index || Object.prototype.hasOwnProperty.call(mutation, 'style')) {
+          return updateMutation(
+            mutation, entityRange.offset, entityRange.length,
+            converted.length, prefixLength, suffixLength
+          );
         }
         return mutation;
       };
 
-      entities = entities.map(updateLaterMutation);
-      styles = styles.map(updateLaterMutation);
+      const updateLaterMutations = mutationList => mutationList.reduce(
+        (acc, mutation, mutationIndex) => {
+          const updatedMutation = updateLaterMutation(mutation, mutationIndex);
+          if (Array.isArray(updatedMutation)) {
+            return acc.concat(updatedMutation);
+          }
+
+          return acc.concat([updatedMutation]);
+        }
+      , []);
+
+      entities = updateLaterMutations(entities);
+      styles = updateLaterMutations(styles);
 
       resultText = [
         ...resultText.slice(0, entityRange.offset),

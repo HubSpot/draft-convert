@@ -6,6 +6,11 @@ module.exports = {
       test: /\.js$/,
       loader: 'babel-loader',
       exclude: /node_modules/,
+    },
+    {
+      test: /\.json$/,
+      loader: 'json-loader',
+      exclude: /node_modules/,
     }]
   },
   output: {
@@ -14,6 +19,9 @@ module.exports = {
   },
   externals: {
     'draft-js': 'Draft',
-    'immutable': 'Immutable'
+    'immutable': 'Immutable',
+    'react': 'React',
+    'react-dom': 'ReactDOM',
+    'react-dom/server': 'ReactDOMServer'
   }
 };
