@@ -11,11 +11,8 @@ const ENTITY_MAP = {
   '\n': '<br/>'
 };
 
-export default(block) => {
-  const blockText = [...block.text];
-
 export default block => {
-  const blockText = block.text;
+  const blockText = [...block.text];
 
   let entities = block.entityRanges.sort(rangeSort);
   let styles = block.inlineStyleRanges.sort(rangeSort);

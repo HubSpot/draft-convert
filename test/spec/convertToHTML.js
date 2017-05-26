@@ -760,4 +760,40 @@ describe('convertToHTML', () => {
 
     expect(html).toBe('<img/>');
   });
+
+  // '👍'.length === 2
+  // '⛳'.length === 1
+  it('handles emojis that count as two characters', () => {
+    const contentState = buildContentState([
+      {
+        text: '👍',
+        type: 'unstyled',
+        depth: 0,
+        entityRanges: [{
+          offset: 0,
+          length: 1,
+          key: 0,
+        }],
+      }
+    ], {
+      0: {
+        type: 'emoji',
+        mutability: 'IMMUTABLE',
+        data: {
+          emojiUnicode: '👍'
+        }
+      }
+    });
+
+    const result = convertToHTML({
+      entityToHTML(entity, originalText) {
+        if (entity.type === 'emoji') {
+          const unicode = entity.data.emojiUnicode;
+          return `<img src="emoji.jpg">${unicode}`;
+        }
+      }
+    })(contentState);
+
+    expect(result).toBe('<p><img src="emoji.jpg">👍</p>');
+  });
 });
