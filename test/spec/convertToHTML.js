@@ -89,7 +89,7 @@ describe('convertToHTML', () => {
     const result = convertToHTML({
       styleToHTML: styleMarkup
     })(contentState);
-    expect(result).toBe('<p>this is <b>bold</b></p>');
+    expect(result).toBe('<p>this&nbsp;is&nbsp;<b>bold</b></p>');
   });
 
   it('applies paragraph block styles', () => {
@@ -100,7 +100,7 @@ describe('convertToHTML', () => {
       }
     ]);
     const result = convertToHTML(contentState);
-    expect(result).toBe('<p>test paragraph</p>');
+    expect(result).toBe('<p>test&nbsp;paragraph</p>');
   });
 
   it('applies style to multiple blocks', () => {
@@ -115,7 +115,7 @@ describe('convertToHTML', () => {
       }
     ]);
     const result = convertToHTML(contentState);
-    expect(result).toBe('<h1>h1 block</h1><h2>h2 block</h2>');
+    expect(result).toBe('<h1>h1&nbsp;block</h1><h2>h2&nbsp;block</h2>');
   });
 
   it('applies styles for single list', () => {
@@ -130,7 +130,7 @@ describe('convertToHTML', () => {
       }
     ]);
     const result = convertToHTML(contentState);
-    expect(result).toBe('<ol><li>item one</li><li>item two</li></ol>');
+    expect(result).toBe('<ol><li>item&nbsp;one</li><li>item&nbsp;two</li></ol>');
   });
 
   it('nests list items of different depths', () => {
@@ -147,7 +147,7 @@ describe('convertToHTML', () => {
       }
     ]);
     const result = convertToHTML(contentState);
-    expect(result).toBe('<ul><li>top level</li><ul><li>nested item</li></ul></ul>');
+    expect(result).toBe('<ul><li>top&nbsp;level</li><ul><li>nested&nbsp;item</li></ul></ul>');
   });
 
   it('resets nesting when depth decreases', () => {
@@ -174,7 +174,7 @@ describe('convertToHTML', () => {
       }
     ]);
     const result = convertToHTML(contentState);
-    expect(result).toBe('<ul><li>top level</li><ul><li>nested one level</li><ul><li>nested two levels</li></ul></ul><li>back to top level</li></ul>');
+    expect(result).toBe('<ul><li>top&nbsp;level</li><ul><li>nested&nbsp;one&nbsp;level</li><ul><li>nested&nbsp;two&nbsp;levels</li></ul></ul><li>back&nbsp;to&nbsp;top&nbsp;level</li></ul>');
   });
 
   it('escapes HTML in text of blocks', () => {
@@ -375,7 +375,7 @@ describe('convertToHTML', () => {
 
       const result = convertToHTML(convertToHTMLProps)(contentState);
 
-      expect(result).toBe('<p><a href="http://google.com"><strong>overlapping st</strong><em>yles in entity</em></a></p>');
+      expect(result).toBe('<p><a href="http://google.com"><strong>overlapping&nbsp;st</strong><em>yles&nbsp;in&nbsp;entity</em></a></p>');
     });
 
     it('combines overlapping styles and entities', () => {
@@ -417,7 +417,7 @@ describe('convertToHTML', () => {
 
       const result = convertToHTML(convertToHTMLProps)(contentState);
 
-      expect(result).toBe('<p><a href="http://google.com"><strong>overlapping </strong><em><strong>st</strong>yles in enti</em>ty</a></p>');
+      expect(result).toBe('<p><a href="http://google.com"><strong>overlapping&nbsp;</strong><em><strong>st</strong>yles&nbsp;in&nbsp;enti</em>ty</a></p>');
     });
 
     it('combines styles and entities when intersecting with no style to left', () => {
@@ -454,7 +454,7 @@ describe('convertToHTML', () => {
 
       const result = convertToHTML(convertToHTMLProps)(contentState);
 
-      expect(result).toBe('<p><strong>overlapping </strong><a href="http://google.com"><strong>st</strong>yles</a> in entity</p>');
+      expect(result).toBe('<p><strong>overlapping&nbsp;</strong><a href="http://google.com"><strong>st</strong>yles</a>&nbsp;in&nbsp;entity</p>');
     });
 
     it('combines styles and entities when intersecting with no style text to right', () => {
@@ -491,7 +491,7 @@ describe('convertToHTML', () => {
 
       const result = convertToHTML(convertToHTMLProps)(contentState);
 
-      expect(result).toBe('<p>overlapping <a href="http://google.com">st<strong>yles</strong></a><strong> in entity</strong></p>');
+      expect(result).toBe('<p>overlapping&nbsp;<a href="http://google.com">st<strong>yles</strong></a><strong>&nbsp;in&nbsp;entity</strong></p>');
     });
 
     it('correctly handles mutation containing another prefixed mutation', () => {
@@ -543,7 +543,7 @@ describe('convertToHTML', () => {
 
       const result = convertToHTML(convertToHTMLProps)(contentState);
 
-      expect(result).toBe('<p><strong>overlapping</strong> test <a href="http://google.com">Hello</a> <em><a href="http://google.com">World</a></em></p>');
+      expect(result).toBe('<p><strong>overlapping</strong>&nbsp;test&nbsp;<a href="http://google.com">Hello</a>&nbsp;<em><a href="http://google.com">World</a></em></p>');
     });
 
 
@@ -586,7 +586,7 @@ describe('convertToHTML', () => {
 
       const result = convertToHTML(convertToHTMLProps)(contentState);
 
-      expect(result).toBe('<p><strong>overlapping </strong><a href="http://google.com"><strong>st</strong>yl<strong>es</strong></a><strong> in entity</strong></p>');
+      expect(result).toBe('<p><strong>overlapping&nbsp;</strong><a href="http://google.com"><strong>st</strong>yl<strong>es</strong></a><strong>&nbsp;in&nbsp;entity</strong></p>');
     });
 
     it('combines overlapping styles and entities when intersecting with no style', () => {
@@ -627,7 +627,7 @@ describe('convertToHTML', () => {
       });
 
       const result = convertToHTML(convertToHTMLProps)(contentState);
-      expect(result).toBe('<p><strong>overlappin</strong><em><strong>g </strong><a href="http://google.com"><strong>st</strong>yles</a> in en</em>tity</p>');
+      expect(result).toBe('<p><strong>overlappin</strong><em><strong>g&nbsp;</strong><a href="http://google.com"><strong>st</strong>yles</a>&nbsp;in&nbsp;en</em>tity</p>');
     });
   });
 
@@ -678,7 +678,7 @@ describe('convertToHTML', () => {
       }
     })(contentState);
 
-    expect(result).toBe('<p><a href="http://google.com"><strong>overlapping st</strong><em>yles in entity</em></a></p>');
+    expect(result).toBe('<p><a href="http://google.com"><strong>overlapping&nbsp;st</strong><em>yles&nbsp;in&nbsp;entity</em></a></p>');
   });
 
   it('uses JSX for block HTML', () => {
