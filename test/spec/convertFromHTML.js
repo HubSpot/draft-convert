@@ -116,7 +116,7 @@ describe('convertFromHTML', () => {
   };
 
   it('em', () => {
-    testFixture('<p><em>Hello world!</em></p>');
+    testFixture('<p><em>Hello&nbsp;world!</em></p>');
   });
 
   it('ul', () => {
@@ -159,7 +159,7 @@ describe('convertFromHTML', () => {
   });
 
   it('converts custom inline styles', () => {
-    const html = '<p><span style="font-family:Test;">test font</span></p>';
+    const html = '<p><span style="font-family:Test;">test&nbsp;font</span></p>';
     const contentState = toContentState(html);
     const styles = contentState.getFirstBlock().getInlineStyleAt(0);
     expect(styles.size).toBe(1);
@@ -183,11 +183,11 @@ describe('convertFromHTML', () => {
   });
 
   it('ul with extra after', () => {
-    testFixture('<ul><li>one</li><li>two</li><li>three</li></ul><p>Some more</p>');
+    testFixture('<ul><li>one</li><li>two</li><li>three</li></ul><p>Some&nbsp;more</p>');
   });
 
   it('ul with extra before', () => {
-    testFixture('<p>Some leading content</p><ul><li>one</li><li>two</li><li>three</li></ul>');
+    testFixture('<p>Some&nbsp;leading&nbsp;content</p><ul><li>one</li><li>two</li><li>three</li></ul>');
   });
 
   it('converts custom entities from nodes', () => {
@@ -195,11 +195,11 @@ describe('convertFromHTML', () => {
   });
 
   it('converts custom entities from text', () => {
-    testFixture('<p>test @ben at-mention</p>');
+    testFixture('<p>test&nbsp;@ben&nbsp;at-mention</p>');
   });
 
   it('properly adjusts entity ranges for text entities that change length', () => {
-    testFixture('<p>{{ tagone }} {{ tagtwo }}</p>');
+    testFixture('<p>{{ tagone }}&nbsp;{{ tagtwo }}</p>');
   });
 
   it('includes empty blocks', () => {
