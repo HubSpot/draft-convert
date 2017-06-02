@@ -357,9 +357,7 @@ describe('convertToHTML', () => {
             {
               key: 0,
               offset: 0,
-              length: 28,
-              prefixLength: '<a href="http://google.com">'.length,
-              suffixLength: '</a>'.length
+              length: 28
             }
           ],
         },
@@ -399,9 +397,7 @@ describe('convertToHTML', () => {
             {
               key: 0,
               offset: 0,
-              length: 28,
-              prefixLength: '<a href="http://google.com">'.length,
-              suffixLength: '</a>'.length
+              length: 28
             }
           ],
         },
@@ -436,9 +432,7 @@ describe('convertToHTML', () => {
             {
               key: 0,
               offset: 12,
-              length: 6,
-              prefixLength: '<a href="http://google.com">'.length,
-              suffixLength: '</a>'.length
+              length: 6
             }
           ],
         },
@@ -473,9 +467,7 @@ describe('convertToHTML', () => {
             {
               key: 0,
               offset: 12,
-              length: 6,
-              prefixLength: '<a href="http://google.com">'.length,
-              suffixLength: '</a>'.length
+              length: 6
             }
           ],
         },
@@ -568,9 +560,7 @@ describe('convertToHTML', () => {
             {
               key: 0,
               offset: 12,
-              length: 6,
-              prefixLength: '<a href="http://google.com">'.length,
-              suffixLength: '</a>'.length
+              length: 6
             }
           ],
         },
@@ -610,9 +600,7 @@ describe('convertToHTML', () => {
             {
               key: 0,
               offset: 12,
-              length: 6,
-              prefixLength: '<a href="http://google.com">'.length,
-              suffixLength: '</a>'.length
+              length: 6
             }
           ],
         },
