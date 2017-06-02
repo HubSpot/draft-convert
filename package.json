@@ -1,6 +1,6 @@
 {
   "name": "@mic/draft-convert",
-  "version": "1.4.6",
+  "version": "1.4.7",
   "description": "Extensibly serialize & deserialize Draft.js ContentState",
   "main": "lib/index.js",
   "repository": "micnews/draft-convert",
