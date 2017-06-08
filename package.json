@@ -42,6 +42,7 @@
     "react-dom": "^15.0.2"
   },
   "dependencies": {
+    "ent": "^2.2.0",
     "immutable": "~3.7.4",
     "invariant": "^2.2.1"
   },
