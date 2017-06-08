@@ -177,118 +177,6 @@ describe('convertToHTML', () => {
     expect(result).toBe('<ul><li>top level</li><ul><li>nested one level</li><ul><li>nested two levels</li></ul></ul><li>back to top level</li></ul>');
   });
 
-  it('escapes HTML in text of blocks', () => {
-    const contentState = buildContentState([
-      {
-        type: 'unstyled',
-        text: '<&>'
-      }
-    ]);
-    const result = convertToHTML(contentState);
-    expect(result).toBe('<p>&lt;&amp;&gt;</p>');
-  });
-
-  it('escapes HTML in text of blocks before mutations', () => {
-    const contentState = buildContentState([
-      {
-        type: 'unstyled',
-        text: '<&>test',
-        styleRanges: [
-          {
-            style: 'BOLD',
-            offset: 3,
-            length: 4
-          }
-        ]
-      }
-    ]);
-    const result = convertToHTML(contentState);
-    expect(result).toBe('<p>&lt;&amp;&gt;<strong>test</strong></p>');
-  });
-
-  it('escapes HTML in text of blocks within mutations', () => {
-    const contentState = buildContentState([
-      {
-        type: 'unstyled',
-        text: 'te<&>st',
-        styleRanges: [
-          {
-            style: 'BOLD',
-            offset: 1,
-            length: 5
-          }
-        ]
-      }
-    ]);
-    const result = convertToHTML(contentState);
-    expect(result).toBe('<p>t<strong>e&lt;&amp;&gt;s</strong>t</p>');
-  });
-
-  it('escapes HTML in text of blocks before entities', () => {
-    const contentState = buildContentState([
-      {
-        type: 'unstyled',
-        text: '<&>test',
-        entityRanges: [
-          {
-            key: 0,
-            offset: 3,
-            length: 4
-          }
-        ]
-      }
-    ], {
-      0: {
-        type: 'LINK',
-        mutability: 'IMMUTABLE',
-      }
-    });
-
-    const result = convertToHTML({ entityToHTML: (entity, originalText) => {
-      if (entity.type === 'LINK') {
-        return `<a>${originalText}</a>`;
-      }
-      return originalText;
-    } })(contentState);
-    expect(result).toBe('<p>&lt;&amp;&gt;<a>test</a></p>');
-  });
-
-  it('escapes HTML in text of blocks before entities', () => {
-    const contentState = buildContentState([
-      {
-        type: 'unstyled',
-        text: 'te<&>st',
-        entityRanges: [
-          {
-            key: 0,
-            offset: 1,
-            length: 5
-          }
-        ],
-        styleRanges: [
-          {
-            style: 'BOLD',
-            offset: 6,
-            length: 1
-          }
-        ]
-      }
-    ], {
-      0: {
-        type: 'LINK',
-        mutability: 'IMMUTABLE',
-      }
-    });
-
-    const result = convertToHTML({ entityToHTML: (entity, originalText) => {
-      if (entity.type === 'LINK') {
-        return `<a>${originalText}</a>`;
-      }
-      return originalText;
-    } })(contentState);
-    expect(result).toBe('<p>t<a>e&lt;&amp;&gt;s</a><strong>t</strong></p>');
-  });
-
   it('uses block metadata', () => {
     const contentState = buildContentState([
       {
@@ -357,9 +245,7 @@ describe('convertToHTML', () => {
             {
               key: 0,
               offset: 0,
-              length: 28,
-              prefixLength: '<a href="http://google.com">'.length,
-              suffixLength: '</a>'.length
+              length: 28
             }
           ],
         },
@@ -399,9 +285,7 @@ describe('convertToHTML', () => {
             {
               key: 0,
               offset: 0,
-              length: 28,
-              prefixLength: '<a href="http://google.com">'.length,
-              suffixLength: '</a>'.length
+              length: 28
             }
           ],
         },
@@ -436,9 +320,7 @@ describe('convertToHTML', () => {
             {
               key: 0,
               offset: 12,
-              length: 6,
-              prefixLength: '<a href="http://google.com">'.length,
-              suffixLength: '</a>'.length
+              length: 6
             }
           ],
         },
@@ -473,9 +355,7 @@ describe('convertToHTML', () => {
             {
               key: 0,
               offset: 12,
-              length: 6,
-              prefixLength: '<a href="http://google.com">'.length,
-              suffixLength: '</a>'.length
+              length: 6
             }
           ],
         },
@@ -568,9 +448,7 @@ describe('convertToHTML', () => {
             {
               key: 0,
               offset: 12,
-              length: 6,
-              prefixLength: '<a href="http://google.com">'.length,
-              suffixLength: '</a>'.length
+              length: 6
             }
           ],
         },
@@ -610,9 +488,7 @@ describe('convertToHTML', () => {
             {
               key: 0,
               offset: 12,
-              length: 6,
-              prefixLength: '<a href="http://google.com">'.length,
-              suffixLength: '</a>'.length
+              length: 6
             }
           ],
         },

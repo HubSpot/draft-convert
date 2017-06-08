@@ -3,25 +3,27 @@ import React from 'react';
 import ReactDOMServer from 'react-dom/server';
 
 // see http://w3c.github.io/html/syntax.html#writing-html-documents-elements
-const VOID_TAGS = [
-  'area',
-  'base',
-  'br',
-  'col',
-  'embed',
-  'hr',
-  'img',
-  'input',
-  'link',
-  'meta',
-  'param',
-  'source',
-  'track',
-  'wbr'
-];
+const VOID_TAGS = {
+  area: true,
+  base: true,
+  br: true,
+  col: true,
+  embed: true,
+  hr: true,
+  img: true,
+  input: true,
+  link: true,
+  meta: true,
+  param: true,
+  source: true,
+  track: true,
+  wbr: true
+};
+
+const SPLITTER_STRING = String(Math.random());
 
 export default function splitReactElement(element) {
-  if (VOID_TAGS.indexOf(element.type) !== -1) {
+  if (VOID_TAGS[element.type]) {
     return ReactDOMServer.renderToStaticMarkup(element);
   }
 
@@ -29,18 +31,13 @@ export default function splitReactElement(element) {
     React.cloneElement(
       element,
       {},
-      '\r'
+      SPLITTER_STRING
     )
-  ).split('\r');
+  ).split(SPLITTER_STRING);
 
   invariant(
     tags.length > 1,
     `convertToHTML: Element of type ${element.type} must render children`
-  );
-
-  invariant(
-    tags.length < 3,
-    `convertToHTML: Element of type ${element.type} cannot use carriage return character`
   );
 
   return {
