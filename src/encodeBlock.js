@@ -12,7 +12,7 @@ const ENTITY_MAP = {
 };
 
 export default block => {
-  const blockText = block.text;
+  const blockText = [...block.text];
 
   let entities = block.entityRanges.sort(rangeSort);
   let styles = block.inlineStyleRanges.sort(rangeSort);
