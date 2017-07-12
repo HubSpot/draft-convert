@@ -13,6 +13,10 @@ export default function getBlockTags(blockHTML) {
     'Expected block HTML value to be non-null'
   );
 
+  if (typeof blockHTML === 'string') {
+    return blockHTML;
+  }
+
   if (React.isValidElement(blockHTML)) {
     if (hasChildren(blockHTML)) {
       return ReactDOMServer.renderToStaticMarkup(blockHTML);
