@@ -795,4 +795,25 @@ describe('convertToHTML', () => {
 
     expect(result).toBe('<p>👍</p>');
   });
+
+  it('supports a string output for blockToHTML', () => {
+    const contentState = buildContentState([
+      {
+        text: 'test',
+        type: 'unstyled'
+      }
+    ]);
+
+    const blockContents = '<div>unstyled block</div>';
+
+    const result = convertToHTML({
+      blockToHTML: block => {
+        if (block.type === 'unstyled') {
+          return blockContents;
+        }
+      }
+    })(contentState);
+
+    expect(result).toBe(blockContents);
+  });
 });
