@@ -163,7 +163,7 @@ type EntityKey = string
 
 type convertFromHTML = HTMLConverter | ({
     htmlToStyle: ?(nodeName: string, node: Node) => DraftInlineStyle,
-    htmlToBlock: ?(nodeName: string, node: Node) => ?(DraftBlockType | {type: DraftBlockType, data: object}),
+    htmlToBlock: ?(nodeName: string, node: Node) => ?(DraftBlockType | {type: DraftBlockType, data: object} | false),
     htmlToEntity: ?(nodeName: string, node: string): ?EntityKey,
     textToEntity: ?(text) => Array<{entity: EntityKey, offset: number, length: number, result: ?string}>
 }) => HTMLConverter

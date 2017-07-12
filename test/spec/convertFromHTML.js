@@ -557,4 +557,48 @@ describe('convertFromHTML', () => {
     expect(blocks.slice(0, 2).every(block => block.getType() === 'unordered-list-item')).toBe(true);
     expect(blocks.slice(2, 4).every(block => block.getType() === 'ordered-list-item')).toBe(true);
   });
+
+  it('ignores blocks that return false in htmlToBlock', () => {
+    const html = '<div>test1</div><p>test2</p><div>test3</div>';
+
+    const contentState = convertFromHTML({
+      htmlToBlock: nodeName => {
+        if (nodeName === 'p') {
+          return false;
+        }
+      }
+    })(html);
+
+    expect(contentState.getBlocksAsArray().length).toBe(2);
+  });
+
+  it('ignores nested blocks that return false in htmlToBlock', () => {
+    const html = '<div>test1<p>test2</p></div>';
+
+    const contentState = convertFromHTML({
+      htmlToBlock: nodeName => {
+        if (nodeName === 'p') {
+          return false;
+        }
+      }
+    })(html);
+
+    expect(contentState.getBlocksAsArray().length).toBe(1);
+    expect(contentState.getBlocksAsArray()[0].getText()).toBe('test1');
+  });
+
+  it('ignores nested blocks that return false in htmlToBlock when flat is true', () => {
+    const html = '<div>test1<p>test2</p></div>';
+
+    const contentState = convertFromHTML({
+      htmlToBlock: nodeName => {
+        if (nodeName === 'p') {
+          return false;
+        }
+      }
+    })(html, { flat: true });
+
+    expect(contentState.getBlocksAsArray().length).toBe(1);
+    expect(contentState.getBlocksAsArray()[0].getText()).toBe('test1');
+  });
 });

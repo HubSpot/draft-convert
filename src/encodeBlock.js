@@ -17,7 +17,7 @@ const ENTITY_MAP = {
 };
 
 export default (block: RawBlock): RawBlock => {
-  const blockText = block.text;
+  const blockText = [...Array.from(block.text)];
 
   let entities: Array<EntityRange> = block.entityRanges.sort(rangeSort);
   let styles: Array<InlineStyleRange> = block.inlineStyleRanges.sort(rangeSort);

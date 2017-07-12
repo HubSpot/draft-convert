@@ -19,7 +19,7 @@ export default (
   entityMap: {[entityKey: string]: RawEntity},
   entityConverter: Function = converter
 ): RawBlock => {
-  let resultText = block.text;
+  let resultText = [...Array.from(block.text)];
 
   let getEntityHTML = entityConverter;
 
@@ -42,7 +42,7 @@ export default (
       const entityRange: EntityRange = entities[index];
       const entity = entityMap[entityRange.key];
 
-      const originalText = resultText.substr(entityRange.offset, entityRange.length);
+      const originalText = resultText.slice(entityRange.offset, entityRange.offset + entityRange.length).join('');
 
       const entityHTML = getEntityHTML(entity, originalText);
       const converted = getElementHTMLWithText(entityHTML, originalText)
@@ -52,7 +52,7 @@ export default (
       const suffixLength = getElementTagLength(entityHTML, 'end');
 
       const updateLaterMutation = function<U: Mutation>(mutation: U, mutationIndex: number): U | Array<U> {
-        if (mutationIndex >= index || Object.prototype.hasOwnProperty.call(mutation, 'style')) {
+        if (mutationIndex > index || Object.prototype.hasOwnProperty.call(mutation, 'style')) {
           return updateMutation(
             mutation,
             entityRange.offset,
@@ -81,13 +81,15 @@ export default (
       entities = updateLaterMutations(entities);
       styles = updateLaterMutations(styles);
 
-      resultText = resultText.substring(0, entityRange.offset)
-                   + converted
-                   + resultText.substring(entityRange.offset + entityRange.length);
+      resultText = [
+        ...resultText.slice(0, entityRange.offset),
+        ...Array.from(converted),
+        ...resultText.slice(entityRange.offset + entityRange.length)
+      ];
     }
 
     return Object.assign({}, block, {
-      text: resultText,
+      text: resultText.join(''),
       inlineStyleRanges: styles,
       entityRanges: entities
     });
