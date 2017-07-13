@@ -45,18 +45,30 @@ describe('convertFromHTML', () => {
       htmlToEntity: (nodeName, node) => {
         if (nodeName === 'a' && node.href) {
           const href = node.href;
-          return Entity.create('LINK', 'MUTABLE', { url: href });
+          return {
+            type: 'LINK',
+            mutability: 'MUTABLE',
+            data: { url: href }
+          };
         }
 
         if (nodeName === 'testnode') {
-          return Entity.create('TEST', 'IMMUTABLE', {
-            testAttr: node.getAttribute('test-attr')
-          });
+          return {
+            type: 'TEST',
+            mutability: 'IMMUTABLE',
+            data: {
+              testAttr: node.getAttribute('test-attr')
+            }
+          };
         }
         if (nodeName === 'img') {
-          return Entity.create('IMAGE', 'IMMUTABLE', {
-            src: node.getAttribute('src')
-          });
+          return {
+            type: 'IMAGE',
+            mutability: 'IMMUTABLE',
+            data: {
+              src: node.getAttribute('src')
+            }
+          };
         }
       },
       textToEntity: text => {
@@ -68,11 +80,11 @@ describe('convertFromHTML', () => {
           acc.push({
             offset: resultArray.index,
             length: resultArray[0].length,
-            entity: Entity.create(
-              'AT-MENTION',
-              'IMMUTABLE',
-              { name }
-            )
+            entity: {
+              type: 'AT-MENTION',
+              mutability: 'IMMUTABLE',
+              data: { name }
+            }
           });
           resultArray = pattern.exec(text);
         }
@@ -81,11 +93,11 @@ describe('convertFromHTML', () => {
             offset,
             length: match.length,
             result: tag,
-            entity: Entity.create(
-              'MERGE-TAG',
-              'IMMUTABLE',
-              { tag }
-            )
+            entity: {
+              type: 'MERGE-TAG',
+              mutability: 'IMMUTABLE',
+              data: { tag }
+            }
           });
         });
         return acc;
@@ -333,7 +345,7 @@ describe('convertFromHTML', () => {
     expect(blocks[0].getType()).toBe('atomic');
     expect(blocks[0].characterList.size).toBe(1);
     const entityKey = blocks[0].characterList.first().entity;
-    const entity = Entity.get(entityKey);
+    const entity = contentState.getEntity(entityKey);
     expect(entity.getType()).toBe('IMAGE');
     expect(entity.getData().src).toBe('test');
   });
@@ -344,7 +356,7 @@ describe('convertFromHTML', () => {
     const blocks = contentState.getBlocksAsArray();
     expect(blocks.length).toBe(3);
     expect(blocks[1].getType()).toBe('atomic');
-    expect(Entity.get(blocks[1].getEntityAt(0)).getType()).toBe('IMAGE');
+    expect(contentState.getEntity(blocks[1].getEntityAt(0)).getType()).toBe('IMAGE');
     const resultHTML = convertToHTML({
       blockToHTML: {
         'atomic': {
@@ -443,19 +455,26 @@ describe('convertFromHTML', () => {
     const html = '<p><a>test</a></p>';
     const baseLink = next => nodeName => {
       if (nodeName === 'a') {
-        return Entity.create('LINK', 'IMMUTABLE', {});
+        return {
+          type: 'LINK',
+          mutability: 'IMMUTABLE',
+          data: {}
+        };
       }
 
       return next(...arguments);
     };
     const linkData = next => (nodeName, ...args) => {
-      const entityKey = next(nodeName, ...args);
+      const result = next(nodeName, ...args);
       if (nodeName === 'a') {
-        Entity.mergeData(entityKey, { test: true });
-        return entityKey;
+        return Object.assign({}, result, {
+          data: Object.assign({}, result.data, {
+            test: true
+          })
+        });
       }
 
-      return entityKey;
+      return result;
     };
 
     const htmlToEntity = (...args) => {
@@ -481,7 +500,11 @@ describe('convertFromHTML', () => {
         results.push({
           offset,
           length: match.length,
-          entity: Entity.create('TEST1', 'IMMUTABLE', {})
+          entity: {
+            type: 'TEST1',
+            mutability: 'IMMUTABLE',
+            data: {}
+          }
         });
       });
 
@@ -493,7 +516,11 @@ describe('convertFromHTML', () => {
         results.push({
           offset,
           length: match.length,
-          entity: Entity.create('TEST2', 'IMMUTABLE', {})
+          entity: {
+            type: 'TEST2',
+            mutability: 'IMMUTABLE',
+            data: {}
+          }
         });
       });
 

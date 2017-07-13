@@ -11,7 +11,7 @@
  */
 
 import { List, OrderedSet, Map } from 'immutable';
-import { ContentState, CharacterMetadata, ContentBlock, genKey } from 'draft-js';
+import { ContentState, CharacterMetadata, ContentBlock, BlockMapBuilder, genKey } from 'draft-js';
 import getSafeBodyFromHTML from './util/parseHTML';
 import rangeSort from './util/rangeSort';
 
@@ -269,6 +269,7 @@ function genFragment(
   checkEntityNode,
   checkEntityText,
   checkBlockType,
+  createEntity,
   options,
   inEntity
 ) {
@@ -306,9 +307,11 @@ function genFragment(
       textArray.splice.bind(textArray, adjustedOffset, length).apply(textArray, result.split(''));
       text = textArray.join('');
 
+      const entityKey = createEntity(entity.type, entity.mutability, entity.data);
+
       entities.splice
         .bind(entities, adjustedOffset, length)
-        .apply(entities, Array(result.length).fill(entity));
+        .apply(entities, Array(result.length).fill(entityKey));
       offsetChange += result.length - length;
     });
 
@@ -413,7 +416,12 @@ function genFragment(
   let entityId = null;
 
   while (child) {
-    entityId = checkEntityNode(nodeName, child);
+    const entityData = checkEntityNode(nodeName, child);
+    if (entityData) {
+      entityId = createEntity(entityData.type, entityData.mutability, entityData.data);
+    } else {
+      entityId = null;
+    }
 
     newChunk = genFragment(
       child,
@@ -426,6 +434,7 @@ function genFragment(
       checkEntityNode,
       checkEntityText,
       checkBlockType,
+      createEntity,
       options,
       entityId || inEntity
     );
@@ -490,6 +499,7 @@ function getChunkForHTML(
   checkEntityNode,
   checkEntityText,
   checkBlockType,
+  createEntity,
   options,
   DOMBuilder
 ) {
@@ -521,6 +531,7 @@ function getChunkForHTML(
     checkEntityNode,
     checkEntityText,
     checkBlockType,
+    createEntity,
     options
   );
 
@@ -563,6 +574,7 @@ function convertFromHTMLtoContentBlocks(
   checkEntityNode,
   checkEntityText,
   checkBlockType,
+  createEntity,
   options,
   DOMBuilder
 ) {
@@ -576,6 +588,7 @@ function convertFromHTMLtoContentBlocks(
     checkEntityNode,
     checkEntityText,
     checkBlockType,
+    createEntity,
     options,
     DOMBuilder
   );
@@ -625,17 +638,26 @@ const convertFromHTML = ({
   },
   DOMBuilder = getSafeBodyFromHTML
 ) => {
-  return ContentState.createFromBlockArray(
-    convertFromHTMLtoContentBlocks(
-      html,
-      handleMiddleware(htmlToStyle, baseProcessInlineTag),
-      handleMiddleware(htmlToEntity, defaultHTMLToEntity),
-      handleMiddleware(textToEntity, defaultTextToEntity),
-      handleMiddleware(htmlToBlock, baseCheckBlockType),
-      options,
-      DOMBuilder
-    )
+  let contentState = ContentState.createFromText('');
+  const createEntityWithContentState = (...args) => {
+    contentState = contentState.createEntity(...args);
+    return contentState.getLastCreatedEntityKey();
+  };
+
+
+  const contentBlocks = convertFromHTMLtoContentBlocks(
+    html,
+    handleMiddleware(htmlToStyle, baseProcessInlineTag),
+    handleMiddleware(htmlToEntity, defaultHTMLToEntity),
+    handleMiddleware(textToEntity, defaultTextToEntity),
+    handleMiddleware(htmlToBlock, baseCheckBlockType),
+    createEntityWithContentState,
+    options,
+    DOMBuilder
   );
+
+  const blockMap = BlockMapBuilder.createFromArray(contentBlocks);
+  return contentState.set('blockMap', blockMap);
 };
 
 export default (...args) => {
