@@ -270,6 +270,9 @@ function genFragment(
   checkEntityText,
   checkBlockType,
   createEntity,
+  getEntity,
+  mergeEntityData,
+  replaceEntityData,
   options,
   inEntity
 ) {
@@ -295,7 +298,14 @@ function genFragment(
     const entities = Array(text.length).fill(inEntity);
 
     let offsetChange = 0;
-    const textEntities = checkEntityText(text).sort(rangeSort);
+    const textEntities = checkEntityText(
+      text,
+      createEntity,
+      getEntity,
+      mergeEntityData,
+      replaceEntityData
+    ).sort(rangeSort);
+
     textEntities.forEach(({ entity, offset, length, result }) => {
       const adjustedOffset = offset + offsetChange;
 
@@ -307,11 +317,9 @@ function genFragment(
       textArray.splice.bind(textArray, adjustedOffset, length).apply(textArray, result.split(''));
       text = textArray.join('');
 
-      const entityKey = createEntity(entity.type, entity.mutability, entity.data);
-
       entities.splice
         .bind(entities, adjustedOffset, length)
-        .apply(entities, Array(result.length).fill(entityKey));
+        .apply(entities, Array(result.length).fill(entity));
       offsetChange += result.length - length;
     });
 
@@ -416,12 +424,14 @@ function genFragment(
   let entityId = null;
 
   while (child) {
-    const entityData = checkEntityNode(nodeName, child);
-    if (entityData) {
-      entityId = createEntity(entityData.type, entityData.mutability, entityData.data);
-    } else {
-      entityId = null;
-    }
+    entityId = checkEntityNode(
+      nodeName,
+      child,
+      createEntity,
+      getEntity,
+      mergeEntityData,
+      replaceEntityData
+    );
 
     newChunk = genFragment(
       child,
@@ -435,6 +445,9 @@ function genFragment(
       checkEntityText,
       checkBlockType,
       createEntity,
+      getEntity,
+      mergeEntityData,
+      replaceEntityData,
       options,
       entityId || inEntity
     );
@@ -500,6 +513,9 @@ function getChunkForHTML(
   checkEntityText,
   checkBlockType,
   createEntity,
+  getEntity,
+  mergeEntityData,
+  replaceEntityData,
   options,
   DOMBuilder
 ) {
@@ -532,6 +548,9 @@ function getChunkForHTML(
     checkEntityText,
     checkBlockType,
     createEntity,
+    getEntity,
+    mergeEntityData,
+    replaceEntityData,
     options
   );
 
@@ -575,6 +594,9 @@ function convertFromHTMLtoContentBlocks(
   checkEntityText,
   checkBlockType,
   createEntity,
+  getEntity,
+  mergeEntityData,
+  replaceEntityData,
   options,
   DOMBuilder
 ) {
@@ -589,6 +611,9 @@ function convertFromHTMLtoContentBlocks(
     checkEntityText,
     checkBlockType,
     createEntity,
+    getEntity,
+    mergeEntityData,
+    replaceEntityData,
     options,
     DOMBuilder
   );
@@ -648,6 +673,31 @@ const convertFromHTML = ({
     return Entity.create(...args);
   };
 
+  const getEntityWithContentState = (...args) => {
+    if (contentState.getEntity) {
+      return contentState.getEntity(...args);
+    }
+
+    return Entity.get(...args);
+  };
+
+  const mergeEntityDataWithContentState = (...args) => {
+    if (contentState.mergeEntityData) {
+      contentState = contentState.mergeEntityData(...args);
+      return;
+    }
+
+    Entity.mergeData(...args);
+  };
+
+  const replaceEntityDataWithContentState = (...args) => {
+    if (contentState.replaceEntityData) {
+      contentState = contentState.replaceEntityData(...args);
+      return;
+    }
+
+    Entity.replaceData(...args);
+  };
 
   const contentBlocks = convertFromHTMLtoContentBlocks(
     html,
@@ -656,6 +706,9 @@ const convertFromHTML = ({
     handleMiddleware(textToEntity, defaultTextToEntity),
     handleMiddleware(htmlToBlock, baseCheckBlockType),
     createEntityWithContentState,
+    getEntityWithContentState,
+    mergeEntityDataWithContentState,
+    replaceEntityDataWithContentState,
     options,
     DOMBuilder
   );

@@ -10,7 +10,7 @@ const customBlockToHTML = {
   }
 };
 
-const getEntity = (contentState, entityKey) => {
+const getEntityFromContentState = (contentState, entityKey) => {
   // compatibility shim for draft-js@0.10 entity changes
   if (contentState.getEntity) {
     return contentState.getEntity(entityKey);
@@ -51,36 +51,24 @@ describe('convertFromHTML', () => {
         }
         return inlineStyle;
       },
-      htmlToEntity: (nodeName, node) => {
+      htmlToEntity: (nodeName, node, createEntity) => {
         if (nodeName === 'a' && node.href) {
           const href = node.href;
-          return {
-            type: 'LINK',
-            mutability: 'MUTABLE',
-            data: { url: href }
-          };
+          return createEntity('LINK', 'MUTABLE', { url: href });
         }
 
         if (nodeName === 'testnode') {
-          return {
-            type: 'TEST',
-            mutability: 'IMMUTABLE',
-            data: {
-              testAttr: node.getAttribute('test-attr')
-            }
-          };
+          return createEntity('TEST', 'IMMUTABLE', {
+            testAttr: node.getAttribute('test-attr')
+          });
         }
         if (nodeName === 'img') {
-          return {
-            type: 'IMAGE',
-            mutability: 'IMMUTABLE',
-            data: {
-              src: node.getAttribute('src')
-            }
-          };
+          return createEntity('IMAGE', 'IMMUTABLE', {
+            src: node.getAttribute('src')
+          });
         }
       },
-      textToEntity: text => {
+      textToEntity: (text, createEntity) => {
         const acc = [];
         const pattern = new RegExp('\\@\\w+', 'ig');
         let resultArray = pattern.exec(text);
@@ -89,11 +77,7 @@ describe('convertFromHTML', () => {
           acc.push({
             offset: resultArray.index,
             length: resultArray[0].length,
-            entity: {
-              type: 'AT-MENTION',
-              mutability: 'IMMUTABLE',
-              data: { name }
-            }
+            entity: createEntity('AT-MENTION', 'IMMUTABLE', { name })
           });
           resultArray = pattern.exec(text);
         }
@@ -102,11 +86,7 @@ describe('convertFromHTML', () => {
             offset,
             length: match.length,
             result: tag,
-            entity: {
-              type: 'MERGE-TAG',
-              mutability: 'IMMUTABLE',
-              data: { tag }
-            }
+            entity: createEntity('MERGE-TAG', 'IMMUTABLE', { tag })
           });
         });
         return acc;
@@ -354,7 +334,7 @@ describe('convertFromHTML', () => {
     expect(blocks[0].getType()).toBe('atomic');
     expect(blocks[0].characterList.size).toBe(1);
     const entityKey = blocks[0].characterList.first().entity;
-    const entity = getEntity(contentState, entityKey);
+    const entity = getEntityFromContentState(contentState, entityKey);
     expect(entity.getType()).toBe('IMAGE');
     expect(entity.getData().src).toBe('test');
   });
@@ -365,7 +345,7 @@ describe('convertFromHTML', () => {
     const blocks = contentState.getBlocksAsArray();
     expect(blocks.length).toBe(3);
     expect(blocks[1].getType()).toBe('atomic');
-    expect(getEntity(contentState, blocks[1].getEntityAt(0)).getType()).toBe('IMAGE');
+    expect(getEntityFromContentState(contentState, blocks[1].getEntityAt(0)).getType()).toBe('IMAGE');
     const resultHTML = convertToHTML({
       blockToHTML: {
         'atomic': {
@@ -462,28 +442,28 @@ describe('convertFromHTML', () => {
 
   it('handles middleware functions when converting entities from HTML', () => {
     const html = '<p><a>test</a></p>';
-    const baseLink = next => nodeName => {
+    const baseLink = next => (nodeName, node, createEntity) => {
       if (nodeName === 'a') {
-        return {
-          type: 'LINK',
-          mutability: 'IMMUTABLE',
-          data: {}
-        };
+        return createEntity('LINK', 'IMMUTABLE', {});
       }
 
       return next(...arguments);
     };
-    const linkData = next => (nodeName, ...args) => {
-      const result = next(nodeName, ...args);
-      if (nodeName === 'a') {
-        return Object.assign({}, result, {
-          data: Object.assign({}, result.data, {
-            test: true
-          })
-        });
+    const linkData = next => (
+      nodeName,
+      node,
+      createEntity,
+      getEntity,
+      mergeEntityData,
+      ...args
+    ) => {
+      const entityKey = next(nodeName, node, createEntity, getEntity, mergeEntityData, ...args);
+      if (entityKey && nodeName === 'a') {
+        mergeEntityData(entityKey, { test: true });
+        return entityKey;
       }
 
-      return result;
+      return entityKey;
     };
 
     const htmlToEntity = (...args) => {
@@ -503,33 +483,25 @@ describe('convertFromHTML', () => {
 
   it('handles middleware functions when converting entities from text', () => {
     const html = '<p>test1 test2</p>';
-    const test1Search = next => text => {
-      const results = next(text);
+    const test1Search = next => (text, createEntity) => {
+      const results = next(text, createEntity);
       text.replace(/test1/g, (match, offset) => {
         results.push({
           offset,
           length: match.length,
-          entity: {
-            type: 'TEST1',
-            mutability: 'IMMUTABLE',
-            data: {}
-          }
+          entity: createEntity('TEST1', 'IMMUTABLE', {})
         });
       });
 
       return results;
     };
-    const test2Search = next => text => {
-      const results = next(text);
+    const test2Search = next => (text, createEntity) => {
+      const results = next(text, createEntity);
       text.replace(/test2/g, (match, offset) => {
         results.push({
           offset,
           length: match.length,
-          entity: {
-            type: 'TEST2',
-            mutability: 'IMMUTABLE',
-            data: {}
-          }
+          entity: createEntity('TEST2', 'IMMUTABLE', {})
         });
       });
 
