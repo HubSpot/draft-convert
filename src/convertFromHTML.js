@@ -11,7 +11,7 @@
  */
 
 import { List, OrderedSet, Map } from 'immutable';
-import { ContentState, CharacterMetadata, ContentBlock, BlockMapBuilder, genKey } from 'draft-js';
+import { ContentState, CharacterMetadata, ContentBlock, Entity, BlockMapBuilder, genKey } from 'draft-js';
 import getSafeBodyFromHTML from './util/parseHTML';
 import rangeSort from './util/rangeSort';
 
@@ -640,8 +640,12 @@ const convertFromHTML = ({
 ) => {
   let contentState = ContentState.createFromText('');
   const createEntityWithContentState = (...args) => {
-    contentState = contentState.createEntity(...args);
-    return contentState.getLastCreatedEntityKey();
+    if (contentState.createEntity) {
+      contentState = contentState.createEntity(...args);
+      return contentState.getLastCreatedEntityKey();
+    }
+
+    return Entity.create(...args);
   };
 
 
