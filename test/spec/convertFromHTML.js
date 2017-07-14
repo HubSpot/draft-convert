@@ -1,5 +1,5 @@
 import React from 'react';
-import { convertToRaw } from 'draft-js';
+import { convertToRaw, Entity } from 'draft-js';
 import convertFromHTML from '../../src/convertFromHTML';
 import convertToHTML from '../../src/convertToHTML';
 
@@ -8,6 +8,15 @@ const customBlockToHTML = {
     start: '<p>',
     end: '</p>'
   }
+};
+
+const getEntity = (contentState, entityKey) => {
+  // compatibility shim for draft-js@0.10 entity changes
+  if (contentState.getEntity) {
+    return contentState.getEntity(entityKey);
+  }
+
+  return Entity.get(entityKey);
 };
 
 describe('convertFromHTML', () => {
@@ -345,7 +354,7 @@ describe('convertFromHTML', () => {
     expect(blocks[0].getType()).toBe('atomic');
     expect(blocks[0].characterList.size).toBe(1);
     const entityKey = blocks[0].characterList.first().entity;
-    const entity = contentState.getEntity(entityKey);
+    const entity = getEntity(contentState, entityKey);
     expect(entity.getType()).toBe('IMAGE');
     expect(entity.getData().src).toBe('test');
   });
@@ -356,7 +365,7 @@ describe('convertFromHTML', () => {
     const blocks = contentState.getBlocksAsArray();
     expect(blocks.length).toBe(3);
     expect(blocks[1].getType()).toBe('atomic');
-    expect(contentState.getEntity(blocks[1].getEntityAt(0)).getType()).toBe('IMAGE');
+    expect(getEntity(contentState, blocks[1].getEntityAt(0)).getType()).toBe('IMAGE');
     const resultHTML = convertToHTML({
       blockToHTML: {
         'atomic': {
