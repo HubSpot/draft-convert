@@ -357,9 +357,7 @@ describe('convertToHTML', () => {
             {
               key: 0,
               offset: 0,
-              length: 28,
-              prefixLength: '<a href="http://google.com">'.length,
-              suffixLength: '</a>'.length
+              length: 28
             }
           ],
         },
@@ -399,9 +397,7 @@ describe('convertToHTML', () => {
             {
               key: 0,
               offset: 0,
-              length: 28,
-              prefixLength: '<a href="http://google.com">'.length,
-              suffixLength: '</a>'.length
+              length: 28
             }
           ],
         },
@@ -436,9 +432,7 @@ describe('convertToHTML', () => {
             {
               key: 0,
               offset: 12,
-              length: 6,
-              prefixLength: '<a href="http://google.com">'.length,
-              suffixLength: '</a>'.length
+              length: 6
             }
           ],
         },
@@ -473,9 +467,7 @@ describe('convertToHTML', () => {
             {
               key: 0,
               offset: 12,
-              length: 6,
-              prefixLength: '<a href="http://google.com">'.length,
-              suffixLength: '</a>'.length
+              length: 6
             }
           ],
         },
@@ -568,9 +560,7 @@ describe('convertToHTML', () => {
             {
               key: 0,
               offset: 12,
-              length: 6,
-              prefixLength: '<a href="http://google.com">'.length,
-              suffixLength: '</a>'.length
+              length: 6
             }
           ],
         },
@@ -610,9 +600,7 @@ describe('convertToHTML', () => {
             {
               key: 0,
               offset: 12,
-              length: 6,
-              prefixLength: '<a href="http://google.com">'.length,
-              suffixLength: '</a>'.length
+              length: 6
             }
           ],
         },
@@ -815,5 +803,45 @@ describe('convertToHTML', () => {
     })(contentState);
 
     expect(result).toBe(blockContents);
+  });
+
+  it('handles overlapping entity and style', () => {
+    const contentState = buildContentState([
+      {
+        text: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
+        type: 'unstyled',
+        entityRanges: [{
+          offset: 0,
+          length: 26,
+          key: 0
+        }],
+        styleRanges: [{
+          offset: 22,
+          length: 34,
+          style: 'ITALIC'
+        }]
+      }
+    ], {
+      0: {
+        type: 'LINK',
+        mutability: 'IMMUTABLE',
+        data: {}
+      }
+    });
+
+    const html = convertToHTML({
+      styleToHTML: (style) => {
+        if (style === 'ITALIC') {
+          return <i />;
+        }
+      },
+      entityToHTML: (entity, originalText) => {
+        if (entity.type === 'LINK') {
+          return <a href="http://test.com">{originalText}</a>;
+        }
+      }
+    })(contentState);
+
+    expect(html).toBe('<p><a href="http://test.com">Lorem ipsum dolor sit <i>amet</i></a><i>, consectetur adipiscing elit.</i></p>');
   });
 });
