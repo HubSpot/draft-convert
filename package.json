@@ -1,9 +1,9 @@
 {
-  "name": "@mic/draft-convert",
+  "name": "draft-convert",
   "version": "1.4.10",
   "description": "Extensibly serialize & deserialize Draft.js ContentState",
   "main": "lib/index.js",
-  "repository": "micnews/draft-convert",
+  "repository": "draft-convert",
   "scripts": {
     "build": "npm run build:commonjs && npm run build:umd && npm run build:umd:min",
     "watch": "run-p watch:commonjs watch:umd watch:umd:min",
