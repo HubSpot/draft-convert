@@ -1,9 +1,15 @@
 import React from 'react';
 import splitReactElement from './splitReactElement';
 
-export default (element, type = 'start') => {
+const getElementTagLength = (element, type = 'start') => {
   if (React.isValidElement(element)) {
-    return splitReactElement(element)[type].length;
+    const length = splitReactElement(element)[type].length;
+
+    const child = React.Children.toArray(element.props.children)[0];
+    return length + (child && React.isValidElement(child)
+      ? getElementTagLength(child, type)
+      : 0
+    );
   }
 
   if (typeof element === 'object') {
@@ -12,3 +18,5 @@ export default (element, type = 'start') => {
 
   return 0;
 };
+
+export default getElementTagLength;
