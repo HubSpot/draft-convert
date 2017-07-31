@@ -830,7 +830,7 @@ describe('convertToHTML', () => {
     });
 
     const html = convertToHTML({
-      styleToHTML: (style) => {
+      styleToHTML: style => {
         if (style === 'ITALIC') {
           return <i />;
         }
