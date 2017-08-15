@@ -360,7 +360,7 @@ describe('blockEntities', () => {
       )
     );
 
-    expect(result).toBe('other&#x27;&#x27;&#x27;&#x27;&#x27;&#x27;&#x27;text {{ entity }}&#x27;s othertext');
+    expect(result).toBe('other\'\'\'\'\'\'\'text {{ entity }}\'s othertext');
   });
 
   it('handles an empty ReactElement in entityToHTML', () => {

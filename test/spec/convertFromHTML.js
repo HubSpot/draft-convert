@@ -382,14 +382,6 @@ describe('convertFromHTML', () => {
     });
   });
 
-  it('unescapes HTML encoded characters in text and converts them back', () => {
-    const html = '<p>test&amp;</p>';
-    const contentState = toContentState(html);
-    expect(contentState.getPlainText()).toBe('test&');
-    const resultHTML = convertToHTML(contentState);
-    expect(resultHTML).toBe(html);
-  });
-
   it('handles nested blocks in blockquote', () => {
     const html = '<blockquote><p>test</p><p>test</p></blockquote>';
     const contentState = toContentState(html);
