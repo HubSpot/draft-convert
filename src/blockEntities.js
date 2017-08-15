@@ -28,8 +28,8 @@ export default (block, entityMap, entityConverter = converter) => {
       const originalText = resultText.slice(entityRange.offset, entityRange.offset + entityRange.length).join('');
 
       const entityHTML = getEntityHTML(entity, originalText);
-      const converted = getElementHTML(entityHTML, originalText)
-                        || originalText;
+      const converted = [...getElementHTML(entityHTML, originalText)
+                        || originalText];
 
       const prefixLength = getElementTagLength(entityHTML, 'start');
       const suffixLength = getElementTagLength(entityHTML, 'end');
