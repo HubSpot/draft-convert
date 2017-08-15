@@ -540,4 +540,37 @@ describe('blockEntities', () => {
 
     expect(result).toBe('test <a>link</a>');
   });
+
+  it('correctly updates overlapping style ranges', () => {
+    const entityMap = {
+      0: {
+        type: 'LINK',
+        mutability: 'IMMUTABLE',
+        data: {}
+      }
+    };
+
+    const rawBlock = buildRawBlock(
+      'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
+      entityMap,
+      [{
+        offset: 22,
+        length: 34,
+        style: 'ITALIC'
+      }],
+      [{
+        offset: 0,
+        length: 26,
+        key: 0
+      }]
+    );
+
+    const updatedBlock = blockEntities(rawBlock, entityMap, (entity, originalText) => {
+      if (entity.type === 'LINK') {
+        return <a href="http://test.com">{originalText}</a>;
+      }
+    });
+
+    expect(updatedBlock.inlineStyleRanges.length).toBe(2);
+  });
 });
