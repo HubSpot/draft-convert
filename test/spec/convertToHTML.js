@@ -844,4 +844,50 @@ describe('convertToHTML', () => {
 
     expect(html).toBe('<p><a href="http://test.com">Lorem ipsum dolor sit <i>amet</i></a><i>, consectetur adipiscing elit.</i></p>');
   });
+
+  it('handles offset of entities after an emoji', () => {
+    const contentState = buildContentState([
+      {
+        text: '👍 Santi Albo',
+        type: 'unstyled',
+        depth: 0,
+        entityRanges: [{
+          offset: 0,
+          length: 1,
+          key: 0,
+        }, {
+          offset: 2,
+          length: 10,
+          key: 1,
+        }],
+      }
+    ], {
+      0: {
+        type: 'emoji',
+        mutability: 'IMMUTABLE',
+        data: {
+          emojiUnicode: '👍'
+        }
+      },
+      1: {
+        type: 'mention',
+        mutability: 'SEGMENTED',
+        data: {
+          href: '/users/1'
+        }
+      }
+    });
+
+    const result = convertToHTML({
+      entityToHTML(entity, originalText) {
+        if (entity.type === 'emoji') {
+          return entity.data.emojiUnicode;
+        } else if (entity.type === 'mention') {
+          return <a href={entity.data.href}>{originalText}</a> // <-- originalText here is "anti Albo"
+        }
+      }
+    })(contentState);
+    // result === '<p>👍 S<a href="/users/1">anti Albo</a></p>'
+    expect(result).toBe('<p>👍 <a href="/users/1">Santi Albo</a></p>');
+  });
 });
