@@ -883,11 +883,10 @@ describe('convertToHTML', () => {
         if (entity.type === 'emoji') {
           return entity.data.emojiUnicode;
         } else if (entity.type === 'mention') {
-          return <a href={entity.data.href}>{originalText}</a> // <-- originalText here is "anti Albo"
+          return <a href={entity.data.href}>{originalText}</a>; // <-- originalText here is "anti Albo"
         }
       }
     })(contentState);
-    // result === '<p>👍 S<a href="/users/1">anti Albo</a></p>'
     expect(result).toBe('<p>👍 <a href="/users/1">Santi Albo</a></p>');
   });
 });
