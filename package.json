@@ -40,7 +40,8 @@
   },
   "dependencies": {
     "immutable": "~3.7.4",
-    "invariant": "^2.2.1"
+    "invariant": "^2.2.1",
+    "lodash.unescape": "^4.0.1"
   },
   "devDependencies": {
     "babel-cli": "^6.10.1",

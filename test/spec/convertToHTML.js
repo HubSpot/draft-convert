@@ -289,6 +289,47 @@ describe('convertToHTML', () => {
     expect(result).toBe('<p>t<a>e&lt;&amp;&gt;s</a><strong>t</strong></p>');
   });
 
+  it('escapes HTML in text of entities only once', () => {
+    const contentState = buildContentState([
+      {
+        type: 'unstyled',
+        text: 'Led Zeppelin - Since I\'ve Been Loving You',
+        entityRanges: [{ key: 0, offset: 0, length: 41 }]
+      }
+    ], { 0: { type: 'LINK', mutability: 'IMMUTABLE' } });
+
+    const result = convertToHTML({ entityToHTML: (entity, originalText) => {
+      if (entity.type === 'LINK') {
+        return <a>{originalText}</a>;
+      }
+      return originalText;
+    } })(contentState);
+    expect(result)
+      .toBe('<p><a>Led Zeppelin - Since I&#x27;ve Been Loving You</a></p>');
+  });
+
+  it('escapes HTML in text of entities only once when using a custom component', () => {
+    const contentState = buildContentState([
+      {
+        type: 'unstyled',
+        text: 'Led Zeppelin - Since I\'ve Been Loving You',
+        entityRanges: [{ key: 0, offset: 0, length: 41 }]
+      }
+    ], { 0: { type: 'LINK', mutability: 'IMMUTABLE' } });
+
+    // eslint-disable-next-line react/prop-types
+    const Link = ({ children }) => <a>{children}</a>;
+
+    const result = convertToHTML({ entityToHTML: (entity, originalText) => {
+      if (entity.type === 'LINK') {
+        return <Link>{originalText}</Link>;
+      }
+      return originalText;
+    } })(contentState);
+    expect(result)
+      .toBe('<p><a>Led Zeppelin - Since I&#x27;ve Been Loving You</a></p>');
+  });
+
   it('uses block metadata', () => {
     const contentState = buildContentState([
       {
