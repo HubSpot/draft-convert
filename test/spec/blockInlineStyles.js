@@ -145,4 +145,16 @@ describe('blockInlineStyles', () => {
     const result = blockInlineStyles(contentState, middleware);
     expect(result).toBe('12<strong data-test="test">34</strong>5');
   });
+
+  it('plays well with emoji', () => {
+    const contentState = buildRawBlock('aaa😥aaa', [
+      {
+        style: 'BOLD',
+        offset: 4,
+        length: 2
+      }
+    ]);
+    const result = blockInlineStyles(contentState);
+    expect(result).toBe('aaa😥<strong>aa</strong>a');
+  });
 });

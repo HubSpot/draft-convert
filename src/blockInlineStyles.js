@@ -93,7 +93,9 @@ export default (rawBlock, customInlineHTML = defaultCustomInlineHTML) => {
 
   const sortedRanges = rawBlock.inlineStyleRanges.sort(rangeSort);
 
-  for (let i = 0; i < rawBlock.text.length; i++) {
+  const originalTextArray = [...rawBlock.text];
+
+  for (let i = 0; i < originalTextArray.length; i++) {
     const styles = characterStyles(i, sortedRanges);
 
     const endingStyles = subtractStyles(styleStack, styles);
@@ -111,7 +113,7 @@ export default (rawBlock, customInlineHTML = defaultCustomInlineHTML) => {
     const openingStyleTags = openingStyles.reduce(appendStartMarkup.bind(null, inlineHTML), '');
     const endingStyleTags = endingStyles.concat(resetStyles).reduce(prependEndMarkup.bind(null, inlineHTML), '');
 
-    result += endingStyleTags + openingStyleTags + rawBlock.text[i];
+    result += endingStyleTags + openingStyleTags + originalTextArray[i];
 
     styleStack = popEndingStyles(styleStack, resetStyles.concat(endingStyles));
     styleStack = styleStack.concat(openingStyles);
