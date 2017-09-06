@@ -630,20 +630,34 @@ describe('convertFromHTML', () => {
     expect(contentState.getBlocksAsArray()[0].getText()).toBe('test1');
   });
 
-  it('maintains leading and trailing whitespace with retainWhitespace option', () => {
+  it('maintains leading and trailing whitespace with retainWhitespace option (Issue 79)', () => {
     const html = '<span>  simple whitespace test </span>';
     const contentState = toContentState(html, { retainWhitespace: true });
     expect(contentState.getBlocksAsArray().length).toBe(1);
     expect(contentState.getBlocksAsArray()[0].getText()).toBe('  simple whitespace test ');
   });
 
-  it('maintains whitespace before, after, and between other tags with retainWhitespace option', () => {
+  it('maintains whitespace before, after, and between other tags with retainWhitespace option (Issue 79)', () => {
     const html = '<span>  <b>tags</b> and whitespace </br> </br> <i>test</i>  </span>';
     const contentState = toContentState(html, { retainWhitespace: true });
     expect(contentState.getBlocksAsArray().length).toBe(3);
     expect(contentState.getBlocksAsArray()[0].getText()).toBe('  tags and whitespace ');
     expect(contentState.getBlocksAsArray()[1].getText()).toBe(' ');
     expect(contentState.getBlocksAsArray()[2].getText()).toBe(' test  ');
+  });
+
+  it('maintains non-breaking "between tags" whitespaces with retainWhitespace option (Issue 79)', () => {
+    const html = '<p>    <b>Bold Text</b>    </p>';
+    const contentState = toContentState(html, { retainWhitespace: true });
+    expect(contentState.getBlocksAsArray().length).toBe(1);
+    expect(contentState.getBlocksAsArray()[0].getText()).toBe('    Bold Text    ');
+  });
+
+  it('consolidates multiple "between tags" whitespaces without retainWhitespace option (Issue 79)', () => {
+    const html = '<p>    <b>Bold Text</b>    </p>';
+    const contentState = toContentState(html, { retainWhitespace: false });
+    expect(contentState.getBlocksAsArray().length).toBe(1);
+    expect(contentState.getBlocksAsArray()[0].getText()).toBe(' Bold Text ');
   });
 
   it('still maintains simple case leading and trailing whitespace without retainWhitespace option', () => {
