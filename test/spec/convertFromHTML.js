@@ -220,6 +220,13 @@ describe('convertFromHTML', () => {
     expect(convertToHTML(contentState)).toBe('<p>one<br/>two</p>');
   });
 
+  it('DOESNT convert br tag to block boundaries with four items', () => {
+    const html = '<p>one<br/>two<br/>three<br/>four</p>';
+    const contentState = toContentState(html);
+    expect(contentState.getBlocksAsArray().length).toBe(1);
+    expect(convertToHTML(contentState)).toBe('<p>one<br/>two<br/>three<br/>four</p>');
+  });
+
   it('converts multiple consecutive brs', () => {
     const html = '<p>one<br/><br/>two</p>';
     const contentState = toContentState(html);
@@ -381,6 +388,27 @@ describe('convertFromHTML', () => {
       expect(block.getType()).toBe('unstyled');
     });
   });
+
+  // In "no semantic block" mode, a leading or trailing <br> is dropped.
+  // Not sure whether this is correct or not.
+  // it('retains leading br in span and brs/unstyled', () => {
+  //   const html = '<span><br>line two<br>3<br>line four</span>';
+  //   const contentState = toContentState(html);
+  //   const blocks = contentState.getBlocksAsArray();
+  //   expect(blocks.length).toBe(4);
+  //   blocks.forEach(block => {
+  //     expect(block.getType()).toBe('unstyled');
+  //   });
+  // });
+  // it('retains ending br in span and brs/unstyled', () => {
+  //   const html = '<span>line one<br><br>line 3<br></span>';
+  //   const contentState = toContentState(html);
+  //   const blocks = contentState.getBlocksAsArray();
+  //   expect(blocks.length).toBe(4);
+  //   blocks.forEach(block => {
+  //     expect(block.getType()).toBe('unstyled');
+  //   });
+  // });
 
   it('unescapes HTML encoded characters in text and converts them back', () => {
     const html = '<p>test&amp;</p>';
