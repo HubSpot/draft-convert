@@ -170,6 +170,7 @@ function getBlockTypeForTag(tag, lastList) {
 }
 
 function baseCheckBlockType(nodeName, node, lastList) {
+  console.log("using forked lib")
   return getBlockTypeForTag(nodeName, lastList);
 }
 
