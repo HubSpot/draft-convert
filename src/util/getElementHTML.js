@@ -1,6 +1,7 @@
 import invariant from 'invariant';
 import React from 'react';
 import ReactDOMServer from 'react-dom/server';
+import unescape from 'lodash.unescape';
 import splitReactElement from './splitReactElement';
 
 function hasChildren(element) {
@@ -18,7 +19,11 @@ export default function getElementHTML(element, text = null) {
 
   if (React.isValidElement(element)) {
     if (hasChildren(element)) {
-      return ReactDOMServer.renderToStaticMarkup(element);
+      // `renderToStaticMarkup` will escape HTML entities. However,
+      // these are already escaped at this point, so this will cause
+      // them to be escaped twice. As there's no way to turn off the HTML
+      // escaping of React, the resulting HTML needs to be unescaped once.
+      return unescape(ReactDOMServer.renderToStaticMarkup(element));
     }
 
     const tags = splitReactElement(element);
