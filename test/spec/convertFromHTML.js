@@ -221,6 +221,13 @@ describe('convertFromHTML', () => {
     expect(convertToHTML(contentState)).toBe('<p>one<br/>two</p>');
   });
 
+  it('DOESNT convert br tag to block boundaries with four items', () => {
+    const html = '<p>one<br/>two<br/>three<br/>four</p>';
+    const contentState = toContentState(html);
+    expect(contentState.getBlocksAsArray().length).toBe(1);
+    expect(convertToHTML(contentState)).toBe('<p>one<br/>two<br/>three<br/>four</p>');
+  });
+
   it('converts multiple consecutive brs', () => {
     const html = '<p>one<br/><br/>two</p>';
     const contentState = toContentState(html);
@@ -382,6 +389,27 @@ describe('convertFromHTML', () => {
       expect(block.getType()).toBe('unstyled');
     });
   });
+
+  // In "no semantic block" mode, a leading or trailing <br> is dropped.
+  // Not sure whether this is correct or not.
+  // it('retains leading br in span and brs/unstyled', () => {
+  //   const html = '<span><br>line two<br>3<br>line four</span>';
+  //   const contentState = toContentState(html);
+  //   const blocks = contentState.getBlocksAsArray();
+  //   expect(blocks.length).toBe(4);
+  //   blocks.forEach(block => {
+  //     expect(block.getType()).toBe('unstyled');
+  //   });
+  // });
+  // it('retains ending br in span and brs/unstyled', () => {
+  //   const html = '<span>line one<br><br>line 3<br></span>';
+  //   const contentState = toContentState(html);
+  //   const blocks = contentState.getBlocksAsArray();
+  //   expect(blocks.length).toBe(4);
+  //   blocks.forEach(block => {
+  //     expect(block.getType()).toBe('unstyled');
+  //   });
+  // });
 
   it('unescapes HTML encoded characters in text and converts them back', () => {
     const html = '<p>test&amp;</p>';
@@ -608,5 +636,64 @@ describe('convertFromHTML', () => {
 
     expect(contentState.getBlocksAsArray().length).toBe(1);
     expect(contentState.getBlocksAsArray()[0].getText()).toBe('test1');
+  });
+
+  it('maintains leading and trailing whitespace with retainWhitespace option (Issue 79)', () => {
+    const html = '<span>  simple whitespace test </span>';
+    const contentState = toContentState(html, { retainWhitespace: true });
+    expect(contentState.getBlocksAsArray().length).toBe(1);
+    expect(contentState.getBlocksAsArray()[0].getText()).toBe('  simple whitespace test ');
+  });
+
+  it('maintains whitespace before, after, and between other tags with retainWhitespace option (Issue 79)', () => {
+    const html = '<span>  <b>tags</b> and whitespace </br> </br> <i>test</i>  </span>';
+    const contentState = toContentState(html, { retainWhitespace: true });
+    expect(contentState.getBlocksAsArray().length).toBe(3);
+    expect(contentState.getBlocksAsArray()[0].getText()).toBe('  tags and whitespace ');
+    expect(contentState.getBlocksAsArray()[1].getText()).toBe(' ');
+    expect(contentState.getBlocksAsArray()[2].getText()).toBe(' test  ');
+  });
+
+  it('maintains non-breaking "between tags" whitespaces with retainWhitespace option (Issue 79)', () => {
+    const html = '<p>    <b>Bold Text</b>    </p>';
+    const contentState = toContentState(html, { retainWhitespace: true });
+    expect(contentState.getBlocksAsArray().length).toBe(1);
+    expect(contentState.getBlocksAsArray()[0].getText()).toBe('    Bold Text    ');
+  });
+
+  it('consolidates multiple "between tags" whitespaces without retainWhitespace option (Issue 79)', () => {
+    const html = '<p>    <b>Bold Text</b>    </p>';
+    const contentState = toContentState(html, { retainWhitespace: false });
+    expect(contentState.getBlocksAsArray().length).toBe(1);
+    expect(contentState.getBlocksAsArray()[0].getText()).toBe(' Bold Text ');
+  });
+
+  it('still maintains simple case leading and trailing whitespace without retainWhitespace option', () => {
+    // default behavior keeps whitespace when HTML tags do not delineate it
+    const html = '<span>  simple whitespace test </span>';
+    const contentState = toContentState(html);
+    expect(contentState.getBlocksAsArray().length).toBe(1);
+    expect(contentState.getBlocksAsArray()[0].getText()).toBe('  simple whitespace test ');
+  });
+
+  it('collapses whitespace between tags without any block and without retainWhitespace option', () => {
+    // Without any block defined, if whitespace is processed by itself
+    // (as in '<span>  <b>' or '</i> <u>'),
+    // and no block type is defined, the space is entirely eliminated.
+    const html = '<span>  <b>tags</b> and whitespace </br> </br> <i>test</i> <u>stuff</u> </span>';
+    const contentState = toContentState(html);
+    expect(contentState.getBlocksAsArray().length).toBe(3);
+    expect(contentState.getBlocksAsArray()[0].getText()).toBe('tags and whitespace ');
+    expect(contentState.getBlocksAsArray()[1].getText()).toBe('');
+    expect(contentState.getBlocksAsArray()[2].getText()).toBe('teststuff');
+  });
+
+  it('consolidates whitespace between tags when inside a semantic block', () => {
+    // default behavior consolidates 'orphan' whitespace into a single space character
+    // inside any type of block (other than 'code-block')
+    const html = '<div>   <b>tags</b> and whitespace  </br> </br> <i>test</i>  <u>stuff</u>  </div>';
+    const contentState = toContentState(html);
+    expect(contentState.getBlocksAsArray().length).toBe(1);
+    expect(contentState.getBlocksAsArray()[0].getText()).toBe(' tags and whitespace  \n \n test stuff ');
   });
 });
