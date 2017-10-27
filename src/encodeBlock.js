@@ -23,7 +23,7 @@ export default block => {
 
     if (ENTITY_MAP[char] !== undefined) {
       const encoded = ENTITY_MAP[char];
-      const resultIndex = resultText.length;
+      const resultIndex = [...resultText].length;
       resultText += encoded;
 
       const updateForChar = mutation => {
