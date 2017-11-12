@@ -120,7 +120,7 @@ const contentState = convertFromHTML({
     },
     textToEntity: (text, createEntity) => {
         const result = [];
-        text.replace(/\@(\w+)/g, (match, name, offset) => {
+        text.replace(/\@(\w+)/g, (match, offset, name) => {
             const entityKey = createEntity(
                 'AT-MENTION',
                 'IMMUTABLE',
