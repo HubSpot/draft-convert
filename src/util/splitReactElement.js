@@ -17,7 +17,7 @@ const VOID_TAGS = [
   'param',
   'source',
   'track',
-  'wbr'
+  'wbr',
 ];
 
 export default function splitReactElement(element) {
@@ -26,11 +26,7 @@ export default function splitReactElement(element) {
   }
 
   const tags = ReactDOMServer.renderToStaticMarkup(
-    React.cloneElement(
-      element,
-      {},
-      '\r'
-    )
+    React.cloneElement(element, {}, '\r')
   ).split('\r');
 
   invariant(
@@ -40,11 +36,13 @@ export default function splitReactElement(element) {
 
   invariant(
     tags.length < 3,
-    `convertToHTML: Element of type ${element.type} cannot use carriage return character`
+    `convertToHTML: Element of type ${
+      element.type
+    } cannot use carriage return character`
   );
 
   return {
     start: tags[0],
-    end: tags[1]
+    end: tags[1],
   };
 }

@@ -13,7 +13,7 @@ export default function defaultInlineHTML(style) {
     default:
       return {
         start: '',
-        end: ''
+        end: '',
       };
   }
 }

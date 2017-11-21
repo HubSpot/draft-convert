@@ -8,7 +8,7 @@ const ENTITY_MAP = {
   '"': '&quot;',
   "'": '&#x27;',
   '`': '&#x60;',
-  '\n': '<br/>'
+  '\n': '<br/>',
 };
 
 export default block => {
@@ -27,7 +27,14 @@ export default block => {
       resultText += encoded;
 
       const updateForChar = mutation => {
-        return updateMutation(mutation, resultIndex, char.length, encoded.length, 0, 0);
+        return updateMutation(
+          mutation,
+          resultIndex,
+          char.length,
+          encoded.length,
+          0,
+          0
+        );
       };
 
       entities = entities.map(updateForChar);
@@ -40,6 +47,6 @@ export default block => {
   return Object.assign({}, block, {
     text: resultText,
     inlineStyleRanges: styles,
-    entityRanges: entities
+    entityRanges: entities,
   });
 };

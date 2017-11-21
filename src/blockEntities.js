@@ -16,7 +16,10 @@ export default (block, entityMap, entityConverter = converter) => {
     getEntityHTML = entityConverter(converter);
   }
 
-  if (Object.prototype.hasOwnProperty.call(block, 'entityRanges') && block.entityRanges.length > 0) {
+  if (
+    Object.prototype.hasOwnProperty.call(block, 'entityRanges') &&
+    block.entityRanges.length > 0
+  ) {
     let entities = block.entityRanges.sort(rangeSort);
 
     let styles = block.inlineStyleRanges;
@@ -25,35 +28,44 @@ export default (block, entityMap, entityConverter = converter) => {
       const entityRange = entities[index];
       const entity = entityMap[entityRange.key];
 
-      const originalText = resultText.slice(entityRange.offset, entityRange.offset + entityRange.length).join('');
+      const originalText = resultText
+        .slice(entityRange.offset, entityRange.offset + entityRange.length)
+        .join('');
 
       const entityHTML = getEntityHTML(entity, originalText);
-      const converted = [...getElementHTML(entityHTML, originalText)
-                        || originalText];
+      const converted = [
+        ...(getElementHTML(entityHTML, originalText) || originalText),
+      ];
 
       const prefixLength = getElementTagLength(entityHTML, 'start');
       const suffixLength = getElementTagLength(entityHTML, 'end');
 
       const updateLaterMutation = (mutation, mutationIndex) => {
-        if (mutationIndex > index || Object.prototype.hasOwnProperty.call(mutation, 'style')) {
+        if (
+          mutationIndex > index ||
+          Object.prototype.hasOwnProperty.call(mutation, 'style')
+        ) {
           return updateMutation(
-            mutation, entityRange.offset, entityRange.length,
-            converted.length, prefixLength, suffixLength
+            mutation,
+            entityRange.offset,
+            entityRange.length,
+            converted.length,
+            prefixLength,
+            suffixLength
           );
         }
         return mutation;
       };
 
-      const updateLaterMutations = mutationList => mutationList.reduce(
-        (acc, mutation, mutationIndex) => {
+      const updateLaterMutations = mutationList =>
+        mutationList.reduce((acc, mutation, mutationIndex) => {
           const updatedMutation = updateLaterMutation(mutation, mutationIndex);
           if (Array.isArray(updatedMutation)) {
             return acc.concat(updatedMutation);
           }
 
           return acc.concat([updatedMutation]);
-        }
-      , []);
+        }, []);
 
       entities = updateLaterMutations(entities);
       styles = updateLaterMutations(styles);
@@ -61,14 +73,14 @@ export default (block, entityMap, entityConverter = converter) => {
       resultText = [
         ...resultText.slice(0, entityRange.offset),
         ...converted,
-        ...resultText.slice(entityRange.offset + entityRange.length)
+        ...resultText.slice(entityRange.offset + entityRange.length),
       ];
     }
 
     return Object.assign({}, block, {
       text: resultText.join(''),
       inlineStyleRanges: styles,
-      entityRanges: entities
+      entityRanges: entities,
     });
   }
 
