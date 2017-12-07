@@ -573,4 +573,33 @@ describe('blockEntities', () => {
 
     expect(updatedBlock.inlineStyleRanges.length).toBe(2);
   });
+
+  it('allows void react elements as conversion results for entities', () => {
+    const entityMap = {
+      0: {
+        type: 'IMAGE',
+        mutability: 'IMMUTABLE',
+        data: {}
+      }
+    };
+
+    const rawBlock = buildRawBlock(
+      ' ',
+      entityMap,
+      null,
+      [{
+        offset: 0,
+        length: 1,
+        key: 0
+      }]
+    );
+
+    const result = blockEntities(rawBlock, entityMap, (entity, originalText) => {
+      if (entity.type === 'IMAGE') {
+        return <img src="test" />;
+      }
+    });
+
+    expect(result.text).toBe('<img src="test"/>');
+  });
 });
