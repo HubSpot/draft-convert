@@ -45,8 +45,8 @@ export default (
       const originalText = resultText.slice(entityRange.offset, entityRange.offset + entityRange.length).join('');
 
       const entityHTML = getEntityHTML(entity, originalText);
-      const converted = getElementHTMLWithText(entityHTML, originalText)
-                        || originalText;
+      const converted = Array.from(getElementHTMLWithText(entityHTML, originalText)
+                        || originalText);
 
       const prefixLength = getElementTagLength(entityHTML, 'start');
       const suffixLength = getElementTagLength(entityHTML, 'end');

@@ -5,17 +5,22 @@ import splitReactElement from './splitReactElement';
 
 import type { Markup } from '../flow/Markup';
 
-export default (element: Markup, type: string = 'start'): number => {
+const getElementTagLength = (element: Markup, type: string = 'start'): number => {
   if (React.isValidElement(element)) {
     const verifiedElement = ((element: any): React.Element<any>);
+    const splitElement = splitReactElement(verifiedElement);
 
-    if (React.Children.count(verifiedElement.props.children) === 0) {
-      const splitElement = splitReactElement(verifiedElement);
-
-      if (typeof splitElement === 'object') {
-        return splitElement[type].length;
-      }
+    if (typeof splitElement === 'string') {
+      return 0;
     }
+
+    const length: number = splitElement[type].length;
+
+    const child: React.Element<any> = React.Children.toArray(verifiedElement.props.children)[0];
+    return length + (child && React.isValidElement(child)
+      ? getElementTagLength(child, type)
+      : 0
+    );
   }
 
   if (typeof element === 'object') {
@@ -24,3 +29,5 @@ export default (element: Markup, type: string = 'start'): number => {
 
   return 0;
 };
+
+export default getElementTagLength;

@@ -109,19 +109,19 @@ const contentState = convertFromHTML({
             return currentStyle;
         }
     },
-    htmlToEntity: (nodeName, node) => {
+    htmlToEntity: (nodeName, node, createEntity) => {
         if (nodeName === 'a') {
-            return Entity.create(
+            return createEntity(
                 'LINK',
                 'MUTABLE',
                 {url: node.href}
             )
         }
     },
-    textToEntity: (text) => {
+    textToEntity: (text, createEntity) => {
         const result = [];
         text.replace(/\@(\w+)/g, (match, name, offset) => {
-            const entityKey = Entity.create(
+            const entityKey = createEntity(
                 'AT-MENTION',
                 'IMMUTABLE',
                 {name}
@@ -164,8 +164,21 @@ type EntityKey = string
 type convertFromHTML = HTMLConverter | ({
     htmlToStyle: ?(nodeName: string, node: Node) => DraftInlineStyle,
     htmlToBlock: ?(nodeName: string, node: Node) => ?(DraftBlockType | {type: DraftBlockType, data: object} | false),
-    htmlToEntity: ?(nodeName: string, node: string): ?EntityKey,
-    textToEntity: ?(text) => Array<{entity: EntityKey, offset: number, length: number, result: ?string}>
+    htmlToEntity: ?(
+        nodeName: string,
+        node: string,
+        createEntity: (type: string, mutability: string, data: object) => EntityKey,
+        getEntity: (key: EntityKey) => Entity,
+        mergeEntityData: (key: string, data: object) => void,
+        replaceEntityData: (key: string, data: object) => void
+    ): ?EntityKey,
+    textToEntity: ?(
+        text: string,
+        createEntity: (type: string, mutability: string, data: object) => EntityKey,
+        getEntity: (key: EntityKey) => Entity,
+        mergeEntityData: (key: string, data: object) => void,
+        replaceEntityData: (key: string, data: object) => void
+    ) => Array<{entity: EntityKey, offset: number, length: number, result: ?string}>
 }) => HTMLConverter
 ```
 

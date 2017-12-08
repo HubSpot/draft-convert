@@ -11,7 +11,7 @@
  */
 
 import { List, OrderedSet, Map } from 'immutable';
-import { ContentState, CharacterMetadata, ContentBlock, genKey } from 'draft-js';
+import { ContentState, CharacterMetadata, ContentBlock, Entity, BlockMapBuilder, genKey } from 'draft-js';
 import getSafeBodyFromHTML from './util/parseHTML';
 import rangeSort from './util/rangeSort';
 
@@ -269,6 +269,10 @@ function genFragment(
   checkEntityNode,
   checkEntityText,
   checkBlockType,
+  createEntity,
+  getEntity,
+  mergeEntityData,
+  replaceEntityData,
   options,
   inEntity
 ) {
@@ -294,7 +298,14 @@ function genFragment(
     const entities = Array(text.length).fill(inEntity);
 
     let offsetChange = 0;
-    const textEntities = checkEntityText(text).sort(rangeSort);
+    const textEntities = checkEntityText(
+      text,
+      createEntity,
+      getEntity,
+      mergeEntityData,
+      replaceEntityData
+    ).sort(rangeSort);
+
     textEntities.forEach(({ entity, offset, length, result }) => {
       const adjustedOffset = offset + offsetChange;
 
@@ -413,7 +424,14 @@ function genFragment(
   let entityId = null;
 
   while (child) {
-    entityId = checkEntityNode(nodeName, child);
+    entityId = checkEntityNode(
+      nodeName,
+      child,
+      createEntity,
+      getEntity,
+      mergeEntityData,
+      replaceEntityData
+    );
 
     newChunk = genFragment(
       child,
@@ -426,6 +444,10 @@ function genFragment(
       checkEntityNode,
       checkEntityText,
       checkBlockType,
+      createEntity,
+      getEntity,
+      mergeEntityData,
+      replaceEntityData,
       options,
       entityId || inEntity
     );
@@ -490,6 +512,10 @@ function getChunkForHTML(
   checkEntityNode,
   checkEntityText,
   checkBlockType,
+  createEntity,
+  getEntity,
+  mergeEntityData,
+  replaceEntityData,
   options,
   DOMBuilder
 ) {
@@ -521,6 +547,10 @@ function getChunkForHTML(
     checkEntityNode,
     checkEntityText,
     checkBlockType,
+    createEntity,
+    getEntity,
+    mergeEntityData,
+    replaceEntityData,
     options
   );
 
@@ -563,6 +593,10 @@ function convertFromHTMLtoContentBlocks(
   checkEntityNode,
   checkEntityText,
   checkBlockType,
+  createEntity,
+  getEntity,
+  mergeEntityData,
+  replaceEntityData,
   options,
   DOMBuilder
 ) {
@@ -576,6 +610,10 @@ function convertFromHTMLtoContentBlocks(
     checkEntityNode,
     checkEntityText,
     checkBlockType,
+    createEntity,
+    getEntity,
+    mergeEntityData,
+    replaceEntityData,
     options,
     DOMBuilder
   );
@@ -625,17 +663,58 @@ const convertFromHTML = ({
   },
   DOMBuilder = getSafeBodyFromHTML
 ) => {
-  return ContentState.createFromBlockArray(
-    convertFromHTMLtoContentBlocks(
-      html,
-      handleMiddleware(htmlToStyle, baseProcessInlineTag),
-      handleMiddleware(htmlToEntity, defaultHTMLToEntity),
-      handleMiddleware(textToEntity, defaultTextToEntity),
-      handleMiddleware(htmlToBlock, baseCheckBlockType),
-      options,
-      DOMBuilder
-    )
+  let contentState = ContentState.createFromText('');
+  const createEntityWithContentState = (...args) => {
+    if (contentState.createEntity) {
+      contentState = contentState.createEntity(...args);
+      return contentState.getLastCreatedEntityKey();
+    }
+
+    return Entity.create(...args);
+  };
+
+  const getEntityWithContentState = (...args) => {
+    if (contentState.getEntity) {
+      return contentState.getEntity(...args);
+    }
+
+    return Entity.get(...args);
+  };
+
+  const mergeEntityDataWithContentState = (...args) => {
+    if (contentState.mergeEntityData) {
+      contentState = contentState.mergeEntityData(...args);
+      return;
+    }
+
+    Entity.mergeData(...args);
+  };
+
+  const replaceEntityDataWithContentState = (...args) => {
+    if (contentState.replaceEntityData) {
+      contentState = contentState.replaceEntityData(...args);
+      return;
+    }
+
+    Entity.replaceData(...args);
+  };
+
+  const contentBlocks = convertFromHTMLtoContentBlocks(
+    html,
+    handleMiddleware(htmlToStyle, baseProcessInlineTag),
+    handleMiddleware(htmlToEntity, defaultHTMLToEntity),
+    handleMiddleware(textToEntity, defaultTextToEntity),
+    handleMiddleware(htmlToBlock, baseCheckBlockType),
+    createEntityWithContentState,
+    getEntityWithContentState,
+    mergeEntityDataWithContentState,
+    replaceEntityDataWithContentState,
+    options,
+    DOMBuilder
   );
+
+  const blockMap = BlockMapBuilder.createFromArray(contentBlocks);
+  return contentState.set('blockMap', blockMap);
 };
 
 export default (...args) => {
