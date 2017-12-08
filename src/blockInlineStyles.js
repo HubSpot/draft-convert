@@ -123,7 +123,7 @@ export default (rawBlock: RawBlock, customInlineHTML: (Function & {__isMiddlewar
 
   const sortedRanges = rawBlock.inlineStyleRanges.sort(rangeSort);
 
-  const originalTextArray = [...rawBlock.text];
+  const originalTextArray = Array.from(rawBlock.text);
 
   for (let i = 0; i < originalTextArray.length; i++) {
     const styles = characterStyles(i, sortedRanges);
