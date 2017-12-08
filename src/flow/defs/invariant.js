@@ -1,5 +1,5 @@
 // @flow
 
-declare module "invariant" {
-  declare export default (condition: any, format?: string, ...args: Array<any>) => void;
+declare module 'invariant' {
+  declare module.exports: (condition: any, format?: string, ...args: Array<any>) => void;
 }
