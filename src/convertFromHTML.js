@@ -598,7 +598,8 @@ function convertFromHTMLtoContentBlocks(
   mergeEntityData,
   replaceEntityData,
   options,
-  DOMBuilder
+  DOMBuilder,
+  generateKey
 ) {
   // Be ABSOLUTELY SURE that the dom builder you pass hare won't execute
   // arbitrary code in whatever environment you're running this in. For an
@@ -615,7 +616,8 @@ function convertFromHTMLtoContentBlocks(
     mergeEntityData,
     replaceEntityData,
     options,
-    DOMBuilder
+    DOMBuilder,
+    generateKey
   );
   if (chunk == null) {
     return [];
@@ -640,7 +642,7 @@ function convertFromHTMLtoContentBlocks(
       start = end + 1;
 
       return new ContentBlock({
-        key: genKey(),
+        key: generateKey(),
         type: nullthrows(chunk).blocks[blockIndex].type,
         data: nullthrows(chunk).blocks[blockIndex].data,
         depth: nullthrows(chunk).blocks[blockIndex].depth,
@@ -661,7 +663,8 @@ const convertFromHTML = ({
   options = {
     flat: false
   },
-  DOMBuilder = getSafeBodyFromHTML
+  DOMBuilder = getSafeBodyFromHTML,
+  generateKey = genKey
 ) => {
   let contentState = ContentState.createFromText('');
   const createEntityWithContentState = (...args) => {
@@ -710,7 +713,8 @@ const convertFromHTML = ({
     mergeEntityDataWithContentState,
     replaceEntityDataWithContentState,
     options,
-    DOMBuilder
+    DOMBuilder,
+    generateKey
   );
 
   const blockMap = BlockMapBuilder.createFromArray(contentBlocks);
