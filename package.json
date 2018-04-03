@@ -19,8 +19,7 @@
     "clean": "rimraf ./dist && rimraf ./lib",
     "build-and-test": "npm run clean && npm run build && npm run test-once",
     "lint": "eslint src/ test/",
-    "prepublish": "npm run lint && npm run build-and-test",
-    "prepare": "npm run build-and-test"
+    "prepublish": "npm run lint && npm run build-and-test"
   },
   "files": [
     "dist",
