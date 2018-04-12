@@ -406,6 +406,49 @@ describe('blockEntities', () => {
     expect(result).toBe('test <a>link</a>');
   });
 
+  it.only('handles a void ReactElement in entityToHTML', () => {
+    const entityMap = {
+      0: {
+        type: 'test',
+        mutability: 'IMMUTABLE',
+        data: {
+          test: 'test'
+        }
+      }
+    };
+
+    const rawBlock = buildRawBlock(
+      'test img',
+      entityMap,
+      [],
+      [
+        {
+          key: 0,
+          offset: 5,
+          length: 4
+        }
+      ]
+    );
+
+    const result = blockInlineStyles(
+      blockEntities(
+        encodeBlock(
+          rawBlock
+        ),
+        entityMap,
+        (entity, originalText) => {
+          if (entity.type === 'test') {
+            return <img src="test" />;
+          }
+
+          return originalText;
+        }
+      )
+    );
+
+    expect(result).toBe('test <img src="test"/>');
+  });
+
   it('handles a ReactElement with a child in entityToHTML', () => {
     const entityMap = {
       0: {

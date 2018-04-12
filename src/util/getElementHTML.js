@@ -25,6 +25,10 @@ export default function getElementHTML(element, text = null) {
 
     if (text !== null) {
       const { start, end } = tags;
+      if (!start && !end) {
+        // This is a void tag
+        return tags;
+      }
       return start + text + end;
     }
 
