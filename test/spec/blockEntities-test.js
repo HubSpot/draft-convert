@@ -406,7 +406,7 @@ describe('blockEntities', () => {
     expect(result).toBe('test <a>link</a>');
   });
 
-  it.only('handles a void ReactElement in entityToHTML', () => {
+  it('handles a void ReactElement in entityToHTML', () => {
     const entityMap = {
       0: {
         type: 'test',
