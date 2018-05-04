@@ -609,4 +609,22 @@ describe('convertFromHTML', () => {
     expect(contentState.getBlocksAsArray().length).toBe(1);
     expect(contentState.getBlocksAsArray()[0].getText()).toBe('test1');
   });
+
+  it("maintains the correct block key for selectionBefore and selectionAfter", () => {
+    const htmlChunks = ['<p>one<br/><br/>two</p>', '<div>test1<p>test2</p></div>', ''];
+
+    htmlChunks.forEach((html) => {
+      const contentState = convertFromHTML({
+        htmlToBlock: nodeName => {
+          if (nodeName === 'p') {
+            return false;
+          }
+        }
+      })(html, { flat: true });
+
+      expect(contentState.getFirstBlock().getKey()).toBe(contentState.getSelectionBefore().getStartKey());
+      expect(contentState.getFirstBlock().getKey()).toBe(contentState.getSelectionAfter().getStartKey());
+    });
+  });
+
 });
