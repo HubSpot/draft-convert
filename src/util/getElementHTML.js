@@ -23,7 +23,7 @@ export default function getElementHTML(element, text = null) {
 
     const tags = splitReactElement(element);
 
-    if (text !== null) {
+    if (text !== null && typeof tags === 'object') {
       const { start, end } = tags;
       return start + text + end;
     }
