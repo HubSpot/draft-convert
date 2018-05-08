@@ -4,19 +4,18 @@ describe('updateMutation', function run() {
   const prefix = '<a href="http://test.com">';
   const suffix = '</a>';
 
-
   describe('adjusts a mutation disjoint and subsequent to a changed mutation', () => {
     beforeAll(() => {
       const firstMutation = {
         offset: 1,
         length: 20,
-        key: 0
+        key: 0,
       };
 
       const secondMutation = {
         offset: 24,
         length: 5,
-        style: 'ITALIC'
+        style: 'ITALIC',
       };
 
       this.updatedMutation = updateMutation(
@@ -37,7 +36,7 @@ describe('updateMutation', function run() {
       expect(this.updatedMutation).toEqual({
         offset: 54,
         length: 5,
-        style: 'ITALIC'
+        style: 'ITALIC',
       });
     });
   });
@@ -47,13 +46,13 @@ describe('updateMutation', function run() {
       const firstMutation = {
         offset: 5,
         length: 20,
-        key: 0
+        key: 0,
       };
 
       const secondMutation = {
         offset: 2,
         length: 25,
-        style: 'ITALIC'
+        style: 'ITALIC',
       };
 
       this.updatedMutation = updateMutation(
@@ -74,7 +73,7 @@ describe('updateMutation', function run() {
       expect(this.updatedMutation).toEqual({
         offset: 2,
         length: 55,
-        style: 'ITALIC'
+        style: 'ITALIC',
       });
     });
   });
@@ -84,13 +83,13 @@ describe('updateMutation', function run() {
       const firstMutation = {
         offset: 2,
         length: 20,
-        key: 0
+        key: 0,
       };
 
       const secondMutation = {
         offset: 5,
         length: 10,
-        style: 'ITALIC'
+        style: 'ITALIC',
       };
 
       this.updatedMutation = updateMutation(
@@ -111,7 +110,7 @@ describe('updateMutation', function run() {
       expect(this.updatedMutation).toEqual({
         offset: 31,
         length: 10,
-        style: 'ITALIC'
+        style: 'ITALIC',
       });
     });
   });
@@ -121,13 +120,13 @@ describe('updateMutation', function run() {
       const firstMutation = {
         offset: 1,
         length: 20,
-        key: 0
+        key: 0,
       };
 
       const secondMutation = {
         offset: 0,
         length: 12,
-        style: 'ITALIC'
+        style: 'ITALIC',
       };
 
       this.updatedMutation = updateMutation(
@@ -148,18 +147,18 @@ describe('updateMutation', function run() {
     it('splits the mutation at the correct point', () => {
       const [
         firstUpdatedMutation,
-        secondUpdatedMutation
+        secondUpdatedMutation,
       ] = this.updatedMutation;
 
       expect(firstUpdatedMutation).toEqual({
         offset: 0,
         length: 1,
-        style: 'ITALIC'
+        style: 'ITALIC',
       });
       expect(secondUpdatedMutation).toEqual({
         offset: 27,
         length: 11,
-        style: 'ITALIC'
+        style: 'ITALIC',
       });
     });
   });
@@ -169,13 +168,13 @@ describe('updateMutation', function run() {
       const firstMutation = {
         offset: 0,
         length: 26,
-        key: 0
+        key: 0,
       };
 
       const secondMutation = {
         offset: 22,
         length: 34,
-        style: 'ITALIC'
+        style: 'ITALIC',
       };
 
       this.updatedMutation = updateMutation(
@@ -196,18 +195,18 @@ describe('updateMutation', function run() {
     it('splits the mutation at the correct point', () => {
       const [
         firstUpdatedMutation,
-        secondUpdatedMutation
+        secondUpdatedMutation,
       ] = this.updatedMutation;
 
       expect(firstUpdatedMutation).toEqual({
         offset: 48,
         length: 4,
-        style: 'ITALIC'
+        style: 'ITALIC',
       });
       expect(secondUpdatedMutation).toEqual({
         offset: 56,
         length: 30,
-        style: 'ITALIC'
+        style: 'ITALIC',
       });
     });
   });
