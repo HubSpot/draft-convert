@@ -716,7 +716,7 @@ const convertFromHTML = ({
   const blockMap = BlockMapBuilder.createFromArray(contentBlocks);
   const firstBlockKey = contentBlocks[0].getKey();
   return contentState.merge({
-    blockMap: blockMap,
+    blockMap,
     selectionBefore: SelectionState.createEmpty(firstBlockKey),
     selectionAfter: SelectionState.createEmpty(firstBlockKey)
   });
