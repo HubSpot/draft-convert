@@ -741,7 +741,7 @@ const convertFromHTML = ({
   return contentState.merge({
     blockMap,
     selectionBefore: SelectionState.createEmpty(firstBlockKey),
-    selectionAfter: SelectionState.createEmpty(firstBlockKey)
+    selectionAfter: SelectionState.createEmpty(firstBlockKey),
   });
 };
 
