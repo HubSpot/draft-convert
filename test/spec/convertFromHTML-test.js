@@ -111,9 +111,9 @@ describe('convertFromHTML', () => {
       },
       entityToHTML: (entity, originalText) => {
         if (entity.type === 'TEST') {
-          return `<testnode test-attr="${
-            entity.data.testAttr
-          }">${originalText}</testnode>`;
+          return `<testnode test-attr="${entity.data.testAttr}">${
+            originalText
+          }</testnode>`;
         } else if (entity.type === 'AT-MENTION') {
           return `@${entity.data.name}`;
         } else if (entity.type === 'MERGE-TAG') {
@@ -683,5 +683,23 @@ describe('convertFromHTML', () => {
         contentState.getSelectionAfter().getStartKey()
       );
     });
+  });
+
+  it('splits block with text and block element as siblings when flat is true', () => {
+    const html = '<div>test1<p>test2</p></div>';
+
+    const contentState = convertFromHTML(html, { flat: true });
+
+    expect(contentState.getBlocksAsArray().length).toBe(2);
+    expect(contentState.getBlocksAsArray()[0].getText()).toBe('test1');
+  });
+
+  it('does not add an extra empty line at the end when a block with deep lines ends with brs', () => {
+    const html =
+      '<div>third line<div>deep line</div><div>2 deep line</div><br><br></div><div>fourth line</div></div>';
+
+    const contentState = convertFromHTML(html, { flat: true });
+
+    expect(contentState.getBlocksAsArray().length).toBe(6);
   });
 });
