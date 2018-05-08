@@ -4,7 +4,10 @@ import ReactDOMServer from 'react-dom/server';
 import splitReactElement from './splitReactElement';
 
 function hasChildren(element) {
-  return React.isValidElement(element) && React.Children.count(element.props.children) > 0;
+  return (
+    React.isValidElement(element) &&
+    React.Children.count(element.props.children) > 0
+  );
 }
 
 export default function getElementHTML(element, text = null) {
@@ -32,7 +35,8 @@ export default function getElementHTML(element, text = null) {
   }
 
   invariant(
-    Object.prototype.hasOwnProperty.call(element, 'start') && Object.prototype.hasOwnProperty.call(element, 'end'),
+    Object.prototype.hasOwnProperty.call(element, 'start') &&
+      Object.prototype.hasOwnProperty.call(element, 'end'),
     'convertToHTML: received conversion data without either an HTML string, ReactElement or an object with start/end tags'
   );
 

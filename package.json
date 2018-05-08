@@ -19,7 +19,8 @@
     "clean": "rimraf ./dist && rimraf ./lib",
     "build-and-test": "npm run clean && npm run build && npm run test-once",
     "lint": "eslint src/ test/",
-    "prepublish": "npm run lint && npm run build-and-test"
+    "prepublish": "npm run lint && npm run build-and-test",
+    "prettier:write": "prettier --write ./{src,test}/*.js ./{src,test}/**/*.js"
   },
   "files": [
     "dist",
@@ -54,6 +55,7 @@
     "draft-js": "^0.8.1",
     "eslint": "3.12.0",
     "eslint-config-hubspot": "^7.0.0",
+    "eslint-config-prettier": "^2.2.0",
     "eslint-plugin-react": "6.8.0",
     "jasmine": "^2.2.0",
     "jest": "^18.1.0",
@@ -61,6 +63,7 @@
     "karma-chrome-launcher": "^0.2.3",
     "karma-jasmine": "^0.3.8",
     "karma-webpack": "^1.7.0",
+    "prettier": "^1.8.2",
     "react": "^15.4.2",
     "react-dom": "^15.4.2",
     "rimraf": "2.5.4",

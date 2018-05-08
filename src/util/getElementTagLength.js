@@ -11,9 +11,11 @@ const getElementTagLength = (element, type = 'start') => {
     const length = splitElement[type].length;
 
     const child = React.Children.toArray(element.props.children)[0];
-    return length + (child && React.isValidElement(child)
-      ? getElementTagLength(child, type)
-      : 0
+    return (
+      length +
+      (child && React.isValidElement(child)
+        ? getElementTagLength(child, type)
+        : 0)
     );
   }
 

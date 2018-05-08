@@ -11,7 +11,14 @@
  */
 
 import { List, OrderedSet, Map } from 'immutable';
-import { ContentState, CharacterMetadata, ContentBlock, Entity, BlockMapBuilder, genKey } from 'draft-js';
+import {
+  ContentState,
+  CharacterMetadata,
+  ContentBlock,
+  Entity,
+  BlockMapBuilder,
+  genKey,
+} from 'draft-js';
 import getSafeBodyFromHTML from './util/parseHTML';
 import rangeSort from './util/rangeSort';
 
@@ -31,7 +38,18 @@ const REGEX_BLOCK_DELIMITER = new RegExp('\r', 'g');
 
 // Block tag flow is different because LIs do not have
 // a deterministic style ;_;
-const blockTags = ['p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'li', 'blockquote', 'pre'];
+const blockTags = [
+  'p',
+  'h1',
+  'h2',
+  'h3',
+  'h4',
+  'h5',
+  'h6',
+  'li',
+  'blockquote',
+  'pre',
+];
 const inlineTags = {
   b: 'BOLD',
   code: 'CODE',
@@ -43,7 +61,6 @@ const inlineTags = {
   strong: 'BOLD',
   u: 'UNDERLINE',
 };
-
 
 const handleMiddleware = (maybeMiddleware, base) => {
   if (maybeMiddleware && maybeMiddleware.__isMiddleware === true) {
@@ -108,12 +125,14 @@ function getSoftNewlineChunk(block, depth, flat = false, data = Map()) {
       text: '\r',
       inlines: [OrderedSet()],
       entities: new Array(1),
-      blocks: [{
-        type: block,
-        data,
-        depth: Math.max(0, Math.min(MAX_DEPTH, depth))
-      }],
-      isNewline: true
+      blocks: [
+        {
+          type: block,
+          data,
+          depth: Math.max(0, Math.min(MAX_DEPTH, depth)),
+        },
+      ],
+      isNewline: true,
     };
   }
 
@@ -121,7 +140,7 @@ function getSoftNewlineChunk(block, depth, flat = false, data = Map()) {
     text: '\n',
     inlines: [OrderedSet()],
     entities: new Array(1),
-    blocks: []
+    blocks: [],
   };
 }
 
@@ -130,11 +149,13 @@ function getBlockDividerChunk(block, depth, data = Map()) {
     text: '\r',
     inlines: [OrderedSet()],
     entities: new Array(1),
-    blocks: [{
-      type: block,
-      data,
-      depth: Math.max(0, Math.min(MAX_DEPTH, depth)),
-    }],
+    blocks: [
+      {
+        type: block,
+        data,
+        depth: Math.max(0, Math.min(MAX_DEPTH, depth)),
+      },
+    ],
   };
 }
 
@@ -173,33 +194,31 @@ function baseCheckBlockType(nodeName, node, lastList) {
   return getBlockTypeForTag(nodeName, lastList);
 }
 
-function processInlineTag(
-  tag,
-  node,
-  currentStyle
-) {
+function processInlineTag(tag, node, currentStyle) {
   const styleToCheck = inlineTags[tag];
   if (styleToCheck) {
     currentStyle = currentStyle.add(styleToCheck).toOrderedSet();
   } else if (node instanceof HTMLElement) {
     const htmlElement = node;
-    currentStyle = currentStyle.withMutations(style => {
-      if (htmlElement.style.fontWeight === 'bold') {
-        style.add('BOLD');
-      }
+    currentStyle = currentStyle
+      .withMutations(style => {
+        if (htmlElement.style.fontWeight === 'bold') {
+          style.add('BOLD');
+        }
 
-      if (htmlElement.style.fontStyle === 'italic') {
-        style.add('ITALIC');
-      }
+        if (htmlElement.style.fontStyle === 'italic') {
+          style.add('ITALIC');
+        }
 
-      if (htmlElement.style.textDecoration === 'underline') {
-        style.add('UNDERLINE');
-      }
+        if (htmlElement.style.textDecoration === 'underline') {
+          style.add('UNDERLINE');
+        }
 
-      if (htmlElement.style.textDecoration === 'line-through') {
-        style.add('STRIKETHROUGH');
-      }
-    }).toOrderedSet();
+        if (htmlElement.style.textDecoration === 'line-through') {
+          style.add('STRIKETHROUGH');
+        }
+      })
+      .toOrderedSet();
   }
   return currentStyle;
 }
@@ -216,7 +235,8 @@ function joinChunks(A, B, flat = false) {
 
   const adjacentDividers = lastInA === '\r' && firstInB === '\r';
   const isJoiningBlocks = A.text !== '\r' && B.text !== '\r'; // when joining two full blocks like this we want to pop one divider
-  const addingNewlineToEmptyBlock = (A.text === '\r' && !A.isNewline) && B.isNewline; // when joining a newline to an empty block we want to remove the newline
+  const addingNewlineToEmptyBlock =
+    A.text === '\r' && !A.isNewline && B.isNewline; // when joining a newline to an empty block we want to remove the newline
 
   if (adjacentDividers && (isJoiningBlocks || addingNewlineToEmptyBlock)) {
     A.text = A.text.slice(0, -1);
@@ -226,9 +246,7 @@ function joinChunks(A, B, flat = false) {
   }
 
   // Kill whitespace after blocks if flat mode is on
-  if (
-    A.text.slice(-1) === '\r' && flat === true
-  ) {
+  if (A.text.slice(-1) === '\r' && flat === true) {
     if (B.text === SPACE || B.text === '\n') {
       return A;
     } else if (firstInB === SPACE || firstInB === '\n') {
@@ -245,7 +263,7 @@ function joinChunks(A, B, flat = false) {
     inlines: A.inlines.concat(B.inlines),
     entities: A.entities.concat(B.entities),
     blocks: A.blocks.concat(B.blocks),
-    isNewline
+    isNewline,
   };
 }
 
@@ -314,7 +332,9 @@ function genFragment(
       }
 
       const textArray = text.split('');
-      textArray.splice.bind(textArray, adjustedOffset, length).apply(textArray, result.split(''));
+      textArray.splice
+        .bind(textArray, adjustedOffset, length)
+        .apply(textArray, result.split(''));
       text = textArray.join('');
 
       entities.splice
@@ -385,15 +405,17 @@ function genFragment(
     );
     inBlock = blockType || getBlockTypeForTag(nodeName, lastList);
     newBlock = true;
-  } else if (lastList && (inBlock === 'ordered-list-item' || inBlock === 'unordered-list-item') && nodeName === 'li') {
+  } else if (
+    lastList &&
+    (inBlock === 'ordered-list-item' || inBlock === 'unordered-list-item') &&
+    nodeName === 'li'
+  ) {
     const listItemBlockType = getBlockTypeForTag(nodeName, lastList);
-    chunk = getBlockDividerChunk(
-      listItemBlockType,
-      depth
-    );
+    chunk = getBlockDividerChunk(listItemBlockType, depth);
     inBlock = listItemBlockType;
     newBlock = true;
-    nextBlockType = lastList === 'ul' ? 'unordered-list-item' : 'ordered-list-item';
+    nextBlockType =
+      lastList === 'ul' ? 'unordered-list-item' : 'ordered-list-item';
   } else if (inBlock && inBlock !== 'atomic' && blockType === 'atomic') {
     inBlock = blockType;
     newBlock = true;
@@ -413,7 +435,11 @@ function genFragment(
   // must exist for the entity to apply to. the way chunks are joined strips
   // whitespace at the end so it cannot be a space character.
 
-  if (child == null && inEntity && (blockType === 'atomic' || inBlock === 'atomic')) {
+  if (
+    child == null &&
+    inEntity &&
+    (blockType === 'atomic' || inBlock === 'atomic')
+  ) {
     child = document.createTextNode('a');
   }
 
@@ -456,11 +482,7 @@ function genFragment(
     const sibling = child.nextSibling;
 
     // Put in a newline to break up blocks inside blocks
-    if (
-      sibling
-      && fragmentBlockTags.indexOf(nodeName) >= 0
-      && inBlock
-    ) {
+    if (sibling && fragmentBlockTags.indexOf(nodeName) >= 0 && inBlock) {
       let newBlockInfo = checkBlockType(nodeName, child, lastList, inBlock);
 
       let newBlockType;
@@ -473,18 +495,14 @@ function genFragment(
           newBlockType = newBlockInfo;
           newBlockData = Map();
         } else {
-          newBlockType = newBlockInfo.type || getBlockTypeForTag(nodeName, lastList);
+          newBlockType =
+            newBlockInfo.type || getBlockTypeForTag(nodeName, lastList);
           newBlockData = newBlockInfo.data ? Map(newBlockInfo.data) : Map();
         }
 
         chunk = joinChunks(
           chunk,
-          getSoftNewlineChunk(
-            newBlockType,
-            depth,
-            options.flat,
-            newBlockData
-          ),
+          getSoftNewlineChunk(newBlockType, depth, options.flat, newBlockData),
           options.flat
         );
       }
@@ -532,7 +550,9 @@ function getChunkForHTML(
   // Sometimes we aren't dealing with content that contains nice semantic
   // tags. In this case, use divs to separate everything out into paragraphs
   // and hope for the best.
-  const workingBlocks = containsSemanticBlockMarkup(html) ? blockTags.concat(['div']) : ['div'];
+  const workingBlocks = containsSemanticBlockMarkup(html)
+    ? blockTags.concat(['div'])
+    : ['div'];
 
   // Start with -1 block depth to offset the fact that we are passing in a fake
   // UL block to sta rt with.
@@ -621,34 +641,32 @@ function convertFromHTMLtoContentBlocks(
     return [];
   }
   let start = 0;
-  return chunk.text.split('\r').map(
-    (textBlock, blockIndex) => {
-      // Make absolutely certain that our text is acceptable.
-      textBlock = sanitizeDraftText(textBlock);
-      const end = start + textBlock.length;
-      const inlines = nullthrows(chunk).inlines.slice(start, end);
-      const entities = nullthrows(chunk).entities.slice(start, end);
-      const characterList = List(
-        inlines.map((style, entityIndex) => {
-          const data = { style, entity: null };
-          if (entities[entityIndex]) {
-            data.entity = entities[entityIndex];
-          }
-          return CharacterMetadata.create(data);
-        })
-      );
-      start = end + 1;
+  return chunk.text.split('\r').map((textBlock, blockIndex) => {
+    // Make absolutely certain that our text is acceptable.
+    textBlock = sanitizeDraftText(textBlock);
+    const end = start + textBlock.length;
+    const inlines = nullthrows(chunk).inlines.slice(start, end);
+    const entities = nullthrows(chunk).entities.slice(start, end);
+    const characterList = List(
+      inlines.map((style, entityIndex) => {
+        const data = { style, entity: null };
+        if (entities[entityIndex]) {
+          data.entity = entities[entityIndex];
+        }
+        return CharacterMetadata.create(data);
+      })
+    );
+    start = end + 1;
 
-      return new ContentBlock({
-        key: genKey(),
-        type: nullthrows(chunk).blocks[blockIndex].type,
-        data: nullthrows(chunk).blocks[blockIndex].data,
-        depth: nullthrows(chunk).blocks[blockIndex].depth,
-        text: textBlock,
-        characterList,
-      });
-    }
-  );
+    return new ContentBlock({
+      key: genKey(),
+      type: nullthrows(chunk).blocks[blockIndex].type,
+      data: nullthrows(chunk).blocks[blockIndex].data,
+      depth: nullthrows(chunk).blocks[blockIndex].depth,
+      text: textBlock,
+      characterList,
+    });
+  });
 }
 
 const convertFromHTML = ({
@@ -659,7 +677,7 @@ const convertFromHTML = ({
 }) => (
   html,
   options = {
-    flat: false
+    flat: false,
   },
   DOMBuilder = getSafeBodyFromHTML
 ) => {
