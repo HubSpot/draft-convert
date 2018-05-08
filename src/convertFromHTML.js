@@ -18,6 +18,7 @@ import {
   Entity,
   BlockMapBuilder,
   genKey,
+  SelectionState,
 } from 'draft-js';
 import getSafeBodyFromHTML from './util/parseHTML';
 import rangeSort from './util/rangeSort';
@@ -736,7 +737,12 @@ const convertFromHTML = ({
   );
 
   const blockMap = BlockMapBuilder.createFromArray(contentBlocks);
-  return contentState.set('blockMap', blockMap);
+  const firstBlockKey = contentBlocks[0].getKey();
+  return contentState.merge({
+    blockMap,
+    selectionBefore: SelectionState.createEmpty(firstBlockKey),
+    selectionAfter: SelectionState.createEmpty(firstBlockKey),
+  });
 };
 
 export default (...args) => {
