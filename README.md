@@ -157,7 +157,7 @@ If no additional functionality is necessary `convertToHTML` can be invoked with 
 
 **Type info:**
 ```javascript
-type HTMLConverter = (html: string, {flat: ?boolean}, DOMBuilder: ?Function) => ContentState
+type HTMLConverter = (html: string, {flat: ?boolean}, DOMBuilder: ?Function, generateKey: ?Function) => ContentState
 
 type EntityKey = string
 
