@@ -1,7 +1,7 @@
 import blockTypeObjectFunction from '../../src/util/blockTypeObjectFunction';
 
 const blockObject = {
-  'test': 'success'
+  test: 'success',
 };
 
 const blockFunction = ({ type }) => {

@@ -1,5 +1,8 @@
 {
-  "extends": "hubspot",
+  "extends": [
+    "hubspot",
+    "prettier"
+  ],
   "rules":{
     "no-undefined": "off",
     "no-unused-vars": ["error", { "vars": "all", "args": "none" }],

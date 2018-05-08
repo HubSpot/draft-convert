@@ -5,7 +5,7 @@ describe('getBlockTags', () => {
   it('accepts a start/end pair object', () => {
     const block = {
       start: '<p>',
-      end: '</p>'
+      end: '</p>',
     };
 
     expect(getBlockTags(block)).toBe(block);
@@ -15,7 +15,7 @@ describe('getBlockTags', () => {
     const block = <p />;
     const result = {
       start: '<p>',
-      end: '</p>'
+      end: '</p>',
     };
     expect(getBlockTags(block)).toEqual(result);
   });
@@ -23,12 +23,12 @@ describe('getBlockTags', () => {
   it('accepts an empty react element with an empty option', () => {
     const block = {
       element: <p />,
-      empty: <br />
+      empty: <br />,
     };
     const result = {
       start: '<p>',
       end: '</p>',
-      empty: <br />
+      empty: <br />,
     };
     expect(getBlockTags(block)).toEqual(jasmine.objectContaining(result));
   });

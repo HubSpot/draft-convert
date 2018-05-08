@@ -3,20 +3,22 @@ import React from 'react';
 import { convertFromRaw, convertToRaw } from 'draft-js';
 
 const buildRawBlock = (text, styleRanges) => {
-  return convertToRaw(convertFromRaw({
-    entityMap: {},
-    blocks: [
-      {
-        text,
-        data: {},
-        depth: 0,
-        entityRanges: [],
-        inlineStyleRanges: styleRanges,
-        type: 'unstyled',
-        key: 'test'
-      }
-    ]
-  })).blocks[0];
+  return convertToRaw(
+    convertFromRaw({
+      entityMap: {},
+      blocks: [
+        {
+          text,
+          data: {},
+          depth: 0,
+          entityRanges: [],
+          inlineStyleRanges: styleRanges,
+          type: 'unstyled',
+          key: 'test',
+        },
+      ],
+    })
+  ).blocks[0];
 };
 
 describe('blockInlineStyles', () => {
@@ -26,11 +28,13 @@ describe('blockInlineStyles', () => {
   });
 
   it('applies a single style to a string', () => {
-    const contentState = buildRawBlock('test', [{
-      style: 'BOLD',
-      offset: 0,
-      length: 4
-    }]);
+    const contentState = buildRawBlock('test', [
+      {
+        style: 'BOLD',
+        offset: 0,
+        length: 4,
+      },
+    ]);
     const result = blockInlineStyles(contentState);
     expect(result).toBe('<strong>test</strong>');
   });
@@ -40,13 +44,13 @@ describe('blockInlineStyles', () => {
       {
         style: 'BOLD',
         offset: 0,
-        length: 4
+        length: 4,
       },
       {
         style: 'ITALIC',
         offset: 0,
-        length: 4
-      }
+        length: 4,
+      },
     ]);
     const result = blockInlineStyles(contentState);
     expect(result).toBe('<strong><em>test</em></strong>');
@@ -57,13 +61,13 @@ describe('blockInlineStyles', () => {
       {
         style: 'BOLD',
         offset: 0,
-        length: 3
+        length: 3,
       },
       {
         style: 'ITALIC',
         offset: 2,
-        length: 3
-      }
+        length: 3,
+      },
     ]);
     const result = blockInlineStyles(contentState);
     expect(result).toBe('<strong>ab</strong><em><strong>c</strong>de</em>');
@@ -74,18 +78,18 @@ describe('blockInlineStyles', () => {
       {
         style: 'UNDERLINE',
         offset: 0,
-        length: 4
+        length: 4,
       },
       {
         style: 'ITALIC',
         offset: 0,
-        length: 8
+        length: 8,
       },
       {
         style: 'BOLD',
         offset: 3,
-        length: 3
-      }
+        length: 3,
+      },
     ]);
     const result = blockInlineStyles(contentState);
     expect(result).toBe('<em><u>123</u><strong><u>4</u>56</strong>78</em>90');
@@ -96,8 +100,8 @@ describe('blockInlineStyles', () => {
       {
         style: 'CUSTOM',
         offset: 2,
-        length: 2
-      }
+        length: 2,
+      },
     ]);
     const result = blockInlineStyles(contentState, style => {
       if (style === 'CUSTOM') {
@@ -112,8 +116,8 @@ describe('blockInlineStyles', () => {
       {
         style: 'CUSTOM',
         offset: 2,
-        length: 2
-      }
+        length: 2,
+      },
     ]);
     const middleware = next => style => {
       if (style === 'CUSTOM') {
@@ -130,14 +134,14 @@ describe('blockInlineStyles', () => {
       {
         style: 'BOLD',
         offset: 2,
-        length: 2
-      }
+        length: 2,
+      },
     ]);
     const middleware = next => style => {
       if (style === 'BOLD') {
         const element = next(style);
         return React.cloneElement(element, {
-          'data-test': 'test'
+          'data-test': 'test',
         });
       }
     };
@@ -151,8 +155,8 @@ describe('blockInlineStyles', () => {
       {
         style: 'BOLD',
         offset: 4,
-        length: 2
-      }
+        length: 2,
+      },
     ]);
     const result = blockInlineStyles(contentState);
     expect(result).toBe('aaa😥<strong>aa</strong>a');
