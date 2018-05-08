@@ -5,30 +5,34 @@ import { Map } from 'immutable';
 import React from 'react';
 import { convertFromRaw, convertToRaw } from 'draft-js';
 
-const buildRawBlock = (text, entityMap = {}, styleRanges = [], entityRanges = [], data = Map()) => {
-  return convertToRaw(convertFromRaw({
-    entityMap,
-    blocks: [
-      {
-        text,
-        depth: 0,
-        data,
-        entityRanges,
-        inlineStyleRanges: styleRanges,
-        type: 'unstyled',
-        key: 'test'
-      }
-    ]
-  })).blocks[0];
+const buildRawBlock = (
+  text,
+  entityMap = {},
+  styleRanges = [],
+  entityRanges = [],
+  data = Map()
+) => {
+  return convertToRaw(
+    convertFromRaw({
+      entityMap,
+      blocks: [
+        {
+          text,
+          depth: 0,
+          data,
+          entityRanges,
+          inlineStyleRanges: styleRanges,
+          type: 'unstyled',
+          key: 'test',
+        },
+      ],
+    })
+  ).blocks[0];
 };
 
 describe('blockEntities', () => {
   it('returns an empty string when no text is given', () => {
-    const result = blockInlineStyles(
-      blockEntities(
-        buildRawBlock('', [])
-      )
-    );
+    const result = blockInlineStyles(blockEntities(buildRawBlock('', [])));
     expect(result).toBe('');
   });
 
@@ -38,27 +42,30 @@ describe('blockEntities', () => {
         type: 'testEntity',
         mutability: 'IMMUTABLE',
         data: {
-          test: 'newText'
-        }
-      }
+          test: 'newText',
+        },
+      },
     };
 
-    const contentState = buildRawBlock('test', entityMap, [], [{
-      key: 0,
-      offset: 0,
-      length: 4
-    }]);
+    const contentState = buildRawBlock(
+      'test',
+      entityMap,
+      [],
+      [
+        {
+          key: 0,
+          offset: 0,
+          length: 4,
+        },
+      ]
+    );
     const result = blockInlineStyles(
-      blockEntities(
-        contentState,
-        entityMap,
-        (entity, originalText) => {
-          if (entity.type === 'testEntity') {
-            return entity.data.test;
-          }
-          return originalText;
+      blockEntities(contentState, entityMap, (entity, originalText) => {
+        if (entity.type === 'testEntity') {
+          return entity.data.test;
         }
-      )
+        return originalText;
+      })
     );
     expect(result).toBe('newText');
   });
@@ -68,32 +75,33 @@ describe('blockEntities', () => {
       0: {
         type: 'testEntity',
         mutability: 'IMMUTABLE',
-      }
+      },
     };
 
-    const contentState = buildRawBlock('brackets nobrackets brackets', entityMap, [], [
-      {
-        key: 0,
-        offset: 0,
-        length: 8
-      },
-      {
-        key: 0,
-        offset: 20,
-        length: 8
-      }
-    ]);
+    const contentState = buildRawBlock(
+      'brackets nobrackets brackets',
+      entityMap,
+      [],
+      [
+        {
+          key: 0,
+          offset: 0,
+          length: 8,
+        },
+        {
+          key: 0,
+          offset: 20,
+          length: 8,
+        },
+      ]
+    );
     const result = blockInlineStyles(
-      blockEntities(
-        contentState,
-        entityMap,
-        (entity, originalText) => {
-          if (entity.type === 'testEntity') {
-            return `{${originalText}}`;
-          }
-          return originalText;
+      blockEntities(contentState, entityMap, (entity, originalText) => {
+        if (entity.type === 'testEntity') {
+          return `{${originalText}}`;
         }
-      )
+        return originalText;
+      })
     );
     expect(result).toBe('{brackets} nobrackets {brackets}');
   });
@@ -106,34 +114,35 @@ describe('blockEntities', () => {
       },
       1: {
         type: 'testEntity',
-        mutability: 'IMMUTABLE'
-      }
+        mutability: 'IMMUTABLE',
+      },
     };
 
-    const contentState = buildRawBlock('bracketsbrackets', entityMap, [], [
-      {
-        key: 0,
-        offset: 0,
-        length: 8
-      },
-      {
-        key: 1,
-        offset: 8,
-        length: 8
-      }
-    ]);
+    const contentState = buildRawBlock(
+      'bracketsbrackets',
+      entityMap,
+      [],
+      [
+        {
+          key: 0,
+          offset: 0,
+          length: 8,
+        },
+        {
+          key: 1,
+          offset: 8,
+          length: 8,
+        },
+      ]
+    );
 
     const result = blockInlineStyles(
-      blockEntities(
-        contentState,
-        entityMap,
-        (entity, originalText) => {
-          if (entity.type === 'testEntity') {
-            return `{${originalText}}`;
-          }
-          return originalText;
+      blockEntities(contentState, entityMap, (entity, originalText) => {
+        if (entity.type === 'testEntity') {
+          return `{${originalText}}`;
         }
-      )
+        return originalText;
+      })
     );
     expect(result).toBe('{brackets}{brackets}');
   });
@@ -144,9 +153,9 @@ describe('blockEntities', () => {
         type: 'testEntity',
         mutability: 'IMMUTABLE',
         data: {
-          test: 'xyz'
-        }
-      }
+          test: 'xyz',
+        },
+      },
     };
 
     const contentState = buildRawBlock(
@@ -156,28 +165,24 @@ describe('blockEntities', () => {
         {
           style: 'BOLD',
           offset: 0,
-          length: 5
-        }
+          length: 5,
+        },
       ],
       [
         {
           key: 0,
           offset: 1,
-          length: 3
-        }
+          length: 3,
+        },
       ]
     );
     const result = blockInlineStyles(
-      blockEntities(
-        contentState,
-        entityMap,
-        (entity, originalText) => {
-          if (entity.type === 'testEntity') {
-            return entity.data.test;
-          }
-          return originalText;
+      blockEntities(contentState, entityMap, (entity, originalText) => {
+        if (entity.type === 'testEntity') {
+          return entity.data.test;
         }
-      )
+        return originalText;
+      })
     );
     expect(result).toBe('<strong>axyze</strong>');
   });
@@ -188,9 +193,9 @@ describe('blockEntities', () => {
         type: 'testEntity',
         mutability: 'IMMUTABLE',
         data: {
-          test: 'xyz'
-        }
-      }
+          test: 'xyz',
+        },
+      },
     };
 
     const contentState = buildRawBlock(
@@ -200,28 +205,24 @@ describe('blockEntities', () => {
         {
           style: 'BOLD',
           offset: 0,
-          length: 5
-        }
+          length: 5,
+        },
       ],
       [
         {
           key: 0,
           offset: 1,
-          length: 2
-        }
+          length: 2,
+        },
       ]
     );
     const result = blockInlineStyles(
-      blockEntities(
-        contentState,
-        entityMap,
-        (entity, originalText) => {
-          if (entity.type === 'testEntity') {
-            return entity.data.test;
-          }
-          return originalText;
+      blockEntities(contentState, entityMap, (entity, originalText) => {
+        if (entity.type === 'testEntity') {
+          return entity.data.test;
         }
-      )
+        return originalText;
+      })
     );
     expect(result).toBe('<strong>axyzde</strong>');
   });
@@ -232,9 +233,9 @@ describe('blockEntities', () => {
         type: 'testEntity',
         mutability: 'IMMUTABLE',
         data: {
-          test: 'xyz'
-        }
-      }
+          test: 'xyz',
+        },
+      },
     };
 
     const contentState = buildRawBlock(
@@ -244,28 +245,24 @@ describe('blockEntities', () => {
         {
           style: 'BOLD',
           offset: 3,
-          length: 2
-        }
+          length: 2,
+        },
       ],
       [
         {
           key: 0,
           offset: 0,
-          length: 2
-        }
+          length: 2,
+        },
       ]
     );
     const result = blockInlineStyles(
-      blockEntities(
-        contentState,
-        entityMap,
-        (entity, originalText) => {
-          if (entity.type === 'testEntity') {
-            return entity.data.test;
-          }
-          return originalText;
+      blockEntities(contentState, entityMap, (entity, originalText) => {
+        if (entity.type === 'testEntity') {
+          return entity.data.test;
         }
-      )
+        return originalText;
+      })
     );
     expect(result).toBe('xyzc<strong>de</strong>');
   });
@@ -276,9 +273,9 @@ describe('blockEntities', () => {
         type: 'testEntity',
         mutability: 'IMMUTABLE',
         data: {
-          test: 'abcde'
-        }
-      }
+          test: 'abcde',
+        },
+      },
     };
 
     const contentState = buildRawBlock(
@@ -288,34 +285,30 @@ describe('blockEntities', () => {
         {
           style: 'BOLD',
           offset: 4,
-          length: 3
-        }
+          length: 3,
+        },
       ],
       [
         {
           key: 0,
           offset: 0,
-          length: 3
+          length: 3,
         },
         {
           key: 0,
           offset: 4,
-          length: 3
-        }
+          length: 3,
+        },
       ]
     );
 
     const result = blockInlineStyles(
-      blockEntities(
-        contentState,
-        entityMap,
-        (entity, originalText) => {
-          if (entity.type === 'testEntity') {
-            return entity.data.test;
-          }
-          return originalText;
+      blockEntities(contentState, entityMap, (entity, originalText) => {
+        if (entity.type === 'testEntity') {
+          return entity.data.test;
         }
-      )
+        return originalText;
+      })
     );
     expect(result).toBe('abcde <strong>abcde</strong>');
   });
@@ -326,29 +319,27 @@ describe('blockEntities', () => {
         type: 'testEntity',
         mutability: 'IMMUTABLE',
         data: {
-          test: '{{ entity }}'
-        }
-      }
+          test: '{{ entity }}',
+        },
+      },
     };
 
     const rawBlock = buildRawBlock(
-      'other\'\'\'\'\'\'\'text test\'s othertext',
+      "other'''''''text test's othertext",
       entityMap,
       [],
       [
         {
           key: 0,
           offset: 17,
-          length: 4
-        }
+          length: 4,
+        },
       ]
     );
 
     const result = blockInlineStyles(
       blockEntities(
-        encodeBlock(
-          rawBlock
-        ),
+        encodeBlock(rawBlock),
         entityMap,
         (entity, originalText) => {
           if (entity.type === 'testEntity') {
@@ -360,7 +351,9 @@ describe('blockEntities', () => {
       )
     );
 
-    expect(result).toBe('other&#x27;&#x27;&#x27;&#x27;&#x27;&#x27;&#x27;text {{ entity }}&#x27;s othertext');
+    expect(result).toBe(
+      'other&#x27;&#x27;&#x27;&#x27;&#x27;&#x27;&#x27;text {{ entity }}&#x27;s othertext'
+    );
   });
 
   it('handles an empty ReactElement in entityToHTML', () => {
@@ -369,9 +362,9 @@ describe('blockEntities', () => {
         type: 'test',
         mutability: 'IMMUTABLE',
         data: {
-          test: 'test'
-        }
-      }
+          test: 'test',
+        },
+      },
     };
 
     const rawBlock = buildRawBlock(
@@ -382,16 +375,14 @@ describe('blockEntities', () => {
         {
           key: 0,
           offset: 5,
-          length: 4
-        }
+          length: 4,
+        },
       ]
     );
 
     const result = blockInlineStyles(
       blockEntities(
-        encodeBlock(
-          rawBlock
-        ),
+        encodeBlock(rawBlock),
         entityMap,
         (entity, originalText) => {
           if (entity.type === 'test') {
@@ -412,9 +403,9 @@ describe('blockEntities', () => {
         type: 'test',
         mutability: 'IMMUTABLE',
         data: {
-          test: 'test'
-        }
-      }
+          test: 'test',
+        },
+      },
     };
 
     const rawBlock = buildRawBlock(
@@ -425,16 +416,14 @@ describe('blockEntities', () => {
         {
           key: 0,
           offset: 5,
-          length: 4
-        }
+          length: 4,
+        },
       ]
     );
 
     const result = blockInlineStyles(
       blockEntities(
-        encodeBlock(
-          rawBlock
-        ),
+        encodeBlock(rawBlock),
         entityMap,
         (entity, originalText) => {
           if (entity.type === 'test') {
@@ -455,9 +444,9 @@ describe('blockEntities', () => {
         type: 'test',
         mutability: 'IMMUTABLE',
         data: {
-          test: 'test'
-        }
-      }
+          test: 'test',
+        },
+      },
     };
 
     const rawBlock = buildRawBlock(
@@ -468,22 +457,20 @@ describe('blockEntities', () => {
         {
           key: 0,
           offset: 5,
-          length: 4
-        }
+          length: 4,
+        },
       ]
     );
 
     const result = blockInlineStyles(
       blockEntities(
-        encodeBlock(
-          rawBlock
-        ),
+        encodeBlock(rawBlock),
         entityMap,
         (entity, originalText) => {
           if (entity.type === 'test') {
             return {
               start: '<a>',
-              end: '</a>'
+              end: '</a>',
             };
           }
 
@@ -501,9 +488,9 @@ describe('blockEntities', () => {
         type: 'test',
         mutability: 'IMMUTABLE',
         data: {
-          test: 'test'
-        }
-      }
+          test: 'test',
+        },
+      },
     };
 
     const rawBlock = buildRawBlock(
@@ -514,8 +501,8 @@ describe('blockEntities', () => {
         {
           key: 0,
           offset: 5,
-          length: 4
-        }
+          length: 4,
+        },
       ]
     );
 
@@ -529,13 +516,7 @@ describe('blockEntities', () => {
     middleware.__isMiddleware = true;
 
     const result = blockInlineStyles(
-      blockEntities(
-        encodeBlock(
-          rawBlock
-        ),
-        entityMap,
-        middleware
-      )
+      blockEntities(encodeBlock(rawBlock), entityMap, middleware)
     );
 
     expect(result).toBe('test <a>link</a>');
@@ -546,31 +527,69 @@ describe('blockEntities', () => {
       0: {
         type: 'LINK',
         mutability: 'IMMUTABLE',
-        data: {}
-      }
+        data: {},
+      },
     };
 
     const rawBlock = buildRawBlock(
       'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
       entityMap,
-      [{
-        offset: 22,
-        length: 34,
-        style: 'ITALIC'
-      }],
-      [{
-        offset: 0,
-        length: 26,
-        key: 0
-      }]
+      [
+        {
+          offset: 22,
+          length: 34,
+          style: 'ITALIC',
+        },
+      ],
+      [
+        {
+          offset: 0,
+          length: 26,
+          key: 0,
+        },
+      ]
     );
 
-    const updatedBlock = blockEntities(rawBlock, entityMap, (entity, originalText) => {
-      if (entity.type === 'LINK') {
-        return <a href="http://test.com">{originalText}</a>;
+    const updatedBlock = blockEntities(
+      rawBlock,
+      entityMap,
+      (entity, originalText) => {
+        if (entity.type === 'LINK') {
+          return <a href="http://test.com">{originalText}</a>;
+        }
       }
-    });
+    );
 
     expect(updatedBlock.inlineStyleRanges.length).toBe(2);
+  });
+
+  it('allows void react elements as conversion results for entities', () => {
+    const entityMap = {
+      0: {
+        type: 'IMAGE',
+        mutability: 'IMMUTABLE',
+        data: {},
+      },
+    };
+
+    const rawBlock = buildRawBlock(' ', entityMap, null, [
+      {
+        offset: 0,
+        length: 1,
+        key: 0,
+      },
+    ]);
+
+    const result = blockEntities(
+      rawBlock,
+      entityMap,
+      (entity, originalText) => {
+        if (entity.type === 'IMAGE') {
+          return <img src="test" />;
+        }
+      }
+    );
+
+    expect(result.text).toBe('<img src="test"/>');
   });
 });

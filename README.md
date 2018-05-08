@@ -157,7 +157,7 @@ If no additional functionality is necessary `convertToHTML` can be invoked with 
 
 **Type info:**
 ```javascript
-type HTMLConverter = (html: string, {flat: ?boolean}, DOMBuilder: ?Function) => ContentState
+type HTMLConverter = (html: string, {flat: ?boolean}, DOMBuilder: ?Function, generateKey: ?Function) => ContentState
 
 type EntityKey = string
 
@@ -166,7 +166,7 @@ type convertFromHTML = HTMLConverter | ({
     htmlToBlock: ?(nodeName: string, node: Node) => ?(DraftBlockType | {type: DraftBlockType, data: object} | false),
     htmlToEntity: ?(
         nodeName: string,
-        node: string,
+        node: Node,
         createEntity: (type: string, mutability: string, data: object) => EntityKey,
         getEntity: (key: EntityKey) => Entity,
         mergeEntityData: (key: string, data: object) => void,

@@ -12,12 +12,13 @@ export default function getNestedBlockTags(blockHTML) {
     const { start, end } = splitReactElement(blockHTML.nest);
     return Object.assign({}, blockHTML, {
       nestStart: start,
-      nestEnd: end
+      nestEnd: end,
     });
   }
 
   invariant(
-    Object.prototype.hasOwnProperty.call(blockHTML, 'nestStart') && Object.prototype.hasOwnProperty.call(blockHTML, 'nestEnd'),
+    Object.prototype.hasOwnProperty.call(blockHTML, 'nestStart') &&
+      Object.prototype.hasOwnProperty.call(blockHTML, 'nestEnd'),
     'convertToHTML: received block information without either a ReactElement or an object with start/end tags'
   );
 

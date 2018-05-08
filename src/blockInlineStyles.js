@@ -19,7 +19,9 @@ const popEndingStyles = (styleStack, endingStyles) => {
 
     invariant(
       styleToRemove.style === style.style,
-      `Style ${styleToRemove.style} to be removed doesn't match expected ${style.style}`
+      `Style ${styleToRemove.style} to be removed doesn't match expected ${
+        style.style
+      }`
     );
 
     return stack.slice(0, -1);
@@ -28,15 +30,16 @@ const popEndingStyles = (styleStack, endingStyles) => {
 
 const characterStyles = (offset, ranges) => {
   return ranges.filter(range => {
-    return (offset >= range.offset && offset < (range.offset + range.length));
+    return offset >= range.offset && offset < range.offset + range.length;
   });
 };
 
 const rangeIsSubset = (firstRange, secondRange) => {
   // returns true if the second range is a subset of the first
   const secondStartWithinFirst = firstRange.offset <= secondRange.offset;
-  const secondEndWithinFirst = firstRange.offset + firstRange.length
-                               >= secondRange.offset + secondRange.length;
+  const secondEndWithinFirst =
+    firstRange.offset + firstRange.length >=
+    secondRange.offset + secondRange.length;
 
   return secondStartWithinFirst && secondEndWithinFirst;
 };
@@ -77,7 +80,6 @@ export default (rawBlock, customInlineHTML = defaultCustomInlineHTML) => {
     'Expected raw block to be non-null'
   );
 
-
   let inlineHTML;
   if (customInlineHTML.__isMiddleware === true) {
     inlineHTML = customInlineHTML(defaultInlineHTML);
@@ -110,8 +112,13 @@ export default (rawBlock, customInlineHTML = defaultCustomInlineHTML) => {
 
     const openingStyles = resetStyles.concat(newStyles).sort(latestStyleLast);
 
-    const openingStyleTags = openingStyles.reduce(appendStartMarkup.bind(null, inlineHTML), '');
-    const endingStyleTags = endingStyles.concat(resetStyles).reduce(prependEndMarkup.bind(null, inlineHTML), '');
+    const openingStyleTags = openingStyles.reduce(
+      appendStartMarkup.bind(null, inlineHTML),
+      ''
+    );
+    const endingStyleTags = endingStyles
+      .concat(resetStyles)
+      .reduce(prependEndMarkup.bind(null, inlineHTML), '');
 
     result += endingStyleTags + openingStyleTags + originalTextArray[i];
 
@@ -120,7 +127,8 @@ export default (rawBlock, customInlineHTML = defaultCustomInlineHTML) => {
 
     invariant(
       styleStack.length === styles.length,
-      `Character ${i}: ${styleStack.length - styles.length} styles left on stack that should no longer be there`
+      `Character ${i}: ${styleStack.length -
+        styles.length} styles left on stack that should no longer be there`
     );
   }
 
