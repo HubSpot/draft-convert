@@ -15,11 +15,6 @@ import getNestedBlockTags from './util/getNestedBlockTags';
 
 import defaultBlockHTML from './default/defaultBlockHTML';
 
-const NESTED_BLOCK_TYPES = [
-  'ordered-list-item',
-  'unordered-list-item'
-];
-
 const defaultEntityToHTML = (entity, originalText) => {
   return originalText;
 };
@@ -57,7 +52,7 @@ const convertToHTML = ({
     let closeNestTags = '';
     let openNestTags = '';
 
-    if (NESTED_BLOCK_TYPES.indexOf(type) === -1) {
+    if (!getBlockHTML(block).nest) {
       // this block can't be nested, so reset all nesting if necessary
       closeNestTags = listStack.reduceRight((string, nestedBlock) => {
         return string + getNestedBlockTags(getBlockHTML(nestedBlock)).nestEnd;

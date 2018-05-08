@@ -619,6 +619,38 @@ describe('convertToHTML', () => {
     });
   });
 
+  it('allows specifying custom nested block types', () => {
+    const convertToHTMLProps = {
+      blockToHTML: block => {
+        if (block.type === 'checkable-list-item') {
+          return {
+            element: <li data-checked={block.data.checked || false} />,
+            nest: <ul />
+          };
+        }
+      }
+    };
+
+    const contentState = buildContentState([
+      {
+        type: 'checkable-list-item',
+        text: 'item one',
+        data: {
+          checked: false
+        }
+      },
+      {
+        type: 'checkable-list-item',
+        text: 'item two',
+        data: {
+          checked: true
+        }
+      }
+    ]);
+    const result = convertToHTML(convertToHTMLProps)(contentState);
+    expect(result).toBe('<ul><li data-checked="false">item one</li><li data-checked="true">item two</li></ul>');
+  });
+
   it('combines styles and entities without overlap using react to convert to HTML', () => {
     const contentState = buildContentState([
       {
