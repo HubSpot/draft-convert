@@ -1000,4 +1000,57 @@ describe('convertToHTML', () => {
     })(contentState);
     expect(result).toBe('<p>👍 <a href="/users/1">Santi Albo</a></p>');
   });
+
+  it('handles offset of entities after an emoji with newline', () => {
+    const contentState = buildContentState(
+      [
+        {
+          text: '👍 \nSanti Albo',
+          type: 'unstyled',
+          depth: 0,
+          entityRanges: [
+            {
+              offset: 0,
+              length: 1,
+              key: 0,
+            },
+            {
+              offset: 3,
+              length: 10,
+              key: 1,
+            },
+          ],
+        },
+      ],
+      {
+        0: {
+          type: 'emoji',
+          mutability: 'IMMUTABLE',
+          data: {
+            emojiUnicode: '👍',
+          },
+        },
+        1: {
+          type: 'link',
+          mutability: 'IMMUTABLE',
+          data: {
+            url: 'https://www.google.com',
+          },
+        },
+      }
+    );
+
+    const result = convertToHTML({
+      entityToHTML(entity, originalText) {
+        if (entity.type === 'emoji') {
+          return entity.data.emojiUnicode;
+        } else if (entity.type === 'link') {
+          return <a href={entity.data.url}>{originalText}</a>;
+        }
+      },
+    })(contentState);
+    expect(result).toBe(
+      '<p>👍 <br/><a href="https://www.google.com">Santi Albo</a></p>'
+    );
+  });
 });
