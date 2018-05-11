@@ -95,7 +95,7 @@ type convertToHTML = ContentStateConverter | ({
 
 **Basic usage:**
 ```javascript
-const editorState = EditorState.createWithContent(convertFromHTML(html));
+const contentState = EditorState.createWithContent(convertFromHTML(html));
 ```
 
 **Advanced usage:**
