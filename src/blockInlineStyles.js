@@ -93,7 +93,7 @@ export default (rawBlock, customInlineHTML = defaultCustomInlineHTML) => {
   let result = '';
   let styleStack = [];
 
-  const sortedRanges = rawBlock.inlineStyleRanges.sort(rangeSort);
+  const sortedRanges = [...rawBlock.inlineStyleRanges].sort(rangeSort);
 
   const originalTextArray = [...rawBlock.text];
 

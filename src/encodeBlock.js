@@ -14,8 +14,8 @@ const ENTITY_MAP = {
 export default block => {
   const blockText = [...block.text];
 
-  let entities = block.entityRanges.sort(rangeSort);
-  let styles = block.inlineStyleRanges.sort(rangeSort);
+  let entities = [...block.entityRanges].sort(rangeSort);
+  let styles = [...block.inlineStyleRanges].sort(rangeSort);
   let resultText = '';
 
   for (let index = 0; index < blockText.length; index++) {
