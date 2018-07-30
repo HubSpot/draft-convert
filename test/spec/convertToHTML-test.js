@@ -1053,4 +1053,17 @@ describe('convertToHTML', () => {
       '<p>👍 <br/><a href="https://www.google.com">Santi Albo</a></p>'
     );
   });
+
+  it('throws a meaningful error when no block definition exists', () => {
+    const contentState = buildContentState([
+      {
+        type: 'test',
+        text: 'asdf',
+      },
+    ]);
+
+    expect(() => convertToHTML(contentState)).toThrowError(
+      /missing HTML definition/
+    );
+  });
 });
