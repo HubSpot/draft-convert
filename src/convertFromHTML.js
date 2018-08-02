@@ -377,7 +377,6 @@ function genFragment(
       depth += 1;
     }
     lastList = nodeName;
-    inBlock = null;
   }
 
   // Block Tags
