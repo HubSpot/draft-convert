@@ -684,4 +684,35 @@ describe('convertFromHTML', () => {
       );
     });
   });
+
+  it('handles heavily nested divs', () => {
+    const text = 'Best regards';
+    const html = `<div>
+    <div>
+    <div>
+    <div>
+    <div>
+    <div>
+    <div>
+    <div>
+    <div>
+    <div>
+    <div>${text}</div>
+    </div>
+    </div>
+    </div>
+    </div>
+    </div>
+    </div>
+    </div>
+    </div>
+    </div>
+    </div>`;
+    const contentState = toContentState(html, { flatNestedDivs: true });
+    expect(contentState.getBlockMap().size).toEqual(1);
+
+    const firstBlock = contentState.getFirstBlock();
+    expect(firstBlock.getText()).toEqual(text);
+    expect(firstBlock.getType()).toEqual('unstyled');
+  });
 });
