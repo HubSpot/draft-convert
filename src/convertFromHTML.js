@@ -307,6 +307,9 @@ function genFragment(
     }
 
     if (text.trim() === '' && inBlock !== 'code-block') {
+      if (options.flatNestedDivs) {
+        return getEmptyChunk();
+      }
       return getWhitespaceChunk(inEntity);
     }
     if (inBlock !== 'code-block') {
@@ -501,11 +504,18 @@ function genFragment(
           newBlockData = newBlockInfo.data ? Map(newBlockInfo.data) : Map();
         }
 
-        chunk = joinChunks(
-          chunk,
-          getSoftNewlineChunk(newBlockType, depth, options.flat, newBlockData),
-          options.flat
-        );
+        const text = sibling.textContent;
+        const shouldAddEmptyChunk =
+          options.flatNestedDivs && text.trim() === '' && text.includes('\n');
+        const anotherChunk = shouldAddEmptyChunk
+          ? getEmptyChunk()
+          : getSoftNewlineChunk(
+              newBlockType,
+              depth,
+              options.flat,
+              newBlockData
+            );
+        chunk = joinChunks(chunk, anotherChunk, options.flat);
       }
     }
     if (sibling) {
@@ -681,6 +691,7 @@ const convertFromHTML = ({
   html,
   options = {
     flat: false,
+    flatNestedDivs: false,
   },
   DOMBuilder = getSafeBodyFromHTML,
   generateKey = genKey
