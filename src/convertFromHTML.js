@@ -307,7 +307,7 @@ function genFragment(
     }
 
     if (text.trim() === '' && inBlock !== 'code-block') {
-      if (options.flatNestedDivs) {
+      if (options.flatNestedDivs && fragmentBlockTags.length === 1 && fragmentBlockTags[0] === 'div') {
         return getEmptyChunk();
       }
       return getWhitespaceChunk(inEntity);
