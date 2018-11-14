@@ -79,6 +79,10 @@ const defaultHTMLToStyle = (nodeName, node, currentStyle) => {
   return currentStyle;
 };
 
+const defaultIgnoreElement = (nodeName, node, lastList, inBlock) => {
+  return false;
+};
+
 const defaultHTMLToEntity = (nodeName, node) => {
   return undefined;
 };
@@ -284,6 +288,7 @@ function genFragment(
   inBlock,
   fragmentBlockTags,
   depth,
+  ignoreElement,
   processCustomInlineStyles,
   checkEntityNode,
   checkEntityText,
@@ -306,10 +311,11 @@ function genFragment(
       return getEmptyChunk();
     }
 
+    if (ignoreElement(nodeName, node, lastList, inBlock)) {
+      return getEmptyChunk();
+    }
+
     if (text.trim() === '' && inBlock !== 'code-block') {
-      if (options.flatNestedDivs && fragmentBlockTags.length === 1 && fragmentBlockTags[0] === 'div') {
-        return getEmptyChunk();
-      }
       return getWhitespaceChunk(inEntity);
     }
     if (inBlock !== 'code-block') {
@@ -470,6 +476,7 @@ function genFragment(
       inBlock,
       fragmentBlockTags,
       depth,
+      ignoreElement,
       processCustomInlineStyles,
       checkEntityNode,
       checkEntityText,
@@ -504,9 +511,12 @@ function genFragment(
           newBlockData = newBlockInfo.data ? Map(newBlockInfo.data) : Map();
         }
 
-        const text = sibling.textContent;
-        const shouldAddEmptyChunk =
-          options.flatNestedDivs && text.trim() === '' && text.includes('\n');
+        const shouldAddEmptyChunk = ignoreElement(
+          nodeName,
+          node,
+          lastList,
+          inBlock
+        );
         const anotherChunk = shouldAddEmptyChunk
           ? getEmptyChunk()
           : getSoftNewlineChunk(
@@ -537,6 +547,7 @@ function genFragment(
 
 function getChunkForHTML(
   html,
+  ignoreElement,
   processCustomInlineStyles,
   checkEntityNode,
   checkEntityText,
@@ -574,6 +585,7 @@ function getChunkForHTML(
     null,
     workingBlocks,
     -1,
+    ignoreElement,
     processCustomInlineStyles,
     checkEntityNode,
     checkEntityText,
@@ -620,6 +632,7 @@ function getChunkForHTML(
 
 function convertFromHTMLtoContentBlocks(
   html,
+  ignoreElement,
   processCustomInlineStyles,
   checkEntityNode,
   checkEntityText,
@@ -638,6 +651,7 @@ function convertFromHTMLtoContentBlocks(
 
   const chunk = getChunkForHTML(
     html,
+    ignoreElement,
     processCustomInlineStyles,
     checkEntityNode,
     checkEntityText,
@@ -683,6 +697,7 @@ function convertFromHTMLtoContentBlocks(
 }
 
 const convertFromHTML = ({
+  ignoreElement = defaultIgnoreElement,
   htmlToStyle = defaultHTMLToStyle,
   htmlToEntity = defaultHTMLToEntity,
   textToEntity = defaultTextToEntity,
@@ -691,7 +706,6 @@ const convertFromHTML = ({
   html,
   options = {
     flat: false,
-    flatNestedDivs: false,
   },
   DOMBuilder = getSafeBodyFromHTML,
   generateKey = genKey
@@ -734,6 +748,7 @@ const convertFromHTML = ({
 
   const contentBlocks = convertFromHTMLtoContentBlocks(
     html,
+    handleMiddleware(ignoreElement, defaultIgnoreElement),
     handleMiddleware(htmlToStyle, baseProcessInlineTag),
     handleMiddleware(htmlToEntity, defaultHTMLToEntity),
     handleMiddleware(textToEntity, defaultTextToEntity),
