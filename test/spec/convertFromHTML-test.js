@@ -178,6 +178,14 @@ describe('convertFromHTML', () => {
     testFixture(html);
   });
 
+  it('converts font-weight: 700 to bold style', () => {
+    const html = '<p><span style="font-weight:700;">test</span></p>';
+    const contentState = toContentState(html);
+    const styles = contentState.getFirstBlock().getInlineStyleAt(0);
+    expect(styles.size).toBe(1);
+    expect(styles.has('BOLD')).toBe(true);
+  });
+
   it('ul - nested', () => {
     const htmlFixture = `
       <ul>
