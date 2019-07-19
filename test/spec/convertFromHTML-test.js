@@ -141,6 +141,18 @@ describe('convertFromHTML', () => {
     testFixture('<p><strong>draft<u>JS</u></strong></p>');
   });
 
+  it('nested inline styles - with naive middleware htmlToStyle', () => {
+    const htmlIn = '<p><strong><u>Boo</u></strong></p>';
+    const defaultMiddlewareFunction = next => (...args) => next(...args);
+    defaultMiddlewareFunction.__isMiddleware = true;
+
+    const contentState = convertFromHTML({
+      htmlToStyle: defaultMiddlewareFunction,
+    })(htmlIn);
+    const htmlOut = convertToHTML(contentState);
+    expect(htmlOut).toEqual(htmlIn);
+  });
+
   it('empty paragraphs', () => {
     const htmlFixture = '<p>one</p><p></p><p>two</p>';
     const state = convertFromHTML(htmlFixture);
