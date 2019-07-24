@@ -495,7 +495,7 @@ describe('convertFromHTML', () => {
         return createEntity('LINK', 'IMMUTABLE', {});
       }
 
-      return next(...arguments);
+      return next(nodeName, node, createEntity);
     };
     const linkData = next => (
       nodeName,
