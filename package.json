@@ -1,6 +1,6 @@
 {
   "name": "draft-convert",
-  "version": "2.1.7",
+  "version": "2.1.8",
   "description": "Extensibly serialize & deserialize Draft.js ContentState",
   "main": "lib/index.js",
   "module": "esm/index.js",
