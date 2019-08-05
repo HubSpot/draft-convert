@@ -3,17 +3,19 @@
   "version": "2.1.7",
   "description": "Extensibly serialize & deserialize Draft.js ContentState",
   "main": "lib/index.js",
+  "module": "esm/index.js",
   "repository": "HubSpot/draft-convert",
   "scripts": {
-    "build": "npm run build:commonjs && npm run build:umd",
-    "build:commonjs": "cross-env BABEL_ENV=commonjs babel src --out-dir lib",
+    "build": "npm run build:cjs && npm run build:esm && npm run build:umd",
+    "build:cjs": "cross-env BABEL_ENV=cjs babel src --out-dir lib",
+    "build:esm": "cross-env BABEL_ENV=esm babel src --out-dir esm",
     "build:umd": "wp",
     "jest": "jest",
     "jest:watch": "jest --watch",
     "jest:debug": "node --debug-brk --inspect ./node_modules/.bin/jest -i",
     "test-once": "npm run jest",
     "test": "npm run jest",
-    "clean": "rimraf ./dist && rimraf ./lib",
+    "clean": "rimraf ./dist ./lib ./esm",
     "build-and-test": "npm run clean && npm run build && npm run test-once",
     "lint": "eslint src/ test/",
     "prepare": "npm run build-and-test",
@@ -22,7 +24,8 @@
   },
   "files": [
     "dist",
-    "lib"
+    "lib",
+    "esm"
   ],
   "keywords": [
     "draft",
@@ -38,12 +41,14 @@
     "react-dom": "^15.0.2|| ^16.0.0-rc || ^16.0.0"
   },
   "dependencies": {
+    "@babel/runtime": "^7.5.5",
     "immutable": "~3.7.4",
     "invariant": "^2.2.1"
   },
   "devDependencies": {
     "@babel/cli": "^7.5.0",
     "@babel/core": "^7.5.4",
+    "@babel/plugin-transform-runtime": "^7.5.5",
     "@babel/preset-env": "^7.5.4",
     "@babel/preset-react": "^7.0.0",
     "babel-eslint": "^10.0.2",
