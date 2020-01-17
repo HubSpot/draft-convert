@@ -19,4 +19,5 @@ export default {
     nest: <ol />,
   },
   media: <figure />,
+  atomic: <figure />,
 };

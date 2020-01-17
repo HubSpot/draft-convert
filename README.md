@@ -145,12 +145,13 @@ const contentState = convertFromHTML({
     }
 })(html);
 
-// convert HTML to ContentState with functionality defined in the plugins applied
-const contentState = compose(
+// convert HTML to ContentState with functionality defined in the draft-extend plugins applied
+const fromHTML = compose(
     FirstPlugin,
     SecondPlugin,
     ThirdPlugin
 )(convertFromHTML);
+const contentState = fromHTML(html);
 ```
 
 If no additional functionality is necessary `convertToHTML` can be invoked with just an HTML string to deserialize using just the default Draft functionality. Any `convertFromHTML` can be passed as an argument to a plugin to modularly augment its functionality. A `flat` option may be provided to force nested block elements to split into flat, separate blocks. For example, the HTML input `<p>line one<br />linetwo</p>` will produce two `unstyled` blocks in `flat` mode.

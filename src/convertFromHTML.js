@@ -224,8 +224,8 @@ function processInlineTag(tag, node, currentStyle) {
   return currentStyle;
 }
 
-function baseProcessInlineTag(tag, node) {
-  return processInlineTag(tag, node, OrderedSet());
+function baseProcessInlineTag(tag, node, inlineStyles = OrderedSet()) {
+  return processInlineTag(tag, node, inlineStyles);
 }
 
 function joinChunks(A, B, flat = false) {

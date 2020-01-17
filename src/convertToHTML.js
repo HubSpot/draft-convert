@@ -50,7 +50,16 @@ const convertToHTML = ({
       let closeNestTags = '';
       let openNestTags = '';
 
-      if (!getBlockHTML(block).nest) {
+      const blockHTMLResult = getBlockHTML(block);
+      if (!blockHTMLResult) {
+        throw new Error(
+          `convertToHTML: missing HTML definition for block with type ${
+            block.type
+          }`
+        );
+      }
+
+      if (!blockHTMLResult.nest) {
         // this block can't be nested, so reset all nesting if necessary
         closeNestTags = listStack.reduceRight((string, nestedBlock) => {
           return string + getNestedBlockTags(getBlockHTML(nestedBlock)).nestEnd;
