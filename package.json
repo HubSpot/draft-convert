@@ -1,10 +1,10 @@
 {
-  "name": "draft-convert",
+  "name": "@axioscode/draft-convert",
   "version": "2.1.8",
   "description": "Extensibly serialize & deserialize Draft.js ContentState",
   "main": "lib/index.js",
   "module": "esm/index.js",
-  "repository": "HubSpot/draft-convert",
+  "repository": "axioscode/draft-convert",
   "scripts": {
     "build": "npm run build:cjs && npm run build:esm && npm run build:umd",
     "build:cjs": "cross-env BABEL_ENV=cjs babel src --out-dir lib",
@@ -36,7 +36,7 @@
   "author": "bbriggs@hubspot.com",
   "license": "Apache-2.0",
   "peerDependencies": {
-    "draft-js": ">=0.7.0",
+    "@axioscode/draft-js": "^0.11.6",
     "react": "^15.0.2|| ^16.0.0-rc || ^16.0.0",
     "react-dom": "^15.0.2|| ^16.0.0-rc || ^16.0.0"
   },
@@ -55,7 +55,7 @@
     "babel-jest": "^24.8.0",
     "babel-loader": "^8.0.6",
     "cross-env": "^3.1.4",
-    "draft-js": "^0.8.1",
+    "@axioscode/draft-js": "^0.11.6",
     "eslint": "6.0.1",
     "eslint-config-hubspot": "^7.0.0",
     "eslint-config-prettier": "^2.2.0",

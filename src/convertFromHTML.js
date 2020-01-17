@@ -19,7 +19,7 @@ import {
   BlockMapBuilder,
   genKey,
   SelectionState,
-} from 'draft-js';
+} from '@axioscode/draft-js';
 import getSafeBodyFromHTML from './util/parseHTML';
 import rangeSort from './util/rangeSort';
 
