@@ -25,13 +25,14 @@ import rangeSort from './util/rangeSort';
 
 const NBSP = '&nbsp;';
 const SPACE = ' ';
+const CR = '\r|&#13;|&#xd;';
 
 // Arbitrary max indent
 const MAX_DEPTH = 4;
 
 // used for replacing characters in HTML
 /* eslint-disable no-control-regex */
-const REGEX_CR = new RegExp('\r', 'g');
+const REGEX_CR = new RegExp(CR, 'gi');
 const REGEX_LF = new RegExp('\n', 'g');
 const REGEX_NBSP = new RegExp(NBSP, 'g');
 const REGEX_BLOCK_DELIMITER = new RegExp('\r', 'g');
