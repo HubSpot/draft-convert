@@ -137,7 +137,31 @@ describe('convertToHTML', () => {
       },
     ]);
     const result = convertToHTML(contentState);
-    expect(result).toBe('<ol><li>item one</li><li>item two</li></ol>');
+    expect(result).toBe('<ol type="1"><li>item one</li><li>item two</li></ol>');
+  });
+
+  it('applies type attribute for nested ordered lists', () => {
+    const contentState = buildContentState([
+      {
+        type: 'ordered-list-item',
+        text: 'top level item one',
+        depth: 0,
+      },
+      {
+        type: 'ordered-list-item',
+        text: 'sub item one',
+        depth: 1,
+      },
+      {
+        type: 'ordered-list-item',
+        text: 'sub-sub item one',
+        depth: 2,
+      },
+    ]);
+    const result = convertToHTML(contentState);
+    expect(result).toBe(
+      '<ol type="1"><li>top level item one</li><ol type="a"><li>sub item one</li><ol type="i"><li>sub-sub item one</li></ol></ol></ol>'
+    );
   });
 
   it('nests list items of different depths', () => {

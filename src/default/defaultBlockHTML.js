@@ -1,5 +1,8 @@
 import React from 'react';
 
+// based on Draft.js' custom list depth styling
+const ORDERED_LIST_TYPES = ['1', 'a', 'i'];
+
 export default {
   unstyled: <p />,
   paragraph: <p />,
@@ -16,7 +19,10 @@ export default {
   },
   'ordered-list-item': {
     element: <li />,
-    nest: <ol />,
+    nest: depth => {
+      const type = ORDERED_LIST_TYPES[depth % 3];
+      return <ol type={type} />;
+    },
   },
   media: <figure />,
   atomic: <figure />,
