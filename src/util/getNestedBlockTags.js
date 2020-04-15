@@ -2,11 +2,19 @@ import invariant from 'invariant';
 import React from 'react';
 import splitReactElement from './splitReactElement';
 
-export default function getNestedBlockTags(blockHTML) {
+export default function getNestedBlockTags(blockHTML, depth) {
   invariant(
     blockHTML !== null && blockHTML !== undefined,
     'Expected block HTML value to be non-null'
   );
+
+  if (typeof blockHTML.nest === 'function') {
+    const { start, end } = splitReactElement(blockHTML.nest(depth));
+    return Object.assign({}, blockHTML, {
+      nestStart: start,
+      nestEnd: end,
+    });
+  }
 
   if (React.isValidElement(blockHTML.nest)) {
     const { start, end } = splitReactElement(blockHTML.nest);
