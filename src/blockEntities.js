@@ -33,9 +33,13 @@ export default (block, entityMap, entityConverter = converter) => {
         .join('');
 
       const entityHTML = getEntityHTML(entity, originalText);
-      const converted = [
-        ...(getElementHTML(entityHTML, originalText) || originalText),
-      ];
+      const elementHTML = getElementHTML(entityHTML, originalText);
+      let converted;
+      if (!!elementHTML || elementHTML === '') {
+        converted = [...elementHTML];
+      } else {
+        converted = originalText;
+      }
 
       const prefixLength = getElementTagLength(entityHTML, 'start');
       const suffixLength = getElementTagLength(entityHTML, 'end');
