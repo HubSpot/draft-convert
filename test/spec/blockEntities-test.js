@@ -438,6 +438,52 @@ describe('blockEntities', () => {
     expect(result).toBe('test <a>test</a>');
   });
 
+  it('handles an empty string in entityToHTML', () => {
+    const entityMap = {
+      0: {
+        type: 'test',
+        mutability: 'IMMUTABLE',
+        data: {
+          test: 'test',
+        },
+      },
+    };
+
+    const rawText = 'test link';
+    const offset = 5;
+    const length = 4;
+    const rawBlock = buildRawBlock(
+      rawText,
+      entityMap,
+      [],
+      [
+        {
+          key: 0,
+          offset,
+          length,
+        },
+      ]
+    );
+
+    const result = blockInlineStyles(
+      blockEntities(
+        encodeBlock(rawBlock),
+        entityMap,
+        (entity, originalText) => {
+          if (entity.type === 'test') {
+            return '';
+          }
+
+          return originalText;
+        }
+      )
+    );
+
+    const entitySubstring = rawText.slice(5, offset + length);
+    const expected = rawText.replace(entitySubstring, '');
+    expect(result).toBe(expected);
+  });
+
   it('handles a start/end object in entityToHTML', () => {
     const entityMap = {
       0: {
