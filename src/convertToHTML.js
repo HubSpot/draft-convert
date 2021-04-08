@@ -2,7 +2,7 @@
 import invariant from 'invariant';
 import React from 'react';
 import ReactDOMServer from 'react-dom/server';
-import { convertToRaw } from 'draft-js';
+import { convertToRaw } from '@axioscode/draft-js';
 
 import encodeBlock from './encodeBlock';
 import blockEntities from './blockEntities';
