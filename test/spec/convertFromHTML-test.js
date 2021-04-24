@@ -19,9 +19,14 @@ const getEntityFromContentState = (contentState, entityKey) => {
   return Entity.get(entityKey);
 };
 
+const defaultCallbacks = {
+  ignoreElement: Function.prototype,
+};
+
 describe('convertFromHTML', () => {
-  const toContentState = (html, options) => {
+  const toContentState = (html, options, callbacks = defaultCallbacks) => {
     return convertFromHTML({
+      ignoreElement: callbacks.ignoreElement,
       htmlToBlock: (nodeName, node, lastList, inBlock) => {
         if (
           (nodeName === 'p' || nodeName === 'div') &&
@@ -695,5 +700,48 @@ describe('convertFromHTML', () => {
         contentState.getSelectionAfter().getStartKey()
       );
     });
+  });
+
+  it('handles heavily nested divs', () => {
+    const text = 'Best regards';
+    const html = `<div>
+    <div>
+    <div>
+    <div>
+    <div>
+    <div>
+    <div>
+    <div>
+    <div>
+    <div>
+    <div>${text}</div>
+    </div>
+    </div>
+    </div>
+    </div>
+    </div>
+    </div>
+    </div>
+    </div>
+    </div>
+    </div>`;
+    const contentState = toContentState(
+      html,
+      {},
+      {
+        ignoreElement: (nodeName, node, lastList, inBlock) => {
+          const textContent = node.textContent.trim();
+          return (
+            (nodeName === 'div' && inBlock === 'unstyled') ||
+            (nodeName === '#text' && textContent === '')
+          );
+        },
+      }
+    );
+    expect(contentState.getBlockMap().size).toEqual(1);
+
+    const firstBlock = contentState.getFirstBlock();
+    expect(firstBlock.getText()).toEqual(text);
+    expect(firstBlock.getType()).toEqual('unstyled');
   });
 });
