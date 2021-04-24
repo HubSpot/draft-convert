@@ -236,10 +236,17 @@ function joinChunks(A, B, flat = false) {
 
   const adjacentDividers = lastInA === '\r' && firstInB === '\r';
   const isJoiningBlocks = A.text !== '\r' && B.text !== '\r'; // when joining two full blocks like this we want to pop one divider
+  const isFinishingBlockWithNewlineAtEnd =
+    A.text.slice(-2) === '\r\r' && B.text === '\r' && !B.isNewline; // if chunk A ends with an empty line and we're trying to add the closing block separator, it isn't necessary
   const addingNewlineToEmptyBlock =
     A.text === '\r' && !A.isNewline && B.isNewline; // when joining a newline to an empty block we want to remove the newline
 
-  if (adjacentDividers && (isJoiningBlocks || addingNewlineToEmptyBlock)) {
+  if (
+    adjacentDividers &&
+    (isJoiningBlocks ||
+      addingNewlineToEmptyBlock ||
+      isFinishingBlockWithNewlineAtEnd)
+  ) {
     A.text = A.text.slice(0, -1);
     A.inlines.pop();
     A.entities.pop();
@@ -424,6 +431,17 @@ function genFragment(
       blockType,
       depth,
       true, // atomic blocks within non-atomic blocks must always be split out
+      blockDataMap
+    );
+  } else if (
+    (blockType || fragmentBlockTags.indexOf(nodeName) !== -1) &&
+    options.flat === true
+  ) {
+    inBlock = blockType;
+    chunk = getSoftNewlineChunk(
+      blockType || getBlockTypeForTag(nodeName, lastList),
+      depth,
+      options.flat,
       blockDataMap
     );
   }
