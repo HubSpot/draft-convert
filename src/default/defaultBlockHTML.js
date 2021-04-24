@@ -26,4 +26,6 @@ export default {
   },
   media: <figure />,
   atomic: <figure />,
+  article: <article />,
+  section: <section />,
 };
