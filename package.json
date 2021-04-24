@@ -4,12 +4,13 @@
   "description": "Extensibly serialize & deserialize Draft.js ContentState",
   "main": "lib/index.js",
   "module": "esm/index.js",
+  "browser": "dist/draft-convert.js",
   "repository": "HubSpot/draft-convert",
   "scripts": {
     "build": "npm run build:cjs && npm run build:esm && npm run build:umd",
     "build:cjs": "cross-env BABEL_ENV=cjs babel src --out-dir lib",
     "build:esm": "cross-env BABEL_ENV=esm babel src --out-dir esm",
-    "build:umd": "wp",
+    "build:umd": "rollup -c",
     "jest": "jest",
     "jest:watch": "jest --watch",
     "jest:debug": "node --debug-brk --inspect ./node_modules/.bin/jest -i",
@@ -66,8 +67,11 @@
     "react": "^15.4.2",
     "react-dom": "^15.4.2",
     "rimraf": "2.5.4",
-    "webpack": "^4.35.3",
-    "webpack-nano": "^0.6.2"
+    "rollup": "1.18.0",
+    "rollup-plugin-commonjs": "^10.0.2",
+    "rollup-plugin-node-resolve": "^5.2.0",
+    "rollup-plugin-replace": "^2.2.0",
+    "rollup-plugin-terser": "^5.1.1"
   },
   "jest": {
     "testRegex": "/test/spec/.*\\.js$"
