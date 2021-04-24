@@ -20,7 +20,7 @@ export default (block, entityMap, entityConverter = converter) => {
     Object.prototype.hasOwnProperty.call(block, 'entityRanges') &&
     block.entityRanges.length > 0
   ) {
-    let entities = block.entityRanges.sort(rangeSort);
+    let entities = [...block.entityRanges].sort(rangeSort);
 
     let styles = block.inlineStyleRanges;
 
