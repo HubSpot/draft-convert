@@ -23,6 +23,7 @@ module.exports = [
   {
     ...baseConfig,
     mode: 'development',
+    devtool: 'none',
     output: {
       filename: 'draft-convert.js',
       library,
