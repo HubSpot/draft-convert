@@ -439,6 +439,14 @@ describe('convertFromHTML', () => {
     expect(resultHTML).toBe(html);
   });
 
+  it('handles carriage return numeric character references', () => {
+    const html = '<p>&#xd;test&#13;</p>';
+    const contentState = toContentState(html);
+    expect(contentState.getPlainText()).toBe('test');
+    const resultHTML = convertToHTML(contentState);
+    expect(resultHTML).toBe('<p>test</p>');
+  });
+
   it('handles nested blocks in blockquote', () => {
     const html = '<blockquote><p>test</p><p>test</p></blockquote>';
     const contentState = toContentState(html);
