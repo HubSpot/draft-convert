@@ -203,7 +203,10 @@ function processInlineTag(tag, node, currentStyle) {
     const htmlElement = node;
     currentStyle = currentStyle
       .withMutations(style => {
-        if (htmlElement.style.fontWeight === 'bold') {
+        if (
+          htmlElement.style.fontWeight === 'bold' ||
+          htmlElement.style.fontWeight === '700'
+        ) {
           style.add('BOLD');
         }
 
