@@ -12,6 +12,7 @@ export default {
   'header-four': <h4 />,
   'header-five': <h5 />,
   'header-six': <h6 />,
+  'code-block': <pre />,
   blockquote: <blockquote />,
   'unordered-list-item': {
     element: <li />,
