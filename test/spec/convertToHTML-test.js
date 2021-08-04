@@ -110,6 +110,17 @@ describe('convertToHTML', () => {
     expect(result).toBe('<p>test paragraph</p>');
   });
 
+  it('applies code block styles', () => {
+    const contentState = buildContentState([
+      {
+        type: 'code-block',
+        text: 'test code block',
+      },
+    ]);
+    const result = convertToHTML(contentState);
+    expect(result).toBe('<pre>test code block</pre>');
+  });
+
   it('applies style to multiple blocks', () => {
     const contentState = buildContentState([
       {
