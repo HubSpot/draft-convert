@@ -371,6 +371,16 @@ function genFragment(
   inlineStyle = processInlineTag(nodeName, node, inlineStyle);
   inlineStyle = processCustomInlineStyles(nodeName, node, inlineStyle);
 
+  if (nodeName === 'span' && (node.textContent === SPACE || node.textContent === NBSP || node.textContent === '\s')) {
+    let text = node.textContent
+    return {
+      text,
+      inlines: Array(text.length).fill(inlineStyle),
+      entities: Array(text.length).fill(inEntity),
+      blocks: [],
+    }
+  }
+
   // Handle lists
   if (nodeName === 'ul' || nodeName === 'ol') {
     if (lastList) {
