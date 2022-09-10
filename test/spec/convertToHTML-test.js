@@ -831,7 +831,7 @@ describe('convertToHTML', () => {
       },
     })(contentState);
 
-    expect(html).toBe('<p style="text-align:right;">test</p>');
+    expect(html).toBe('<p style="text-align:right">test</p>');
   });
 
   it('uses JSX for block HTML when passing a middleware function', () => {

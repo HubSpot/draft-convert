@@ -181,7 +181,7 @@ describe('convertFromHTML', () => {
   });
 
   it('converts custom inline styles', () => {
-    const html = '<p><span style="font-family:Test;">test font</span></p>';
+    const html = '<p><span style="font-family:Test">test font</span></p>';
     const contentState = toContentState(html);
     const styles = contentState.getFirstBlock().getInlineStyleAt(0);
     expect(styles.size).toBe(1);
