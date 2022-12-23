@@ -79,6 +79,10 @@ const defaultHTMLToStyle = (nodeName, node, currentStyle) => {
   return currentStyle;
 };
 
+const defaultIgnoreElement = (nodeName, node, lastList, inBlock) => {
+  return false;
+};
+
 const defaultHTMLToEntity = (nodeName, node) => {
   return undefined;
 };
@@ -284,6 +288,7 @@ function genFragment(
   inBlock,
   fragmentBlockTags,
   depth,
+  ignoreElement,
   processCustomInlineStyles,
   checkEntityNode,
   checkEntityText,
@@ -303,6 +308,10 @@ function genFragment(
   if (nodeName === '#text') {
     let text = node.textContent;
     if (text.trim() === '' && inBlock === null) {
+      return getEmptyChunk();
+    }
+
+    if (ignoreElement(nodeName, node, lastList, inBlock)) {
       return getEmptyChunk();
     }
 
@@ -467,6 +476,7 @@ function genFragment(
       inBlock,
       fragmentBlockTags,
       depth,
+      ignoreElement,
       processCustomInlineStyles,
       checkEntityNode,
       checkEntityText,
@@ -501,11 +511,21 @@ function genFragment(
           newBlockData = newBlockInfo.data ? Map(newBlockInfo.data) : Map();
         }
 
-        chunk = joinChunks(
-          chunk,
-          getSoftNewlineChunk(newBlockType, depth, options.flat, newBlockData),
-          options.flat
+        const shouldAddEmptyChunk = ignoreElement(
+          nodeName,
+          node,
+          lastList,
+          inBlock
         );
+        const anotherChunk = shouldAddEmptyChunk
+          ? getEmptyChunk()
+          : getSoftNewlineChunk(
+              newBlockType,
+              depth,
+              options.flat,
+              newBlockData
+            );
+        chunk = joinChunks(chunk, anotherChunk, options.flat);
       }
     }
     if (sibling) {
@@ -527,6 +547,7 @@ function genFragment(
 
 function getChunkForHTML(
   html,
+  ignoreElement,
   processCustomInlineStyles,
   checkEntityNode,
   checkEntityText,
@@ -564,6 +585,7 @@ function getChunkForHTML(
     null,
     workingBlocks,
     -1,
+    ignoreElement,
     processCustomInlineStyles,
     checkEntityNode,
     checkEntityText,
@@ -610,6 +632,7 @@ function getChunkForHTML(
 
 function convertFromHTMLtoContentBlocks(
   html,
+  ignoreElement,
   processCustomInlineStyles,
   checkEntityNode,
   checkEntityText,
@@ -628,6 +651,7 @@ function convertFromHTMLtoContentBlocks(
 
   const chunk = getChunkForHTML(
     html,
+    ignoreElement,
     processCustomInlineStyles,
     checkEntityNode,
     checkEntityText,
@@ -673,6 +697,7 @@ function convertFromHTMLtoContentBlocks(
 }
 
 const convertFromHTML = ({
+  ignoreElement = defaultIgnoreElement,
   htmlToStyle = defaultHTMLToStyle,
   htmlToEntity = defaultHTMLToEntity,
   textToEntity = defaultTextToEntity,
@@ -723,6 +748,7 @@ const convertFromHTML = ({
 
   const contentBlocks = convertFromHTMLtoContentBlocks(
     html,
+    handleMiddleware(ignoreElement, defaultIgnoreElement),
     handleMiddleware(htmlToStyle, baseProcessInlineTag),
     handleMiddleware(htmlToEntity, defaultHTMLToEntity),
     handleMiddleware(textToEntity, defaultTextToEntity),
