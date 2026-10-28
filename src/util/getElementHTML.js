@@ -1,6 +1,6 @@
 import invariant from 'invariant';
 import React from 'react';
-import ReactDOMServer from 'react-dom/server';
+import renderToStaticMarkup from './renderToStaticMarkup';
 import splitReactElement from './splitReactElement';
 
 function hasChildren(element) {
@@ -21,7 +21,7 @@ export default function getElementHTML(element, text = null) {
 
   if (React.isValidElement(element)) {
     if (hasChildren(element)) {
-      return ReactDOMServer.renderToStaticMarkup(element);
+      return renderToStaticMarkup(element);
     }
 
     const tags = splitReactElement(element);
