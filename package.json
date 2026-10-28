@@ -43,7 +43,7 @@
   },
   "dependencies": {
     "@babel/runtime": "^7.5.5",
-    "immutable": "~3.8.4",
+    "immutable": "~5.1.9",
     "invariant": "^2.2.1"
   },
   "devDependencies": {
