@@ -42,8 +42,8 @@
     "react-dom": "^15.0.2 || ^16.0.0-rc || ^16.0.0 || ^17.0.0 || ^18.0.0"
   },
   "dependencies": {
-    "@babel/runtime": "^7.5.5",
-    "immutable": "~3.7.4",
+    "@babel/runtime": "^8.0.8",
+    "immutable": "~3.8.4",
     "invariant": "^2.2.1"
   },
   "devDependencies": {
