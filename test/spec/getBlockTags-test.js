@@ -30,7 +30,7 @@ describe('getBlockTags', () => {
       end: '</p>',
       empty: <br />,
     };
-    expect(getBlockTags(block)).toEqual(jasmine.objectContaining(result));
+    expect(getBlockTags(block)).toEqual(expect.objectContaining(result));
   });
 
   it('accepts a react element with children', () => {

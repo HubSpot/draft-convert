@@ -1097,7 +1097,7 @@ describe('convertToHTML', () => {
       },
     ]);
 
-    expect(() => convertToHTML(contentState)).toThrowError(
+    expect(() => convertToHTML(contentState)).toThrow(
       /missing HTML definition/
     );
   });

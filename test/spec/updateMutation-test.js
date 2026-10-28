@@ -3,6 +3,7 @@ import updateMutation from '../../src/util/updateMutation';
 describe('updateMutation', function run() {
   const prefix = '<a href="http://test.com">';
   const suffix = '</a>';
+  const context = {};
 
   describe('adjusts a mutation disjoint and subsequent to a changed mutation', () => {
     beforeAll(() => {
@@ -18,7 +19,7 @@ describe('updateMutation', function run() {
         style: 'ITALIC',
       };
 
-      this.updatedMutation = updateMutation(
+      context.updatedMutation = updateMutation(
         secondMutation,
         firstMutation.offset,
         firstMutation.length,
@@ -29,11 +30,11 @@ describe('updateMutation', function run() {
     });
 
     it('does not split the updated mutation', () => {
-      expect(Array.isArray(this.updateMutation)).toBe(false);
+      expect(Array.isArray(context.updateMutation)).toBe(false);
     });
 
     it('moves the mutation to the correct point', () => {
-      expect(this.updatedMutation).toEqual({
+      expect(context.updatedMutation).toEqual({
         offset: 54,
         length: 5,
         style: 'ITALIC',
@@ -55,7 +56,7 @@ describe('updateMutation', function run() {
         style: 'ITALIC',
       };
 
-      this.updatedMutation = updateMutation(
+      context.updatedMutation = updateMutation(
         secondMutation,
         firstMutation.offset,
         firstMutation.length,
@@ -66,11 +67,11 @@ describe('updateMutation', function run() {
     });
 
     it('does not split the updated mutation', () => {
-      expect(Array.isArray(this.updateMutation)).toBe(false);
+      expect(Array.isArray(context.updateMutation)).toBe(false);
     });
 
     it('increases the mutation length to the correct size', () => {
-      expect(this.updatedMutation).toEqual({
+      expect(context.updatedMutation).toEqual({
         offset: 2,
         length: 55,
         style: 'ITALIC',
@@ -92,7 +93,7 @@ describe('updateMutation', function run() {
         style: 'ITALIC',
       };
 
-      this.updatedMutation = updateMutation(
+      context.updatedMutation = updateMutation(
         secondMutation,
         firstMutation.offset,
         firstMutation.length,
@@ -103,11 +104,11 @@ describe('updateMutation', function run() {
     });
 
     it('does not split the updated mutation', () => {
-      expect(Array.isArray(this.updateMutation)).toBe(false);
+      expect(Array.isArray(context.updateMutation)).toBe(false);
     });
 
     it('moves the mutation to the correct point', () => {
-      expect(this.updatedMutation).toEqual({
+      expect(context.updatedMutation).toEqual({
         offset: 31,
         length: 10,
         style: 'ITALIC',
@@ -129,7 +130,7 @@ describe('updateMutation', function run() {
         style: 'ITALIC',
       };
 
-      this.updatedMutation = updateMutation(
+      context.updatedMutation = updateMutation(
         secondMutation,
         firstMutation.offset,
         firstMutation.length,
@@ -140,15 +141,15 @@ describe('updateMutation', function run() {
     });
 
     it('splits the updated mutation into two', () => {
-      expect(Array.isArray(this.updatedMutation)).toBe(true);
-      expect(this.updatedMutation.length).toBe(2);
+      expect(Array.isArray(context.updatedMutation)).toBe(true);
+      expect(context.updatedMutation.length).toBe(2);
     });
 
     it('splits the mutation at the correct point', () => {
       const [
         firstUpdatedMutation,
         secondUpdatedMutation,
-      ] = this.updatedMutation;
+      ] = context.updatedMutation;
 
       expect(firstUpdatedMutation).toEqual({
         offset: 0,
@@ -177,7 +178,7 @@ describe('updateMutation', function run() {
         style: 'ITALIC',
       };
 
-      this.updatedMutation = updateMutation(
+      context.updatedMutation = updateMutation(
         secondMutation,
         firstMutation.offset,
         firstMutation.length,
@@ -188,15 +189,15 @@ describe('updateMutation', function run() {
     });
 
     it('splits the later mutation into two', () => {
-      expect(Array.isArray(this.updatedMutation)).toBe(true);
-      expect(this.updatedMutation.length).toBe(2);
+      expect(Array.isArray(context.updatedMutation)).toBe(true);
+      expect(context.updatedMutation.length).toBe(2);
     });
 
     it('splits the mutation at the correct point', () => {
       const [
         firstUpdatedMutation,
         secondUpdatedMutation,
-      ] = this.updatedMutation;
+      ] = context.updatedMutation;
 
       expect(firstUpdatedMutation).toEqual({
         offset: 48,
