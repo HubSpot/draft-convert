@@ -1,10 +1,13 @@
 {
   "name": "draft-convert",
-  "version": "2.1.13",
+  "version": "2.2.0-rc.0",
   "description": "Extensibly serialize & deserialize Draft.js ContentState",
   "main": "lib/index.js",
   "module": "esm/index.js",
   "repository": "HubSpot/draft-convert",
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/"
+  },
   "scripts": {
     "build": "npm run build:cjs && npm run build:esm && npm run build:umd",
     "build:cjs": "cross-env BABEL_ENV=cjs babel src --out-dir lib",
@@ -19,7 +22,7 @@
     "build-and-test": "npm run clean && npm run build && npm run test-once",
     "lint": "eslint src/ test/",
     "prepare": "npm run build-and-test",
-    "prepublish": "npm run lint && npm run build-and-test",
+    "prepublishOnly": "npm run lint && npm run build-and-test",
     "prettier:write": "prettier --write src test",
     "prettier:check": "prettier --check src test"
   },
