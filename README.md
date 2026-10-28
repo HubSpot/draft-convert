@@ -6,6 +6,9 @@
 
 *See [**draft-extend**](http://github.com/HubSpot/draft-extend) for more on how to use draft-convert with plugins*
 
+> [!NOTE]
+> **draft-convert is in maintenance mode.** [Draft.js has been archived by Meta](https://github.com/facebookarchive/draft-js) and no longer receives updates; Meta recommends [Lexical](https://github.com/facebook/lexical) for new projects. draft-convert will keep receiving fixes for security issues and compatibility with current React versions, but no new features.
+
 ## Installation
 
 `npm install draft-convert --save` or `yarn add draft-convert`

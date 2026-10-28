@@ -1,0 +1,35 @@
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: monthly
+    ignore:
+      - dependency-name: draft-js
+        update-types:
+          ['version-update:semver-major', 'version-update:semver-minor']
+      - dependency-name: react
+        update-types:
+          ['version-update:semver-major', 'version-update:semver-minor']
+      - dependency-name: react-dom
+        update-types:
+          ['version-update:semver-major', 'version-update:semver-minor']
+      - dependency-name: '@babel/*'
+        update-types: ['version-update:semver-major']
+    groups:
+      security:
+        applies-to: security-updates
+        patterns: ['*']
+      dependencies:
+        dependency-type: production
+        patterns: ['*']
+      dev-dependencies:
+        dependency-type: development
+        patterns: ['*']
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+    groups:
+      github-actions:
+        patterns: ['*']
