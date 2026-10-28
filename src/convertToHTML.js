@@ -1,7 +1,7 @@
 // import Immutable from 'immutable'; // eslint-disable-line no-unused-vars
 import invariant from 'invariant';
 import React from 'react';
-import ReactDOMServer from 'react-dom/server';
+import renderToStaticMarkup from './util/renderToStaticMarkup';
 import { convertToRaw } from 'draft-js';
 
 import encodeBlock from './encodeBlock';
@@ -124,7 +124,7 @@ const convertToHTML =
           Object.prototype.hasOwnProperty.call(blockHTML, 'empty')
         ) {
           if (React.isValidElement(blockHTML.empty)) {
-            html = ReactDOMServer.renderToStaticMarkup(blockHTML.empty);
+            html = renderToStaticMarkup(blockHTML.empty);
           } else {
             html = blockHTML.empty;
           }

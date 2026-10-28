@@ -14,6 +14,7 @@ jobs:
     strategy:
       matrix:
         node-version: [22, 24]
+        react-version: [18, 19]
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-node@v7
@@ -21,6 +22,8 @@ jobs:
           node-version: ${{ matrix.node-version }}
           cache: yarn
       - run: yarn install --frozen-lockfile --ignore-scripts
+      - if: matrix.react-version != 19
+        run: yarn add --dev --ignore-scripts react@^${{ matrix.react-version }} react-dom@^${{ matrix.react-version }}
       - run: yarn lint
       - run: yarn prettier:check
       - run: yarn build-and-test

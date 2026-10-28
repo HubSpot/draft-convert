@@ -1,6 +1,6 @@
 import invariant from 'invariant';
 import React from 'react';
-import ReactDOMServer from 'react-dom/server';
+import renderToStaticMarkup from './renderToStaticMarkup';
 
 // see http://w3c.github.io/html/syntax.html#writing-html-documents-elements
 const VOID_TAGS = [
@@ -22,10 +22,10 @@ const VOID_TAGS = [
 
 export default function splitReactElement(element) {
   if (VOID_TAGS.indexOf(element.type) !== -1) {
-    return ReactDOMServer.renderToStaticMarkup(element);
+    return renderToStaticMarkup(element);
   }
 
-  const tags = ReactDOMServer.renderToStaticMarkup(
+  const tags = renderToStaticMarkup(
     React.cloneElement(element, {}, '\r')
   ).split('\r');
 

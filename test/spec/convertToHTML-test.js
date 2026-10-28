@@ -1099,4 +1099,116 @@ describe('convertToHTML', () => {
       /missing HTML definition/
     );
   });
+
+  it('renders images in block HTML without preload links', () => {
+    const contentState = buildContentState([
+      {
+        type: 'atomic',
+        text: ' ',
+      },
+    ]);
+
+    const result = convertToHTML({
+      blockToHTML: {
+        atomic: (
+          <figure>
+            <img src="https://x.test/a.png" />
+          </figure>
+        ),
+      },
+    })(contentState);
+
+    expect(result).toBe('<figure><img src="https://x.test/a.png"/></figure>');
+  });
+
+  it('renders several image entities in one block without preload links', () => {
+    const contentState = buildContentState(
+      [
+        {
+          type: 'unstyled',
+          text: 'a b',
+          entityRanges: [
+            {
+              key: 0,
+              offset: 0,
+              length: 1,
+            },
+            {
+              key: 1,
+              offset: 2,
+              length: 1,
+            },
+          ],
+        },
+      ],
+      {
+        0: {
+          type: 'IMAGE',
+          mutability: 'IMMUTABLE',
+          data: { src: 'https://x.test/1.png' },
+        },
+        1: {
+          type: 'IMAGE',
+          mutability: 'IMMUTABLE',
+          data: { src: 'https://x.test/2.png' },
+        },
+      }
+    );
+
+    const result = convertToHTML({
+      entityToHTML: (entity, originalText) => {
+        if (entity.type === 'IMAGE') {
+          return <img src={entity.data.src} />;
+        }
+        return originalText;
+      },
+    })(contentState);
+
+    expect(result).toBe(
+      '<p><img src="https://x.test/1.png"/> <img src="https://x.test/2.png"/></p>'
+    );
+  });
+
+  it('renders an image inside an entity element without preload links', () => {
+    const contentState = buildContentState(
+      [
+        {
+          type: 'unstyled',
+          text: 'Hello',
+          entityRanges: [
+            {
+              key: 0,
+              offset: 0,
+              length: 5,
+            },
+          ],
+        },
+      ],
+      {
+        0: {
+          type: 'LINK',
+          mutability: 'MUTABLE',
+          data: { url: 'https://x.test' },
+        },
+      }
+    );
+
+    const result = convertToHTML({
+      entityToHTML: (entity, originalText) => {
+        if (entity.type === 'LINK') {
+          return (
+            <a href={entity.data.url}>
+              <img src="https://x.test/icon.png" />
+              {originalText}
+            </a>
+          );
+        }
+        return originalText;
+      },
+    })(contentState);
+
+    expect(result).toBe(
+      '<p><a href="https://x.test"><img src="https://x.test/icon.png"/>Hello</a></p>'
+    );
+  });
 });
