@@ -19,123 +19,130 @@ const defaultEntityToHTML = (entity, originalText) => {
   return originalText;
 };
 
-const convertToHTML = ({
-  styleToHTML = {},
-  blockToHTML = {},
-  entityToHTML = defaultEntityToHTML,
-}) => contentState => {
-  invariant(
-    contentState !== null && contentState !== undefined,
-    'Expected contentState to be non-null'
-  );
-
-  let getBlockHTML;
-  if (blockToHTML.__isMiddleware === true) {
-    getBlockHTML = blockToHTML(blockTypeObjectFunction(defaultBlockHTML));
-  } else {
-    getBlockHTML = accumulateFunction(
-      blockTypeObjectFunction(blockToHTML),
-      blockTypeObjectFunction(defaultBlockHTML)
+const convertToHTML =
+  ({
+    styleToHTML = {},
+    blockToHTML = {},
+    entityToHTML = defaultEntityToHTML,
+  }) =>
+  (contentState) => {
+    invariant(
+      contentState !== null && contentState !== undefined,
+      'Expected contentState to be non-null'
     );
-  }
 
-  const rawState = convertToRaw(contentState);
+    let getBlockHTML;
+    if (blockToHTML.__isMiddleware === true) {
+      getBlockHTML = blockToHTML(blockTypeObjectFunction(defaultBlockHTML));
+    } else {
+      getBlockHTML = accumulateFunction(
+        blockTypeObjectFunction(blockToHTML),
+        blockTypeObjectFunction(defaultBlockHTML)
+      );
+    }
 
-  let listStack = [];
+    const rawState = convertToRaw(contentState);
 
-  let result = rawState.blocks
-    .map(block => {
-      const { type, depth } = block;
+    let listStack = [];
 
-      let closeNestTags = '';
-      let openNestTags = '';
+    let result = rawState.blocks
+      .map((block) => {
+        const { type, depth } = block;
 
-      const blockHTMLResult = getBlockHTML(block);
-      if (!blockHTMLResult) {
-        throw new Error(
-          `convertToHTML: missing HTML definition for block with type ${
-            block.type
-          }`
-        );
-      }
+        let closeNestTags = '';
+        let openNestTags = '';
 
-      if (!blockHTMLResult.nest) {
-        // this block can't be nested, so reset all nesting if necessary
-        closeNestTags = listStack.reduceRight((string, nestedBlock) => {
-          return (
-            string +
-            getNestedBlockTags(getBlockHTML(nestedBlock), depth).nestEnd
+        const blockHTMLResult = getBlockHTML(block);
+        if (!blockHTMLResult) {
+          throw new Error(
+            `convertToHTML: missing HTML definition for block with type ${
+              block.type
+            }`
           );
-        }, '');
-        listStack = [];
-      } else {
-        while (
-          depth + 1 !== listStack.length ||
-          type !== listStack[depth].type
-        ) {
-          if (depth + 1 === listStack.length) {
-            // depth is right but doesn't match type
-            const blockToClose = listStack[depth];
-            closeNestTags += getNestedBlockTags(
-              getBlockHTML(blockToClose),
-              depth
-            ).nestEnd;
-            openNestTags += getNestedBlockTags(getBlockHTML(block), depth)
-              .nestStart;
-            listStack[depth] = block;
-          } else if (depth + 1 < listStack.length) {
-            const blockToClose = listStack[listStack.length - 1];
-            closeNestTags += getNestedBlockTags(
-              getBlockHTML(blockToClose),
-              depth
-            ).nestEnd;
-            listStack = listStack.slice(0, -1);
-          } else {
-            openNestTags += getNestedBlockTags(getBlockHTML(block), depth)
-              .nestStart;
-            listStack.push(block);
+        }
+
+        if (!blockHTMLResult.nest) {
+          // this block can't be nested, so reset all nesting if necessary
+          closeNestTags = listStack.reduceRight((string, nestedBlock) => {
+            return (
+              string +
+              getNestedBlockTags(getBlockHTML(nestedBlock), depth).nestEnd
+            );
+          }, '');
+          listStack = [];
+        } else {
+          while (
+            depth + 1 !== listStack.length ||
+            type !== listStack[depth].type
+          ) {
+            if (depth + 1 === listStack.length) {
+              // depth is right but doesn't match type
+              const blockToClose = listStack[depth];
+              closeNestTags += getNestedBlockTags(
+                getBlockHTML(blockToClose),
+                depth
+              ).nestEnd;
+              openNestTags += getNestedBlockTags(
+                getBlockHTML(block),
+                depth
+              ).nestStart;
+              listStack[depth] = block;
+            } else if (depth + 1 < listStack.length) {
+              const blockToClose = listStack[listStack.length - 1];
+              closeNestTags += getNestedBlockTags(
+                getBlockHTML(blockToClose),
+                depth
+              ).nestEnd;
+              listStack = listStack.slice(0, -1);
+            } else {
+              openNestTags += getNestedBlockTags(
+                getBlockHTML(block),
+                depth
+              ).nestStart;
+              listStack.push(block);
+            }
           }
         }
-      }
 
-      const innerHTML = blockInlineStyles(
-        blockEntities(encodeBlock(block), rawState.entityMap, entityToHTML),
-        styleToHTML
-      );
+        const innerHTML = blockInlineStyles(
+          blockEntities(encodeBlock(block), rawState.entityMap, entityToHTML),
+          styleToHTML
+        );
 
-      const blockHTML = getBlockTags(getBlockHTML(block));
+        const blockHTML = getBlockTags(getBlockHTML(block));
 
-      let html;
+        let html;
 
-      if (typeof blockHTML === 'string') {
-        html = blockHTML;
-      } else {
-        html = blockHTML.start + innerHTML + blockHTML.end;
-      }
-
-      if (
-        innerHTML.length === 0 &&
-        Object.prototype.hasOwnProperty.call(blockHTML, 'empty')
-      ) {
-        if (React.isValidElement(blockHTML.empty)) {
-          html = ReactDOMServer.renderToStaticMarkup(blockHTML.empty);
+        if (typeof blockHTML === 'string') {
+          html = blockHTML;
         } else {
-          html = blockHTML.empty;
+          html = blockHTML.start + innerHTML + blockHTML.end;
         }
-      }
 
-      return closeNestTags + openNestTags + html;
-    })
-    .join('');
+        if (
+          innerHTML.length === 0 &&
+          Object.prototype.hasOwnProperty.call(blockHTML, 'empty')
+        ) {
+          if (React.isValidElement(blockHTML.empty)) {
+            html = ReactDOMServer.renderToStaticMarkup(blockHTML.empty);
+          } else {
+            html = blockHTML.empty;
+          }
+        }
 
-  result = listStack.reduce((res, nestBlock) => {
-    return (
-      res + getNestedBlockTags(getBlockHTML(nestBlock), nestBlock.depth).nestEnd
-    );
-  }, result);
+        return closeNestTags + openNestTags + html;
+      })
+      .join('');
 
-  return result;
-};
+    result = listStack.reduce((res, nestBlock) => {
+      return (
+        res +
+        getNestedBlockTags(getBlockHTML(nestBlock), nestBlock.depth).nestEnd
+      );
+    }, result);
+
+    return result;
+  };
 
 export default (...args) => {
   if (

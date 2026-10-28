@@ -6,8 +6,8 @@ import rangeSort from './util/rangeSort';
 import defaultInlineHTML from './default/defaultInlineHTML';
 
 const subtractStyles = (original, toRemove) => {
-  return original.filter(el => {
-    return !toRemove.some(elToRemove => {
+  return original.filter((el) => {
+    return !toRemove.some((elToRemove) => {
       return elToRemove.style === el.style;
     });
   });
@@ -29,7 +29,7 @@ const popEndingStyles = (styleStack, endingStyles) => {
 };
 
 const characterStyles = (offset, ranges) => {
-  return ranges.filter(range => {
+  return ranges.filter((range) => {
     return offset >= range.offset && offset < range.offset + range.length;
   });
 };
@@ -71,7 +71,7 @@ const prependEndMarkup = (inlineHTML, string, styleRange) => {
   return getElementHTML(inlineHTML(styleRange.style)).end + string;
 };
 
-const defaultCustomInlineHTML = next => style => next(style);
+const defaultCustomInlineHTML = (next) => (style) => next(style);
 defaultCustomInlineHTML.__isMiddleware = true;
 
 export default (rawBlock, customInlineHTML = defaultCustomInlineHTML) => {
@@ -127,8 +127,9 @@ export default (rawBlock, customInlineHTML = defaultCustomInlineHTML) => {
 
     invariant(
       styleStack.length === styles.length,
-      `Character ${i}: ${styleStack.length -
-        styles.length} styles left on stack that should no longer be there`
+      `Character ${i}: ${
+        styleStack.length - styles.length
+      } styles left on stack that should no longer be there`
     );
   }
 

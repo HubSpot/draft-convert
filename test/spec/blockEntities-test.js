@@ -552,7 +552,7 @@ describe('blockEntities', () => {
       ]
     );
 
-    const middleware = next => (entity, originalText) => {
+    const middleware = (next) => (entity, originalText) => {
       if (entity.type === 'test') {
         return <a />;
       }

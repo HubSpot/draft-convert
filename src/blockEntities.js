@@ -61,7 +61,7 @@ export default (block, entityMap, entityConverter = converter) => {
         return mutation;
       };
 
-      const updateLaterMutations = mutationList =>
+      const updateLaterMutations = (mutationList) =>
         mutationList.reduce((acc, mutation, mutationIndex) => {
           const updatedMutation = updateLaterMutation(mutation, mutationIndex);
           if (Array.isArray(updatedMutation)) {

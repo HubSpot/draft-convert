@@ -101,10 +101,10 @@ describe('convertFromHTML', () => {
     })(html, options);
   };
 
-  const testFixture = htmlFixture => {
+  const testFixture = (htmlFixture) => {
     const contentState = toContentState(htmlFixture);
     const htmlOut = convertToHTML({
-      styleToHTML: style => {
+      styleToHTML: (style) => {
         if (style === 'FONT-TEST') {
           return <span style={{ fontFamily: 'Test' }} />;
         }
@@ -143,7 +143,10 @@ describe('convertFromHTML', () => {
 
   it('nested inline styles - with naive middleware htmlToStyle', () => {
     const htmlIn = '<p><strong><u>Boo</u></strong></p>';
-    const defaultMiddlewareFunction = next => (...args) => next(...args);
+    const defaultMiddlewareFunction =
+      (next) =>
+      (...args) =>
+        next(...args);
     defaultMiddlewareFunction.__isMiddleware = true;
 
     const contentState = convertFromHTML({
@@ -337,7 +340,7 @@ describe('convertFromHTML', () => {
     expect(
       contentState
         .getBlocksAsArray()
-        .filter(block => block.getType() === 'unordered-list-item').length
+        .filter((block) => block.getType() === 'unordered-list-item').length
     ).toBe(2);
   });
 
@@ -416,7 +419,7 @@ describe('convertFromHTML', () => {
     const contentState = toContentState(html, { flat: true });
     const blocks = contentState.getBlocksAsArray();
     expect(blocks.length).toBe(3);
-    blocks.forEach(block => {
+    blocks.forEach((block) => {
       expect(block.getType()).toBe('unstyled');
     });
   });
@@ -426,7 +429,7 @@ describe('convertFromHTML', () => {
     const contentState = toContentState(html);
     const blocks = contentState.getBlocksAsArray();
     expect(blocks.length).toBe(3);
-    blocks.forEach(block => {
+    blocks.forEach((block) => {
       expect(block.getType()).toBe('unstyled');
     });
   });
@@ -442,7 +445,7 @@ describe('convertFromHTML', () => {
   it('handles nested blocks in blockquote', () => {
     const html = '<blockquote><p>test</p><p>test</p></blockquote>';
     const contentState = toContentState(html);
-    contentState.getBlocksAsArray().forEach(block => {
+    contentState.getBlocksAsArray().forEach((block) => {
       expect(block.getType()).toBe('blockquote');
     });
   });
@@ -465,19 +468,21 @@ describe('convertFromHTML', () => {
 
   it('handles middleware functions when converting blocks from HTML', () => {
     const html = '<p>test</p>';
-    const htmlToBlock = next => (nodeName, ...args) => {
-      if (nodeName === 'p') {
-        const block = next(nodeName, args);
-        if (typeof block === 'string') {
-          return {
-            type: block,
-            data: {
-              test: true,
-            },
-          };
+    const htmlToBlock =
+      (next) =>
+      (nodeName, ...args) => {
+        if (nodeName === 'p') {
+          const block = next(nodeName, args);
+          if (typeof block === 'string') {
+            return {
+              type: block,
+              data: {
+                test: true,
+              },
+            };
+          }
         }
-      }
-    };
+      };
     htmlToBlock.__isMiddleware = true;
 
     const contentState = convertFromHTML({
@@ -490,36 +495,31 @@ describe('convertFromHTML', () => {
 
   it('handles middleware functions when converting entities from HTML', () => {
     const html = '<p><a>test</a></p>';
-    const baseLink = next => (nodeName, node, createEntity) => {
+    const baseLink = (next) => (nodeName, node, createEntity) => {
       if (nodeName === 'a') {
         return createEntity('LINK', 'IMMUTABLE', {});
       }
 
       return next(nodeName, node, createEntity);
     };
-    const linkData = next => (
-      nodeName,
-      node,
-      createEntity,
-      getEntity,
-      mergeEntityData,
-      ...args
-    ) => {
-      const entityKey = next(
-        nodeName,
-        node,
-        createEntity,
-        getEntity,
-        mergeEntityData,
-        ...args
-      );
-      if (entityKey && nodeName === 'a') {
-        mergeEntityData(entityKey, { test: true });
-        return entityKey;
-      }
+    const linkData =
+      (next) =>
+      (nodeName, node, createEntity, getEntity, mergeEntityData, ...args) => {
+        const entityKey = next(
+          nodeName,
+          node,
+          createEntity,
+          getEntity,
+          mergeEntityData,
+          ...args
+        );
+        if (entityKey && nodeName === 'a') {
+          mergeEntityData(entityKey, { test: true });
+          return entityKey;
+        }
 
-      return entityKey;
-    };
+        return entityKey;
+      };
 
     const htmlToEntity = (...args) => {
       return linkData(baseLink(...args));
@@ -538,7 +538,7 @@ describe('convertFromHTML', () => {
 
   it('handles middleware functions when converting entities from text', () => {
     const html = '<p>test1 test2</p>';
-    const test1Search = next => (text, createEntity) => {
+    const test1Search = (next) => (text, createEntity) => {
       const results = next(text, createEntity);
       text.replace(/test1/g, (match, offset) => {
         results.push({
@@ -550,7 +550,7 @@ describe('convertFromHTML', () => {
 
       return results;
     };
-    const test2Search = next => (text, createEntity) => {
+    const test2Search = (next) => (text, createEntity) => {
       const results = next(text, createEntity);
       text.replace(/test2/g, (match, offset) => {
         results.push({
@@ -582,16 +582,18 @@ describe('convertFromHTML', () => {
   it('handles middleware functions when converting styles from HTML', () => {
     const html = '<p><strong>test</strong></p>';
 
-    const htmlToStyle = next => (nodeName, ...args) => {
-      const rest = next(nodeName, ...args);
-      if (nodeName === 'strong' && rest.has('BOLD')) {
-        return rest.map(style => {
-          return style === 'BOLD' ? 'BOLD2' : 'BOLD';
-        });
-      }
+    const htmlToStyle =
+      (next) =>
+      (nodeName, ...args) => {
+        const rest = next(nodeName, ...args);
+        if (nodeName === 'strong' && rest.has('BOLD')) {
+          return rest.map((style) => {
+            return style === 'BOLD' ? 'BOLD2' : 'BOLD';
+          });
+        }
 
-      return rest;
-    };
+        return rest;
+      };
 
     htmlToStyle.__isMiddleware = true;
 
@@ -620,10 +622,12 @@ describe('convertFromHTML', () => {
     expect(
       blocks
         .slice(0, 2)
-        .every(block => block.getType() === 'unordered-list-item')
+        .every((block) => block.getType() === 'unordered-list-item')
     ).toBe(true);
     expect(
-      blocks.slice(2, 4).every(block => block.getType() === 'ordered-list-item')
+      blocks
+        .slice(2, 4)
+        .every((block) => block.getType() === 'ordered-list-item')
     ).toBe(true);
   });
 
@@ -631,7 +635,7 @@ describe('convertFromHTML', () => {
     const html = '<div>test1</div><p>test2</p><div>test3</div>';
 
     const contentState = convertFromHTML({
-      htmlToBlock: nodeName => {
+      htmlToBlock: (nodeName) => {
         if (nodeName === 'p') {
           return false;
         }
@@ -645,7 +649,7 @@ describe('convertFromHTML', () => {
     const html = '<div>test1<p>test2</p></div>';
 
     const contentState = convertFromHTML({
-      htmlToBlock: nodeName => {
+      htmlToBlock: (nodeName) => {
         if (nodeName === 'p') {
           return false;
         }
@@ -660,7 +664,7 @@ describe('convertFromHTML', () => {
     const html = '<div>test1<p>test2</p></div>';
 
     const contentState = convertFromHTML({
-      htmlToBlock: nodeName => {
+      htmlToBlock: (nodeName) => {
         if (nodeName === 'p') {
           return false;
         }
@@ -678,9 +682,9 @@ describe('convertFromHTML', () => {
       '',
     ];
 
-    htmlChunks.forEach(html => {
+    htmlChunks.forEach((html) => {
       const contentState = convertFromHTML({
-        htmlToBlock: nodeName => {
+        htmlToBlock: (nodeName) => {
           if (nodeName === 'p') {
             return false;
           }

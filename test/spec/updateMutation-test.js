@@ -146,10 +146,8 @@ describe('updateMutation', function run() {
     });
 
     it('splits the mutation at the correct point', () => {
-      const [
-        firstUpdatedMutation,
-        secondUpdatedMutation,
-      ] = context.updatedMutation;
+      const [firstUpdatedMutation, secondUpdatedMutation] =
+        context.updatedMutation;
 
       expect(firstUpdatedMutation).toEqual({
         offset: 0,
@@ -194,10 +192,8 @@ describe('updateMutation', function run() {
     });
 
     it('splits the mutation at the correct point', () => {
-      const [
-        firstUpdatedMutation,
-        secondUpdatedMutation,
-      ] = context.updatedMutation;
+      const [firstUpdatedMutation, secondUpdatedMutation] =
+        context.updatedMutation;
 
       expect(firstUpdatedMutation).toEqual({
         offset: 48,
