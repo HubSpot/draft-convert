@@ -20,7 +20,8 @@
     "lint": "eslint src/ test/",
     "prepare": "npm run build-and-test",
     "prepublish": "npm run lint && npm run build-and-test",
-    "prettier:write": "prettier --write src test"
+    "prettier:write": "prettier --write src test",
+    "prettier:check": "prettier --check src test"
   },
   "files": [
     "dist",
