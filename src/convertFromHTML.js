@@ -83,18 +83,18 @@ const defaultHTMLToEntity = (nodeName, node) => {
   return undefined;
 };
 
-const defaultTextToEntity = text => {
+const defaultTextToEntity = (text) => {
   return [];
 };
 
-const nullthrows = x => {
+const nullthrows = (x) => {
   if (x != null) {
     return x;
   }
   throw new Error('Got unexpected null or undefined');
 };
 
-const sanitizeDraftText = input => {
+const sanitizeDraftText = (input) => {
   return input.replace(REGEX_BLOCK_DELIMITER, '');
 };
 
@@ -202,7 +202,7 @@ function processInlineTag(tag, node, currentStyle) {
   } else if (node instanceof HTMLElement) {
     const htmlElement = node;
     currentStyle = currentStyle
-      .withMutations(style => {
+      .withMutations((style) => {
         if (htmlElement.style.fontWeight === 'bold') {
           style.add('BOLD');
         }
@@ -274,7 +274,7 @@ function joinChunks(A, B, flat = false) {
  * don't, we can treat <div> tags as meaningful (unstyled) blocks.
  */
 function containsSemanticBlockMarkup(html) {
-  return blockTags.some(tag => html.indexOf(`<${tag}`) !== -1);
+  return blockTags.some((tag) => html.indexOf(`<${tag}`) !== -1);
 }
 
 function genFragment(
@@ -365,7 +365,7 @@ function genFragment(
   }
 
   let chunk = getEmptyChunk();
-  let newChunk = null;
+  let newChunk;
 
   // Inline tags
   inlineStyle = processInlineTag(nodeName, node, inlineStyle);
@@ -448,7 +448,7 @@ function genFragment(
     nodeName = child.nodeName.toLowerCase();
   }
 
-  let entityId = null;
+  let entityId;
 
   while (child) {
     entityId = checkEntityNode(
@@ -538,10 +538,7 @@ function getChunkForHTML(
   options,
   DOMBuilder
 ) {
-  html = html
-    .trim()
-    .replace(REGEX_CR, '')
-    .replace(REGEX_NBSP, SPACE);
+  html = html.trim().replace(REGEX_CR, '').replace(REGEX_NBSP, SPACE);
 
   const safeBody = DOMBuilder(html);
   if (!safeBody) {
@@ -672,78 +669,80 @@ function convertFromHTMLtoContentBlocks(
   });
 }
 
-const convertFromHTML = ({
-  htmlToStyle = defaultHTMLToStyle,
-  htmlToEntity = defaultHTMLToEntity,
-  textToEntity = defaultTextToEntity,
-  htmlToBlock = defaultHTMLToBlock,
-}) => (
-  html,
-  options = {
-    flat: false,
-  },
-  DOMBuilder = getSafeBodyFromHTML,
-  generateKey = genKey
-) => {
-  let contentState = ContentState.createFromText('');
-  const createEntityWithContentState = (...args) => {
-    if (contentState.createEntity) {
-      contentState = contentState.createEntity(...args);
-      return contentState.getLastCreatedEntityKey();
-    }
-
-    return Entity.create(...args);
-  };
-
-  const getEntityWithContentState = (...args) => {
-    if (contentState.getEntity) {
-      return contentState.getEntity(...args);
-    }
-
-    return Entity.get(...args);
-  };
-
-  const mergeEntityDataWithContentState = (...args) => {
-    if (contentState.mergeEntityData) {
-      contentState = contentState.mergeEntityData(...args);
-      return;
-    }
-
-    Entity.mergeData(...args);
-  };
-
-  const replaceEntityDataWithContentState = (...args) => {
-    if (contentState.replaceEntityData) {
-      contentState = contentState.replaceEntityData(...args);
-      return;
-    }
-
-    Entity.replaceData(...args);
-  };
-
-  const contentBlocks = convertFromHTMLtoContentBlocks(
+const convertFromHTML =
+  ({
+    htmlToStyle = defaultHTMLToStyle,
+    htmlToEntity = defaultHTMLToEntity,
+    textToEntity = defaultTextToEntity,
+    htmlToBlock = defaultHTMLToBlock,
+  }) =>
+  (
     html,
-    handleMiddleware(htmlToStyle, baseProcessInlineTag),
-    handleMiddleware(htmlToEntity, defaultHTMLToEntity),
-    handleMiddleware(textToEntity, defaultTextToEntity),
-    handleMiddleware(htmlToBlock, baseCheckBlockType),
-    createEntityWithContentState,
-    getEntityWithContentState,
-    mergeEntityDataWithContentState,
-    replaceEntityDataWithContentState,
-    options,
-    DOMBuilder,
-    generateKey
-  );
+    options = {
+      flat: false,
+    },
+    DOMBuilder = getSafeBodyFromHTML,
+    generateKey = genKey
+  ) => {
+    let contentState = ContentState.createFromText('');
+    const createEntityWithContentState = (...args) => {
+      if (contentState.createEntity) {
+        contentState = contentState.createEntity(...args);
+        return contentState.getLastCreatedEntityKey();
+      }
 
-  const blockMap = BlockMapBuilder.createFromArray(contentBlocks);
-  const firstBlockKey = contentBlocks[0].getKey();
-  return contentState.merge({
-    blockMap,
-    selectionBefore: SelectionState.createEmpty(firstBlockKey),
-    selectionAfter: SelectionState.createEmpty(firstBlockKey),
-  });
-};
+      return Entity.create(...args);
+    };
+
+    const getEntityWithContentState = (...args) => {
+      if (contentState.getEntity) {
+        return contentState.getEntity(...args);
+      }
+
+      return Entity.get(...args);
+    };
+
+    const mergeEntityDataWithContentState = (...args) => {
+      if (contentState.mergeEntityData) {
+        contentState = contentState.mergeEntityData(...args);
+        return;
+      }
+
+      Entity.mergeData(...args);
+    };
+
+    const replaceEntityDataWithContentState = (...args) => {
+      if (contentState.replaceEntityData) {
+        contentState = contentState.replaceEntityData(...args);
+        return;
+      }
+
+      Entity.replaceData(...args);
+    };
+
+    const contentBlocks = convertFromHTMLtoContentBlocks(
+      html,
+      handleMiddleware(htmlToStyle, baseProcessInlineTag),
+      handleMiddleware(htmlToEntity, defaultHTMLToEntity),
+      handleMiddleware(textToEntity, defaultTextToEntity),
+      handleMiddleware(htmlToBlock, baseCheckBlockType),
+      createEntityWithContentState,
+      getEntityWithContentState,
+      mergeEntityDataWithContentState,
+      replaceEntityDataWithContentState,
+      options,
+      DOMBuilder,
+      generateKey
+    );
+
+    const blockMap = BlockMapBuilder.createFromArray(contentBlocks);
+    const firstBlockKey = contentBlocks[0].getKey();
+    return contentState.merge({
+      blockMap,
+      selectionBefore: SelectionState.createEmpty(firstBlockKey),
+      selectionAfter: SelectionState.createEmpty(firstBlockKey),
+    });
+  };
 
 export default (...args) => {
   if (args.length >= 1 && typeof args[0] === 'string') {

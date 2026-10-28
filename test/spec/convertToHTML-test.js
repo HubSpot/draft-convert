@@ -3,8 +3,6 @@ import React from 'react';
 import { convertFromRaw } from 'draft-js';
 import uniqueId from '../util/uniqueId';
 
-/* eslint-disable react/no-multi-comp */
-
 const buildContentBlock = ({
   type = 'unstyled',
   depth = 0,
@@ -358,7 +356,7 @@ describe('convertToHTML', () => {
     ]);
 
     const result = convertToHTML({
-      blockToHTML: block => {
+      blockToHTML: (block) => {
         if (block.type === 'custom') {
           const { tagName, attribute } = block.data;
 
@@ -708,7 +706,7 @@ describe('convertToHTML', () => {
 
   it('allows specifying custom nested block types', () => {
     const convertToHTMLProps = {
-      blockToHTML: block => {
+      blockToHTML: (block) => {
         if (block.type === 'checkable-list-item') {
           return {
             element: <li data-checked={block.data.checked || false} />,
@@ -804,7 +802,7 @@ describe('convertToHTML', () => {
     ]);
 
     const html = convertToHTML({
-      blockToHTML: block => {
+      blockToHTML: (block) => {
         if (block.type === 'unstyled') {
           return <testelement />;
         }
@@ -824,7 +822,7 @@ describe('convertToHTML', () => {
     ]);
 
     const html = convertToHTML({
-      blockToHTML: block => {
+      blockToHTML: (block) => {
         if (block.type === 'unstyled' && block.data.align) {
           return <p style={{ textAlign: block.data.align }} />;
         }
@@ -842,7 +840,7 @@ describe('convertToHTML', () => {
       },
     ]);
 
-    const blockToHTML = next => block => {
+    const blockToHTML = (next) => (block) => {
       if (block.type === 'unstyled') {
         return <testelement />;
       }
@@ -864,7 +862,7 @@ describe('convertToHTML', () => {
       },
     ]);
 
-    const blockToHTML = block => {
+    const blockToHTML = (block) => {
       if (block.type === 'image') {
         return <img />;
       }
@@ -926,7 +924,7 @@ describe('convertToHTML', () => {
     const blockContents = '<div>unstyled block</div>';
 
     const result = convertToHTML({
-      blockToHTML: block => {
+      blockToHTML: (block) => {
         if (block.type === 'unstyled') {
           return blockContents;
         }
@@ -968,7 +966,7 @@ describe('convertToHTML', () => {
     );
 
     const html = convertToHTML({
-      styleToHTML: style => {
+      styleToHTML: (style) => {
         if (style === 'ITALIC') {
           return <i />;
         }

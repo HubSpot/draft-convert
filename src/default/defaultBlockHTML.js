@@ -20,7 +20,7 @@ export default {
   },
   'ordered-list-item': {
     element: <li />,
-    nest: depth => {
+    nest: (depth) => {
       const type = ORDERED_LIST_TYPES[depth % 3];
       return <ol type={type} />;
     },

@@ -1,4 +1,4 @@
-const fallback = html => {
+const fallback = (html) => {
   const doc = document.implementation.createHTMLDocument('');
   doc.documentElement.innerHTML = html;
   return doc;
