@@ -365,7 +365,7 @@ function genFragment(
   }
 
   let chunk = getEmptyChunk();
-  let newChunk = null;
+  let newChunk;
 
   // Inline tags
   inlineStyle = processInlineTag(nodeName, node, inlineStyle);
@@ -448,7 +448,7 @@ function genFragment(
     nodeName = child.nodeName.toLowerCase();
   }
 
-  let entityId = null;
+  let entityId;
 
   while (child) {
     entityId = checkEntityNode(
