@@ -30,7 +30,7 @@ describe('updateMutation', function run() {
     });
 
     it('does not split the updated mutation', () => {
-      expect(Array.isArray(context.updateMutation)).toBe(false);
+      expect(Array.isArray(context.updatedMutation)).toBe(false);
     });
 
     it('moves the mutation to the correct point', () => {
@@ -67,7 +67,7 @@ describe('updateMutation', function run() {
     });
 
     it('does not split the updated mutation', () => {
-      expect(Array.isArray(context.updateMutation)).toBe(false);
+      expect(Array.isArray(context.updatedMutation)).toBe(false);
     });
 
     it('increases the mutation length to the correct size', () => {
@@ -104,7 +104,7 @@ describe('updateMutation', function run() {
     });
 
     it('does not split the updated mutation', () => {
-      expect(Array.isArray(context.updateMutation)).toBe(false);
+      expect(Array.isArray(context.updatedMutation)).toBe(false);
     });
 
     it('moves the mutation to the correct point', () => {
