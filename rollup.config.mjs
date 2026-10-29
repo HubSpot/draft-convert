@@ -22,6 +22,7 @@ const bundle = env => ({
         : 'dist/draft-convert.js',
     format: 'umd',
     name: 'DraftConvert',
+    sourcemap: env === 'production',
   },
   plugins: [
     nodeResolve(),
